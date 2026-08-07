@@ -82,6 +82,12 @@ def liff_yichang():
     return content, 200, {"Content-Type": "text/html; charset=utf-8"}
 
 
+@app.route("/liff/case6/ningning")
+def liff_ningning():
+    content = load_liff("case6/liff_ningning.html")
+    return content, 200, {"Content-Type": "text/html; charset=utf-8"}
+
+
 @handler.add(MessageEvent, message=TextMessageContent)
 def handle_message(event):
     user_msg = event.message.text.strip()
@@ -139,8 +145,18 @@ def handle_message(event):
             else:
                 reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
 
+        elif "寧寧" in user_msg:
+            flex_data = load_flex("case6/card_ningning.json")
+            if flex_data:
+                reply_msg = FlexMessage(
+                    alt_text="雅如詩品牌經營人",
+                    contents=FlexContainer.from_dict(flex_data)
+                )
+            else:
+                reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
+
         else:
-            reply_msg = TextMessage(text="請輸入關鍵字：\n🔹 小如如\n🔹 鍾師富\n🔹 大象木地板\n🔹 傑哥\n🔹 一昌哥")
+            reply_msg = TextMessage(text="請輸入關鍵字：\n🔹 小如如\n🔹 鍾師富\n🔹 大象木地板\n🔹 傑哥\n🔹 一昌哥\n🔹 寧寧")
 
         line_bot_api.reply_message(
             ReplyMessageRequest(

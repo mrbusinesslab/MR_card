@@ -23,88 +23,72 @@
                 "type": "box",
                 "layout": "vertical",
                 "contents": [
-                  {
-                    "type": "filler"
-                  },
+                  { "type": "filler" },
                   {
                     "type": "box",
                     "layout": "baseline",
                     "contents": [
-                      {
-                        "type": "filler"
-                      },
+                      { "type": "filler" },
                       {
                         "type": "text",
-                        "text": "產品研發",
+                        "text": "預約頭皮養護",
                         "color": "#ffffff",
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
-                      {
-                        "type": "filler"
-                      }
+                      { "type": "filler" }
                     ],
                     "spacing": "sm"
                   },
-                  {
-                    "type": "filler"
-                  }
+                  { "type": "filler" }
                 ],
                 "borderWidth": "none",
                 "cornerRadius": "4px",
                 "spacing": "sm",
-                "borderColor": "#C9A96E",
+                "borderColor": "#D4A373",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#1fac4c",
+                "backgroundColor": "#5C3D2E",
                 "action": {
                   "type": "uri",
                   "label": "action",
-                  "uri": "https://www.instagram.com/ningning_wu_1225/"
+                  "uri": "https://lin.ee/abc123"
                 }
               },
               {
                 "type": "box",
                 "layout": "vertical",
                 "contents": [
-                  {
-                    "type": "filler"
-                  },
+                  { "type": "filler" },
                   {
                     "type": "box",
                     "layout": "baseline",
                     "contents": [
-                      {
-                        "type": "filler"
-                      },
+                      { "type": "filler" },
                       {
                         "type": "text",
-                        "text": "頭皮養護",
-                        "color": "#1fac4c",
+                        "text": "分享電子名片",
+                        "color": "#5C3D2E",
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
-                      {
-                        "type": "filler"
-                      }
+                      { "type": "filler" }
                     ],
                     "spacing": "sm"
                   },
-                  {
-                    "type": "filler"
-                  }
+                  { "type": "filler" }
                 ],
                 "borderWidth": "light",
                 "cornerRadius": "4px",
                 "spacing": "sm",
-                "borderColor": "#1fac4c",
+                "borderColor": "#5C3D2E",
                 "margin": "md",
                 "height": "50px",
                 "backgroundColor": "#ffffff",
                 "action": {
                   "type": "uri",
                   "label": "action",
-                  "uri": "https://www.instagram.com/ningning_wu_1225/"
+                  "uri": "https://liff.line.me/2009755863-xxxxxx"
                 }
               }
             ],
@@ -112,7 +96,7 @@
             "offsetBottom": "0px",
             "offsetStart": "0px",
             "offsetEnd": "0px",
-            "backgroundColor": "#f7f7f7",
+            "backgroundColor": "#F9F6F0",
             "paddingAll": "15px",
             "paddingTop": "5px"
           }
@@ -142,88 +126,72 @@
                 "type": "box",
                 "layout": "vertical",
                 "contents": [
-                  {
-                    "type": "filler"
-                  },
+                  { "type": "filler" },
                   {
                     "type": "box",
                     "layout": "baseline",
                     "contents": [
-                      {
-                        "type": "filler"
-                      },
+                      { "type": "filler" },
                       {
                         "type": "text",
-                        "text": "沙龍合作",
+                        "text": "品牌合作洽談",
                         "color": "#ffffff",
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
-                      {
-                        "type": "filler"
-                      }
+                      { "type": "filler" }
                     ],
                     "spacing": "sm"
                   },
-                  {
-                    "type": "filler"
-                  }
+                  { "type": "filler" }
                 ],
                 "borderWidth": "none",
                 "cornerRadius": "4px",
                 "spacing": "sm",
-                "borderColor": "#C9A96E",
+                "borderColor": "#D4A373",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#1fac4c",
+                "backgroundColor": "#5C3D2E",
                 "action": {
                   "type": "uri",
                   "label": "action",
-                  "uri": "https://lin.ee/lX9dG4C"
+                  "uri": "https://www.instagram.com/ningning_brand/"
                 }
               },
               {
                 "type": "box",
                 "layout": "vertical",
                 "contents": [
-                  {
-                    "type": "filler"
-                  },
+                  { "type": "filler" },
                   {
                     "type": "box",
                     "layout": "baseline",
                     "contents": [
-                      {
-                        "type": "filler"
-                      },
+                      { "type": "filler" },
                       {
                         "type": "text",
-                        "text": "品牌經營",
-                        "color": "#1fac4c",
+                        "text": "產品研發理念",
+                        "color": "#5C3D2E",
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
-                      {
-                        "type": "filler"
-                      }
+                      { "type": "filler" }
                     ],
                     "spacing": "sm"
                   },
-                  {
-                    "type": "filler"
-                  }
+                  { "type": "filler" }
                 ],
                 "borderWidth": "light",
                 "cornerRadius": "4px",
                 "spacing": "sm",
-                "borderColor": "#1fac4c",
+                "borderColor": "#5C3D2E",
                 "margin": "md",
                 "height": "50px",
                 "backgroundColor": "#ffffff",
                 "action": {
                   "type": "uri",
                   "label": "action",
-                  "uri": "https://lin.ee/lX9dG4C"
+                  "uri": "https://ningning.com.tw/product"
                 }
               }
             ],
@@ -231,7 +199,316 @@
             "offsetBottom": "0px",
             "offsetStart": "0px",
             "offsetEnd": "0px",
-            "backgroundColor": "#f7f7f7",
+            "backgroundColor": "#F9F6F0",
+            "paddingAll": "15px",
+            "paddingTop": "5px"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "2:3",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "沙龍教育培訓",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#D4A373",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#5C3D2E",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://www.youtube.com/ningning"
+                }
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "頭皮理療體驗",
+                        "color": "#5C3D2E",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "light",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#5C3D2E",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#ffffff",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://lin.ee/def456"
+                }
+              }
+            ],
+            "position": "relative",
+            "offsetBottom": "0px",
+            "offsetStart": "0px",
+            "offsetEnd": "0px",
+            "backgroundColor": "#F9F6F0",
+            "paddingAll": "15px",
+            "paddingTop": "5px"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "2:3",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "通路合作計畫",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#D4A373",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#5C3D2E",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://ningning.com.tw/partner"
+                }
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "品牌故事",
+                        "color": "#5C3D2E",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "light",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#5C3D2E",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#ffffff",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://www.facebook.com/ningning"
+                }
+              }
+            ],
+            "position": "relative",
+            "offsetBottom": "0px",
+            "offsetStart": "0px",
+            "offsetEnd": "0px",
+            "backgroundColor": "#F9F6F0",
+            "paddingAll": "15px",
+            "paddingTop": "5px"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/namecard/mr_1.png?raw=true",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "2:3",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "電子名片｜預約",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#D4A373",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#5C3D2E",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://lin.ee/erAsi6c"
+                }
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "商務男士形象｜IG",
+                        "color": "#5C3D2E",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "light",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#5C3D2E",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#ffffff",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://www.instagram.com/mr.business.lab/"
+                }
+              }
+            ],
+            "position": "relative",
+            "offsetBottom": "0px",
+            "offsetStart": "0px",
+            "offsetEnd": "0px",
+            "backgroundColor": "#F9F6F0",
             "paddingAll": "15px",
             "paddingTop": "5px"
           }

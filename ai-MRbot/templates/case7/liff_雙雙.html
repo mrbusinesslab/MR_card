@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>分享電子名片 - 雙雙</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+<body>
+<script>
+  const flexContent = {
+    "type": "carousel",
+    "contents": [
+      {
+        "type": "bubble",
+        "body": {
+          "type": "box",
+          "layout": "vertical",
+          "contents": [
+            {
+              "type": "image",
+              "url": "https://github.com/mrbusinesslab/MR_card/blob/main/namecard/case7_%E9%9B%99%E9%9B%99/1.png?raw=true",
+              "size": "full",
+              "aspectMode": "cover",
+              "aspectRatio": "2:3",
+              "gravity": "top"
+            },
+            {
+              "type": "box",
+              "layout": "vertical",
+              "contents": [
+                {
+                  "type": "box",
+                  "layout": "vertical",
+                  "contents": [
+                    { "type": "filler" },
+                    {
+                      "type": "box",
+                      "layout": "baseline",
+                      "contents": [
+                        { "type": "filler" },
+                        {
+                          "type": "text",
+                          "text": "預約健康諮詢",
+                          "color": "#ffffff",
+                          "flex": 0,
+                          "offsetTop": "-2px"
+                        },
+                        { "type": "filler" }
+                      ],
+                      "spacing": "sm"
+                    },
+                    { "type": "filler" }
+                  ],
+                  "borderWidth": "none",
+                  "cornerRadius": "4px",
+                  "spacing": "sm",
+                  "borderColor": "#C9A96E",
+                  "margin": "md",
+                  "height": "50px",
+                  "backgroundColor": "#1fac4c",
+                  "action": {
+                    "type": "uri",
+                    "label": "action",
+                    "uri": "https://line.me/ti/p/MQBTdjt9He"
+                  }
+                },
+                {
+                  "type": "box",
+                  "layout": "vertical",
+                  "contents": [
+                    { "type": "filler" },
+                    {
+                      "type": "box",
+                      "layout": "baseline",
+                      "contents": [
+                        { "type": "filler" },
+                        {
+                          "type": "text",
+                          "text": "分享電子名片",
+                          "color": "#1fac4c",
+                          "flex": 0,
+                          "offsetTop": "-2px"
+                        },
+                        { "type": "filler" }
+                      ],
+                      "spacing": "sm"
+                    },
+                    { "type": "filler" }
+                  ],
+                  "borderWidth": "light",
+                  "cornerRadius": "4px",
+                  "spacing": "sm",
+                  "borderColor": "#1fac4c",
+                  "margin": "md",
+                  "height": "50px",
+                  "backgroundColor": "#ffffff",
+                  "action": {
+                    "type": "uri",
+                    "label": "action",
+                    "uri": "https://liff.line.me/2009755863-I1m2WYBg"
+                  }
+                }
+              ],
+              "position": "relative",
+              "offsetBottom": "0px",
+              "offsetStart": "0px",
+              "offsetEnd": "0px",
+              "backgroundColor": "#f7f7f7",
+              "paddingAll": "15px",
+              "paddingTop": "5px"
+            }
+          ],
+          "paddingAll": "0px"
+        }
+      },
+      {
+        "type": "bubble",
+        "body": {
+          "type": "box",
+          "layout": "vertical",
+          "contents": [
+            {
+              "type": "image",
+              "url": "https://github.com/mrbusinesslab/MR_card/blob/main/namecard/case7_%E9%9B%99%E9%9B%99/2.png?raw=true",
+              "size": "full",
+              "aspectMode": "cover",
+              "aspectRatio": "2:3",
+              "gravity": "top"
+            },
+            {
+              "type": "box",
+              "layout": "vertical",
+              "contents": [
+                {
+                  "type": "box",
+                  "layout": "vertical",
+                  "contents": [
+                    { "type": "filler" },
+                    {
+                      "type": "box",
+                      "layout": "baseline",
+                      "contents": [
+                        { "type": "filler" },
+                        {
+                          "type": "text",
+                          "text": "肝臟保健專家",
+                          "color": "#ffffff",
+                          "flex": 0,
+                          "offsetTop": "-2px"
+                        },
+                        { "type": "filler" }
+                      ],
+                      "spacing": "sm"
+                    },
+                    { "type": "filler" }
+                  ],
+                  "borderWidth": "none",
+                  "cornerRadius": "4px",
+                  "spacing": "sm",
+                  "borderColor": "#C9A96E",
+                  "margin": "md",
+                  "height": "50px",
+                  "backgroundColor": "#1fac4c",
+                  "action": {
+                    "type": "uri",
+                    "label": "action",
+                    "uri": "https://www.uvaco.com.tw/"
+                  }
+                },
+                {
+                  "type": "box",
+                  "layout": "vertical",
+                  "contents": [
+                    { "type": "filler" },
+                    {
+                      "type": "box",
+                      "layout": "baseline",
+                      "contents": [
+                        { "type": "filler" },
+                        {
+                          "type": "text",
+                          "text": "腸道神經保健",
+                          "color": "#1fac4c",
+                          "flex": 0,
+                          "offsetTop": "-2px"
+                        },
+                        { "type": "filler" }
+                      ],
+                      "spacing": "sm"
+                    },
+                    { "type": "filler" }
+                  ],
+                  "borderWidth": "light",
+                  "cornerRadius": "4px",
+                  "spacing": "sm",
+                  "borderColor": "#1fac4c",
+                  "margin": "md",
+                  "height": "50px",
+                  "backgroundColor": "#ffffff",
+                  "action": {
+                    "type": "uri",
+                    "label": "action",
+                    "uri": "https://www.facebook.com/share/181Aqzrwwn/?mibextid=wwXIfr"
+                  }
+                }
+              ],
+              "position": "relative",
+              "offsetBottom": "0px",
+              "offsetStart": "0px",
+              "offsetEnd": "0px",
+              "backgroundColor": "#f7f7f7",
+              "paddingAll": "15px",
+              "paddingTop": "5px"
+            }
+          ],
+          "paddingAll": "0px"
+        }
+      },
+      {
+        "type": "bubble",
+        "body": {
+          "type": "box",
+          "layout": "vertical",
+          "contents": [
+            {
+              "type": "image",
+              "url": "https://github.com/mrbusinesslab/MR_card/blob/main/namecard/case7_%E9%9B%99%E9%9B%99/3.png?raw=true",
+              "size": "full",
+              "aspectMode": "cover",
+              "aspectRatio": "2:3",
+              "gravity": "top"
+            },
+            {
+              "type": "box",
+              "layout": "vertical",
+              "contents": [
+                {
+                  "type": "box",
+                  "layout": "vertical",
+                  "contents": [
+                    { "type": "filler" },
+                    {
+                      "type": "box",
+                      "layout": "baseline",
+                      "contents": [
+                        { "type": "filler" },
+                        {
+                          "type": "text",
+                          "text": "個人品牌故事",
+                          "color": "#ffffff",
+                          "flex": 0,
+                          "offsetTop": "-2px"
+                        },
+                        { "type": "filler" }
+                      ],
+                      "spacing": "sm"
+                    },
+                    { "type": "filler" }
+                  ],
+                  "borderWidth": "none",
+                  "cornerRadius": "4px",
+                  "spacing": "sm",
+                  "borderColor": "#C9A96E",
+                  "margin": "md",
+                  "height": "50px",
+                  "backgroundColor": "#1fac4c",
+                  "action": {
+                    "type": "uri",
+                    "label": "action",
+                    "uri": "https://www.facebook.com/share/181Aqzrwwn/?mibextid=wwXIfr"
+                  }
+                },
+                {
+                  "type": "box",
+                  "layout": "vertical",
+                  "contents": [
+                    { "type": "filler" },
+                    {
+                      "type": "box",
+                      "layout": "baseline",
+                      "contents": [
+                        { "type": "filler" },
+                        {
+                          "type": "text",
+                          "text": "日常健康紀錄",
+                          "color": "#1fac4c",
+                          "flex": 0,
+                          "offsetTop": "-2px"
+                        },
+                        { "type": "filler" }
+                      ],
+                      "spacing": "sm"
+                    },
+                    { "type": "filler" }
+                  ],
+                  "borderWidth": "light",
+                  "cornerRadius": "4px",
+                  "spacing": "sm",
+                  "borderColor": "#1fac4c",
+                  "margin": "md",
+                  "height": "50px",
+                  "backgroundColor": "#ffffff",
+                  "action": {
+                    "type": "uri",
+                    "label": "action",
+                    "uri": "https://www.instagram.com/pinshuangkao"
+                  }
+                }
+              ],
+              "position": "relative",
+              "offsetBottom": "0px",
+              "offsetStart": "0px",
+              "offsetEnd": "0px",
+              "backgroundColor": "#f7f7f7",
+              "paddingAll": "15px",
+              "paddingTop": "5px"
+            }
+          ],
+          "paddingAll": "0px"
+        }
+      },
+      {
+        "type": "bubble",
+        "body": {
+          "type": "box",
+          "layout": "vertical",
+          "contents": [
+            {
+              "type": "image",
+              "url": "https://github.com/mrbusinesslab/MR_card/blob/main/namecard/case7_%E9%9B%99%E9%9B%99/4.png?raw=true",
+              "size": "full",
+              "aspectMode": "cover",
+              "aspectRatio": "2:3",
+              "gravity": "top"
+            },
+            {
+              "type": "box",
+              "layout": "vertical",
+              "contents": [
+                {
+                  "type": "box",
+                  "layout": "vertical",
+                  "contents": [
+                    { "type": "filler" },
+                    {
+                      "type": "box",
+                      "layout": "baseline",
+                      "contents": [
+                        { "type": "filler" },
+                        {
+                          "type": "text",
+                          "text": "撥打諮詢專線",
+                          "color": "#ffffff",
+                          "flex": 0,
+                          "offsetTop": "-2px"
+                        },
+                        { "type": "filler" }
+                      ],
+                      "spacing": "sm"
+                    },
+                    { "type": "filler" }
+                  ],
+                  "borderWidth": "none",
+                  "cornerRadius": "4px",
+                  "spacing": "sm",
+                  "borderColor": "#C9A96E",
+                  "margin": "md",
+                  "height": "50px",
+                  "backgroundColor": "#1fac4c",
+                  "action": {
+                    "type": "uri",
+                    "label": "action",
+                    "uri": "tel:0905020677"
+                  }
+                },
+                {
+                  "type": "box",
+                  "layout": "vertical",
+                  "contents": [
+                    { "type": "filler" },
+                    {
+                      "type": "box",
+                      "layout": "baseline",
+                      "contents": [
+                        { "type": "filler" },
+                        {
+                          "type": "text",
+                          "text": "品牌官網探索",
+                          "color": "#1fac4c",
+                          "flex": 0,
+                          "offsetTop": "-2px"
+                        },
+                        { "type": "filler" }
+                      ],
+                      "spacing": "sm"
+                    },
+                    { "type": "filler" }
+                  ],
+                  "borderWidth": "light",
+                  "cornerRadius": "4px",
+                  "spacing": "sm",
+                  "borderColor": "#1fac4c",
+                  "margin": "md",
+                  "height": "50px",
+                  "backgroundColor": "#ffffff",
+                  "action": {
+                    "type": "uri",
+                    "label": "action",
+                    "uri": "https://www.uvaco.com.tw/"
+                  }
+                }
+              ],
+              "position": "relative",
+              "offsetBottom": "0px",
+              "offsetStart": "0px",
+              "offsetEnd": "0px",
+              "backgroundColor": "#f7f7f7",
+              "paddingAll": "15px",
+              "paddingTop": "5px"
+            }
+          ],
+          "paddingAll": "0px"
+        }
+      },
+      {
+        "type": "bubble",
+        "body": {
+          "type": "box",
+          "layout": "vertical",
+          "contents": [
+            {
+              "type": "image",
+              "url": "https://github.com/mrbusinesslab/MR_card/blob/main/namecard/mr_1.png?raw=true",
+              "size": "full",
+              "aspectMode": "cover",
+              "aspectRatio": "2:3",
+              "gravity": "top"
+            },
+            {
+              "type": "box",
+              "layout": "vertical",
+              "contents": [
+                {
+                  "type": "box",
+                  "layout": "vertical",
+                  "contents": [
+                    { "type": "filler" },
+                    {
+                      "type": "box",
+                      "layout": "baseline",
+                      "contents": [
+                        { "type": "filler" },
+                        {
+                          "type": "text",
+                          "text": "電子名片｜預約",
+                          "color": "#ffffff",
+                          "flex": 0,
+                          "offsetTop": "-2px"
+                        },
+                        { "type": "filler" }
+                      ],
+                      "spacing": "sm"
+                    },
+                    { "type": "filler" }
+                  ],
+                  "borderWidth": "none",
+                  "cornerRadius": "4px",
+                  "spacing": "sm",
+                  "borderColor": "#C9A96E",
+                  "margin": "md",
+                  "height": "50px",
+                  "backgroundColor": "#1fac4c",
+                  "action": {
+                    "type": "uri",
+                    "label": "action",
+                    "uri": "https://lin.ee/erAsi6c"
+                  }
+                },
+                {
+                  "type": "box",
+                  "layout": "vertical",
+                  "contents": [
+                    { "type": "filler" },
+                    {
+                      "type": "box",
+                      "layout": "baseline",
+                      "contents": [
+                        { "type": "filler" },
+                        {
+                          "type": "text",
+                          "text": "商務男士形象｜IG",
+                          "color": "#1fac4c",
+                          "flex": 0,
+                          "offsetTop": "-2px"
+                        },
+                        { "type": "filler" }
+                      ],
+                      "spacing": "sm"
+                    },
+                    { "type": "filler" }
+                  ],
+                  "borderWidth": "light",
+                  "cornerRadius": "4px",
+                  "spacing": "sm",
+                  "borderColor": "#1fac4c",
+                  "margin": "md",
+                  "height": "50px",
+                  "backgroundColor": "#ffffff",
+                  "action": {
+                    "type": "uri",
+                    "label": "action",
+                    "uri": "https://www.instagram.com/mr.business.lab/"
+                  }
+                }
+              ],
+              "position": "relative",
+              "offsetBottom": "0px",
+              "offsetStart": "0px",
+              "offsetEnd": "0px",
+              "backgroundColor": "#f7f7f7",
+              "paddingAll": "15px",
+              "paddingTop": "5px"
+            }
+          ],
+          "paddingAll": "0px"
+        }
+      }
+    ]
+  };
+
+  liff.init({ liffId: "2009755863-I1m2WYBg" })
+    .then(() => {
+      return liff.shareTargetPicker([
+        {
+          type: "flex",
+          altText: "雙雙｜健康顧問",
+          contents: flexContent
+        }
+      ]);
+    })
+    .then((res) => {
+      if (res) {
+        liff.closeWindow();
+      }
+    })
+    .catch((err) => {
+      console.error("分享失敗", err);
+    });
+</script>
+</body>
+</html>

@@ -134,7 +134,7 @@
                       { "type": "filler" },
                       {
                         "type": "text",
-                        "text": "肝臟保健專家",
+                        "text": "關於「葡眾」",
                         "color": "#ffffff",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -155,7 +155,7 @@
                 "action": {
                   "type": "uri",
                   "label": "action",
-                  "uri": "https://www.uvaco.com.tw/"
+                  "uri": "https://www.uvaco.com.tw/About"
                 }
               },
               {
@@ -170,7 +170,7 @@
                       { "type": "filler" },
                       {
                         "type": "text",
-                        "text": "腸道神經保健",
+                        "text": "品牌官網探索",
                         "color": "#1fac4c",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -191,7 +191,7 @@
                 "action": {
                   "type": "uri",
                   "label": "action",
-                  "uri": "https://www.facebook.com/share/181Aqzrwwn/?mibextid=wwXIfr"
+                  "uri": "https://www.uvaco.com.tw/"
                 }
               }
             ],
@@ -237,7 +237,7 @@
                       { "type": "filler" },
                       {
                         "type": "text",
-                        "text": "個人品牌故事",
+                        "text": "保健產品介紹",
                         "color": "#ffffff",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -258,7 +258,7 @@
                 "action": {
                   "type": "uri",
                   "label": "action",
-                  "uri": "https://www.facebook.com/share/181Aqzrwwn/?mibextid=wwXIfr"
+                  "uri": "https://www.uvaco.com.tw/Products"
                 }
               },
               {
@@ -273,7 +273,7 @@
                       { "type": "filler" },
                       {
                         "type": "text",
-                        "text": "日常健康紀錄",
+                        "text": "跟著雙雙顧健康",
                         "color": "#1fac4c",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -294,7 +294,7 @@
                 "action": {
                   "type": "uri",
                   "label": "action",
-                  "uri": "https://www.instagram.com/pinshuangkao"
+                  "uri": "https://www.instagram.com/pinshuangkao?igsh=MWdsanQyczk0ZDMwcg%3D%3D&utm_source=qr"
                 }
               }
             ],
@@ -376,7 +376,7 @@
                       { "type": "filler" },
                       {
                         "type": "text",
-                        "text": "品牌官網探索",
+                        "text": "健康大小事",
                         "color": "#1fac4c",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -397,7 +397,7 @@
                 "action": {
                   "type": "uri",
                   "label": "action",
-                  "uri": "https://www.uvaco.com.tw/"
+                  "uri": "https://www.facebook.com/gao.pin.shuang?mibextid=wwXIfr&rdid=LYNkk97OxldJMkKO&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F181Aqzrwwn%2F#"
                 }
               }
             ],

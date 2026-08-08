@@ -20,6 +20,16 @@ app = Flask(__name__)
 configuration = Configuration(access_token=os.getenv('LINE_CHANNEL_ACCESS_TOKEN'))
 handler = WebhookHandler(os.getenv('LINE_CHANNEL_SECRET'))
 
+CASE_LIST = [
+    {"case": "case1", "keyword": "小如如", "alt": "MR.主理人"},
+    {"case": "case2", "keyword": "鍾師富", "alt": "詠順工程行老闆"},
+    {"case": "case3", "keyword": "大象木地板", "alt": "大象木地板闆娘"},
+    {"case": "case4", "keyword": "傑哥", "alt": "傑出油漆工程行創辦人"},
+    {"case": "case5", "keyword": "一昌哥", "alt": "平衡之道-財務規劃師"},
+    {"case": "case6", "keyword": "寧寧", "alt": "雅如詩品牌經營人"},
+    {"case": "case7", "keyword": "雙雙", "alt": "葡眾健康顧問"},
+]
+
 
 def load_flex(filepath):
     base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -37,6 +47,51 @@ def load_liff(filepath):
     full_path = os.path.join(base_dir, "templates", filepath)
     with open(full_path, "r", encoding="utf-8") as f:
         return f.read()
+
+
+@app.route("/cases")
+def cases():
+    rows = ""
+    for c in CASE_LIST:
+        rows += f"""
+        <tr>
+            <td>{c['case']}</td>
+            <td>{c['keyword']}</td>
+            <td>{c['alt']}</td>
+        </tr>"""
+
+    html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>MR. Bot 案例對照表</title>
+        <style>
+            body {{ font-family: sans-serif; padding: 30px; background: #f8eed2; color: #473c38; }}
+            h1 {{ color: #473c38; font-size: 22px; margin-bottom: 8px; }}
+            p {{ color: #888; font-size: 14px; margin-bottom: 20px; }}
+            table {{ border-collapse: collapse; width: 100%; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }}
+            th {{ background: #473c38; color: #f8eed2; padding: 12px 16px; text-align: left; font-size: 14px; }}
+            td {{ padding: 12px 16px; border-bottom: 1px solid #f0e8d8; font-size: 14px; }}
+            tr:last-child td {{ border-bottom: none; }}
+            tr:hover td {{ background: #fdf6ec; }}
+        </style>
+    </head>
+    <body>
+        <h1>MR. Bot 案例對照表</h1>
+        <p>共 {len(CASE_LIST)} 個案例</p>
+        <table>
+            <tr>
+                <th>Case</th>
+                <th>關鍵字</th>
+                <th>Alt Text</th>
+            </tr>
+            {rows}
+        </table>
+    </body>
+    </html>
+    """
+    return html, 200, {"Content-Type": "text/html; charset=utf-8"}
 
 
 @app.route("/callback", methods=["POST"])
@@ -104,70 +159,49 @@ def handle_message(event):
         if "小如如" in user_msg:
             flex_data = load_flex("case1/card_luru.json")
             if flex_data:
-                reply_msg = FlexMessage(
-                    alt_text="MR.主理人",
-                    contents=FlexContainer.from_dict(flex_data)
-                )
+                reply_msg = FlexMessage(alt_text="MR.主理人", contents=FlexContainer.from_dict(flex_data))
             else:
                 reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
 
         elif "鍾師富" in user_msg:
             flex_data = load_flex("case2/card_chung.json")
             if flex_data:
-                reply_msg = FlexMessage(
-                    alt_text="詠順工程行老闆",
-                    contents=FlexContainer.from_dict(flex_data)
-                )
+                reply_msg = FlexMessage(alt_text="詠順工程行老闆", contents=FlexContainer.from_dict(flex_data))
             else:
                 reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
 
         elif "大象木地板" in user_msg:
             flex_data = load_flex("case3/card_emma.json")
             if flex_data:
-                reply_msg = FlexMessage(
-                    alt_text="大象木地板闆娘",
-                    contents=FlexContainer.from_dict(flex_data)
-                )
+                reply_msg = FlexMessage(alt_text="大象木地板闆娘", contents=FlexContainer.from_dict(flex_data))
             else:
                 reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
 
         elif "傑哥" in user_msg:
             flex_data = load_flex("case4/card_jay.json")
             if flex_data:
-                reply_msg = FlexMessage(
-                    alt_text="傑出油漆工程行創辦人",
-                    contents=FlexContainer.from_dict(flex_data)
-                )
+                reply_msg = FlexMessage(alt_text="傑出油漆工程行創辦人", contents=FlexContainer.from_dict(flex_data))
             else:
                 reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
 
         elif "一昌哥" in user_msg:
             flex_data = load_flex("case5/card_yichang.json")
             if flex_data:
-                reply_msg = FlexMessage(
-                    alt_text="平衡之道-財務規劃師",
-                    contents=FlexContainer.from_dict(flex_data)
-                )
+                reply_msg = FlexMessage(alt_text="平衡之道-財務規劃師", contents=FlexContainer.from_dict(flex_data))
             else:
                 reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
 
         elif "寧寧" in user_msg:
             flex_data = load_flex("case6/card_ningning.json")
             if flex_data:
-                reply_msg = FlexMessage(
-                    alt_text="雅如詩品牌經營人",
-                    contents=FlexContainer.from_dict(flex_data)
-                )
+                reply_msg = FlexMessage(alt_text="雅如詩品牌經營人", contents=FlexContainer.from_dict(flex_data))
             else:
                 reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
 
         elif "雙雙" in user_msg:
             flex_data = load_flex("case7/card_shuangshuang.json")
             if flex_data:
-                reply_msg = FlexMessage(
-                    alt_text="葡眾健康顧問",
-                    contents=FlexContainer.from_dict(flex_data)
-                )
+                reply_msg = FlexMessage(alt_text="葡眾健康顧問", contents=FlexContainer.from_dict(flex_data))
             else:
                 reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
 

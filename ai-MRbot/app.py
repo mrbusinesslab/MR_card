@@ -156,16 +156,6 @@ def handle_message(event):
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
 
-        if user_msg == "電子名片":
-            flex_data = load_flex("menu/card_menu.json")
-            if flex_data:
-                reply_msg = FlexMessage(
-                    alt_text="MR. 電子名片選單",
-                    contents=FlexContainer.from_dict(flex_data)
-                )
-            else:
-                reply_msg = TextMessage(text="抱歉，選單讀取失敗")
-
         elif "小如如" in user_msg:
             flex_data = load_flex("case1/card_luru.json")
             if flex_data:
@@ -216,7 +206,7 @@ def handle_message(event):
                 reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
 
         else:
-            reply_msg = TextMessage(text="請輸入關鍵字：\n📋 電子名片（查看選單）\n🔹 小如如\n🔹 鍾師富\n🔹 大象木地板\n🔹 傑哥\n🔹 一昌哥\n🔹 寧寧\n🔹 雙雙")
+            reply_msg = TextMessage(text="請輸入關鍵字：\n🔹 小如如\n🔹 鍾師富\n🔹 大象木地板\n🔹 傑哥\n🔹 一昌哥\n🔹 寧寧\n🔹 雙雙")
 
         line_bot_api.reply_message(
             ReplyMessageRequest(

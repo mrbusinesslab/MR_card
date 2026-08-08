@@ -156,7 +156,7 @@ def handle_message(event):
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
 
-        elif "小如如" in user_msg:
+        if "小如如" in user_msg:
             flex_data = load_flex("case1/card_luru.json")
             if flex_data:
                 reply_msg = FlexMessage(alt_text="MR.主理人", contents=FlexContainer.from_dict(flex_data))

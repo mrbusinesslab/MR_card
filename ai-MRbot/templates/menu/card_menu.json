@@ -1,0 +1,579 @@
+{
+  "type": "carousel",
+  "contents": [
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/namecard/case1_luru/1_1.png?raw=true",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "3:2",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "horizontal",
+                "contents": [
+                  {
+                    "type": "text",
+                    "text": "case1",
+                    "size": "xs",
+                    "color": "#ffffff",
+                    "flex": 0
+                  }
+                ],
+                "backgroundColor": "#473c38",
+                "paddingAll": "4px",
+                "paddingStart": "8px",
+                "paddingEnd": "8px",
+                "cornerRadius": "4px",
+                "width": "50px"
+              },
+              {
+                "type": "text",
+                "text": "小如如",
+                "weight": "bold",
+                "size": "md",
+                "color": "#17140f",
+                "margin": "sm"
+              },
+              {
+                "type": "text",
+                "text": "MR.主理人",
+                "size": "xs",
+                "color": "#888888",
+                "margin": "xs"
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "text",
+                    "text": "查看名片",
+                    "color": "#ffffff",
+                    "align": "center",
+                    "size": "sm"
+                  }
+                ],
+                "backgroundColor": "#473c38",
+                "paddingAll": "10px",
+                "cornerRadius": "6px",
+                "margin": "md",
+                "action": {
+                  "type": "message",
+                  "label": "查看名片",
+                  "text": "小如如"
+                }
+              }
+            ],
+            "paddingAll": "12px",
+            "backgroundColor": "#ffffff"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/namecard/case2_chung/1.png?raw=true",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "3:2",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "horizontal",
+                "contents": [
+                  {
+                    "type": "text",
+                    "text": "case2",
+                    "size": "xs",
+                    "color": "#ffffff",
+                    "flex": 0
+                  }
+                ],
+                "backgroundColor": "#473c38",
+                "paddingAll": "4px",
+                "paddingStart": "8px",
+                "paddingEnd": "8px",
+                "cornerRadius": "4px",
+                "width": "50px"
+              },
+              {
+                "type": "text",
+                "text": "鍾師富",
+                "weight": "bold",
+                "size": "md",
+                "color": "#17140f",
+                "margin": "sm"
+              },
+              {
+                "type": "text",
+                "text": "詠順工程行老闆",
+                "size": "xs",
+                "color": "#888888",
+                "margin": "xs"
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "text",
+                    "text": "查看名片",
+                    "color": "#ffffff",
+                    "align": "center",
+                    "size": "sm"
+                  }
+                ],
+                "backgroundColor": "#473c38",
+                "paddingAll": "10px",
+                "cornerRadius": "6px",
+                "margin": "md",
+                "action": {
+                  "type": "message",
+                  "label": "查看名片",
+                  "text": "鍾師富"
+                }
+              }
+            ],
+            "paddingAll": "12px",
+            "backgroundColor": "#ffffff"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/namecard/case3_emma/1_1.png?raw=true",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "3:2",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "horizontal",
+                "contents": [
+                  {
+                    "type": "text",
+                    "text": "case3",
+                    "size": "xs",
+                    "color": "#ffffff",
+                    "flex": 0
+                  }
+                ],
+                "backgroundColor": "#473c38",
+                "paddingAll": "4px",
+                "paddingStart": "8px",
+                "paddingEnd": "8px",
+                "cornerRadius": "4px",
+                "width": "50px"
+              },
+              {
+                "type": "text",
+                "text": "大象木地板",
+                "weight": "bold",
+                "size": "md",
+                "color": "#17140f",
+                "margin": "sm"
+              },
+              {
+                "type": "text",
+                "text": "大象木地板闆娘",
+                "size": "xs",
+                "color": "#888888",
+                "margin": "xs"
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "text",
+                    "text": "查看名片",
+                    "color": "#ffffff",
+                    "align": "center",
+                    "size": "sm"
+                  }
+                ],
+                "backgroundColor": "#473c38",
+                "paddingAll": "10px",
+                "cornerRadius": "6px",
+                "margin": "md",
+                "action": {
+                  "type": "message",
+                  "label": "查看名片",
+                  "text": "大象木地板"
+                }
+              }
+            ],
+            "paddingAll": "12px",
+            "backgroundColor": "#ffffff"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/namecard/case4_jay/1_1.png?raw=true",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "3:2",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "horizontal",
+                "contents": [
+                  {
+                    "type": "text",
+                    "text": "case4",
+                    "size": "xs",
+                    "color": "#ffffff",
+                    "flex": 0
+                  }
+                ],
+                "backgroundColor": "#473c38",
+                "paddingAll": "4px",
+                "paddingStart": "8px",
+                "paddingEnd": "8px",
+                "cornerRadius": "4px",
+                "width": "50px"
+              },
+              {
+                "type": "text",
+                "text": "傑哥",
+                "weight": "bold",
+                "size": "md",
+                "color": "#17140f",
+                "margin": "sm"
+              },
+              {
+                "type": "text",
+                "text": "傑出油漆工程行創辦人",
+                "size": "xs",
+                "color": "#888888",
+                "margin": "xs"
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "text",
+                    "text": "查看名片",
+                    "color": "#ffffff",
+                    "align": "center",
+                    "size": "sm"
+                  }
+                ],
+                "backgroundColor": "#473c38",
+                "paddingAll": "10px",
+                "cornerRadius": "6px",
+                "margin": "md",
+                "action": {
+                  "type": "message",
+                  "label": "查看名片",
+                  "text": "傑哥"
+                }
+              }
+            ],
+            "paddingAll": "12px",
+            "backgroundColor": "#ffffff"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/namecard/case5_yichang/1_1.jpg?raw=true",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "3:2",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "horizontal",
+                "contents": [
+                  {
+                    "type": "text",
+                    "text": "case5",
+                    "size": "xs",
+                    "color": "#ffffff",
+                    "flex": 0
+                  }
+                ],
+                "backgroundColor": "#473c38",
+                "paddingAll": "4px",
+                "paddingStart": "8px",
+                "paddingEnd": "8px",
+                "cornerRadius": "4px",
+                "width": "50px"
+              },
+              {
+                "type": "text",
+                "text": "一昌哥",
+                "weight": "bold",
+                "size": "md",
+                "color": "#17140f",
+                "margin": "sm"
+              },
+              {
+                "type": "text",
+                "text": "平衡之道-財務規劃師",
+                "size": "xs",
+                "color": "#888888",
+                "margin": "xs"
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "text",
+                    "text": "查看名片",
+                    "color": "#ffffff",
+                    "align": "center",
+                    "size": "sm"
+                  }
+                ],
+                "backgroundColor": "#473c38",
+                "paddingAll": "10px",
+                "cornerRadius": "6px",
+                "margin": "md",
+                "action": {
+                  "type": "message",
+                  "label": "查看名片",
+                  "text": "一昌哥"
+                }
+              }
+            ],
+            "paddingAll": "12px",
+            "backgroundColor": "#ffffff"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/namecard/case6_ningning/1.png?raw=true",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "3:2",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "horizontal",
+                "contents": [
+                  {
+                    "type": "text",
+                    "text": "case6",
+                    "size": "xs",
+                    "color": "#ffffff",
+                    "flex": 0
+                  }
+                ],
+                "backgroundColor": "#473c38",
+                "paddingAll": "4px",
+                "paddingStart": "8px",
+                "paddingEnd": "8px",
+                "cornerRadius": "4px",
+                "width": "50px"
+              },
+              {
+                "type": "text",
+                "text": "寧寧",
+                "weight": "bold",
+                "size": "md",
+                "color": "#17140f",
+                "margin": "sm"
+              },
+              {
+                "type": "text",
+                "text": "雅如詩品牌經營人",
+                "size": "xs",
+                "color": "#888888",
+                "margin": "xs"
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "text",
+                    "text": "查看名片",
+                    "color": "#ffffff",
+                    "align": "center",
+                    "size": "sm"
+                  }
+                ],
+                "backgroundColor": "#473c38",
+                "paddingAll": "10px",
+                "cornerRadius": "6px",
+                "margin": "md",
+                "action": {
+                  "type": "message",
+                  "label": "查看名片",
+                  "text": "寧寧"
+                }
+              }
+            ],
+            "paddingAll": "12px",
+            "backgroundColor": "#ffffff"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/namecard/case7_%E9%9B%99%E9%9B%99/1.png?raw=true",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "3:2",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "horizontal",
+                "contents": [
+                  {
+                    "type": "text",
+                    "text": "case7",
+                    "size": "xs",
+                    "color": "#ffffff",
+                    "flex": 0
+                  }
+                ],
+                "backgroundColor": "#473c38",
+                "paddingAll": "4px",
+                "paddingStart": "8px",
+                "paddingEnd": "8px",
+                "cornerRadius": "4px",
+                "width": "50px"
+              },
+              {
+                "type": "text",
+                "text": "雙雙",
+                "weight": "bold",
+                "size": "md",
+                "color": "#17140f",
+                "margin": "sm"
+              },
+              {
+                "type": "text",
+                "text": "葡眾健康顧問",
+                "size": "xs",
+                "color": "#888888",
+                "margin": "xs"
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "text",
+                    "text": "查看名片",
+                    "color": "#ffffff",
+                    "align": "center",
+                    "size": "sm"
+                  }
+                ],
+                "backgroundColor": "#473c38",
+                "paddingAll": "10px",
+                "cornerRadius": "6px",
+                "margin": "md",
+                "action": {
+                  "type": "message",
+                  "label": "查看名片",
+                  "text": "雙雙"
+                }
+              }
+            ],
+            "paddingAll": "12px",
+            "backgroundColor": "#ffffff"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    }
+  ]
+}

@@ -21,13 +21,14 @@ configuration = Configuration(access_token=os.getenv('LINE_CHANNEL_ACCESS_TOKEN'
 handler = WebhookHandler(os.getenv('LINE_CHANNEL_SECRET'))
 
 CASE_LIST = [
-    {"case": "case1", "keyword": "小如如", "alt": "MR.主理人"},
-    {"case": "case2", "keyword": "鍾師富", "alt": "詠順工程行老闆"},
-    {"case": "case3", "keyword": "大象木地板", "alt": "大象木地板闆娘"},
-    {"case": "case4", "keyword": "傑哥", "alt": "傑出油漆工程行創辦人"},
-    {"case": "case5", "keyword": "一昌哥", "alt": "平衡之道-財務規劃師"},
-    {"case": "case6", "keyword": "寧寧", "alt": "雅如詩品牌經營人"},
-    {"case": "case7", "keyword": "雙雙", "alt": "葡眾健康顧問"},
+    {"case": "case1", "keyword": "小如如", "alt": "小如如｜MR.主理人"},
+    {"case": "case2", "keyword": "鍾師富", "alt": "鍾師富｜詠順工程行老闆"},
+    {"case": "case3", "keyword": "emma", "alt": "emma｜大象木地板"},
+    {"case": "case4", "keyword": "傑哥", "alt": "蘇祺傑｜傑出油漆工程行"},
+    {"case": "case5", "keyword": "一昌哥", "alt": "蔡一昌｜平衡之道-財務規劃師"},
+    {"case": "case6", "keyword": "寧寧", "alt": "寧寧｜雅如詩品牌經營人"},
+    {"case": "case7", "keyword": "雙雙", "alt": "品雙｜葡眾健康顧問"},
+    {"case": "case8", "keyword": "林威", "alt": "林威｜amomris業務經理"},
 ]
 
 
@@ -149,6 +150,12 @@ def liff_shuangshuang():
     return content, 200, {"Content-Type": "text/html; charset=utf-8"}
 
 
+@app.route("/liff/case8/LinWei")
+def liff_linwei():
+    content = load_liff("case8/liff_LinWei.html")
+    return content, 200, {"Content-Type": "text/html; charset=utf-8"}
+
+
 @handler.add(MessageEvent, message=TextMessageContent)
 def handle_message(event):
     user_msg = event.message.text.strip()
@@ -159,54 +166,95 @@ def handle_message(event):
         if "小如如" in user_msg:
             flex_data = load_flex("case1/card_luru.json")
             if flex_data:
-                reply_msg = FlexMessage(alt_text="MR.主理人", contents=FlexContainer.from_dict(flex_data))
+                reply_msg = FlexMessage(
+                    alt_text="小如如｜MR.主理人",
+                    contents=FlexContainer.from_dict(flex_data)
+                )
             else:
                 reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
 
         elif "鍾師富" in user_msg:
             flex_data = load_flex("case2/card_chung.json")
             if flex_data:
-                reply_msg = FlexMessage(alt_text="詠順工程行老闆", contents=FlexContainer.from_dict(flex_data))
+                reply_msg = FlexMessage(
+                    alt_text="鍾師富｜詠順工程行老闆",
+                    contents=FlexContainer.from_dict(flex_data)
+                )
             else:
                 reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
 
-        elif "大象木地板" in user_msg:
+        elif "emma" in user_msg or "大象木地板" in user_msg:
             flex_data = load_flex("case3/card_emma.json")
             if flex_data:
-                reply_msg = FlexMessage(alt_text="大象木地板闆娘", contents=FlexContainer.from_dict(flex_data))
+                reply_msg = FlexMessage(
+                    alt_text="emma｜大象木地板",
+                    contents=FlexContainer.from_dict(flex_data)
+                )
             else:
                 reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
 
         elif "傑哥" in user_msg:
             flex_data = load_flex("case4/card_jay.json")
             if flex_data:
-                reply_msg = FlexMessage(alt_text="傑出油漆工程行創辦人", contents=FlexContainer.from_dict(flex_data))
+                reply_msg = FlexMessage(
+                    alt_text="蘇祺傑｜傑出油漆工程行",
+                    contents=FlexContainer.from_dict(flex_data)
+                )
             else:
                 reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
 
         elif "一昌哥" in user_msg:
             flex_data = load_flex("case5/card_yichang.json")
             if flex_data:
-                reply_msg = FlexMessage(alt_text="平衡之道-財務規劃師", contents=FlexContainer.from_dict(flex_data))
+                reply_msg = FlexMessage(
+                    alt_text="蔡一昌｜平衡之道-財務規劃師",
+                    contents=FlexContainer.from_dict(flex_data)
+                )
             else:
                 reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
 
         elif "寧寧" in user_msg:
             flex_data = load_flex("case6/card_ningning.json")
             if flex_data:
-                reply_msg = FlexMessage(alt_text="雅如詩品牌經營人", contents=FlexContainer.from_dict(flex_data))
+                reply_msg = FlexMessage(
+                    alt_text="寧寧｜雅如詩品牌經營人",
+                    contents=FlexContainer.from_dict(flex_data)
+                )
             else:
                 reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
 
         elif "雙雙" in user_msg:
             flex_data = load_flex("case7/card_shuangshuang.json")
             if flex_data:
-                reply_msg = FlexMessage(alt_text="葡眾健康顧問", contents=FlexContainer.from_dict(flex_data))
+                reply_msg = FlexMessage(
+                    alt_text="品雙｜葡眾健康顧問",
+                    contents=FlexContainer.from_dict(flex_data)
+                )
+            else:
+                reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
+
+        elif "林威" in user_msg:
+            flex_data = load_flex("case8/card_LinWei.json")
+            if flex_data:
+                reply_msg = FlexMessage(
+                    alt_text="林威｜amomris業務經理",
+                    contents=FlexContainer.from_dict(flex_data)
+                )
             else:
                 reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
 
         else:
-            reply_msg = TextMessage(text="請輸入關鍵字：\n🔹 小如如\n🔹 鍾師富\n🔹 大象木地板\n🔹 傑哥\n🔹 一昌哥\n🔹 寧寧\n🔹 雙雙")
+            reply_msg = TextMessage(
+                text="請輸入關鍵字：\n"
+                     "🔹 小如如\n"
+                     "🔹 鍾師富\n"
+                     "🔹 emma\n"
+                     "🔹 傑哥\n"
+                     "🔹 一昌哥\n"
+                     "🔹 寧寧\n"
+                     "🔹 雙雙\n"
+                     "🔹 林威"
+            )
 
         line_bot_api.reply_message(
             ReplyMessageRequest(

@@ -170,7 +170,7 @@
                       { "type": "filler" },
                       {
                         "type": "text",
-                        "text": "品牌官網探索",
+                        "text": "認識品牌故事",
                         "color": "#4e4840",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -191,7 +191,7 @@
                 "action": {
                   "type": "uri",
                   "label": "action",
-                  "uri": "https://www.amomris.com/"
+                  "uri": "https://www.amomris.com/pages/new-page-1"
                 }
               }
             ],

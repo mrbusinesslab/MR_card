@@ -159,7 +159,7 @@ def liff_linwei():
 
 @app.route("/liff/case9/昺諺")
 def liff_bingyan():
-    content = load_liff("case9/liff_昺諺.html")
+    content = load_liff("case9_賴昺諺/liff_昺諺.html")
     return content, 200, {"Content-Type": "text/html; charset=utf-8"}
 
 
@@ -251,7 +251,7 @@ def handle_message(event):
                 reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
 
         elif "昺諺" in user_msg:
-            flex_data = load_flex("case9/card_昺諺.json")
+            flex_data = load_flex("case9_賴昺諺/card_昺諺.json")
             if flex_data:
                 reply_msg = FlexMessage(
                     alt_text="賴昺諺｜兆朋工程",

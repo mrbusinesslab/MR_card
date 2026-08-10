@@ -25,7 +25,7 @@ CASE_LIST = [
     {"case": "case2_鍾師富", "keyword": "鍾師富", "alt": "鍾師富｜詠順工程行老闆"},
     {"case": "case3_emma", "keyword": "emma", "alt": "emma｜大象木地板"},
     {"case": "case4_傑哥", "keyword": "傑哥", "alt": "蘇祺傑｜傑出油漆工程行"},
-    {"case": "case5_一昌", "keyword": "一昌哥", "alt": "蔡一昌｜平衡之道-財務規劃師"},
+    {"case": "case5_一昌", "keyword": "一昌", "alt": "蔡一昌｜平衡之道-財務規劃師"},
     {"case": "case6_寧寧", "keyword": "寧寧", "alt": "寧寧｜雅如詩品牌經營人"},
     {"case": "case7_雙雙", "keyword": "雙雙", "alt": "品雙｜葡眾健康顧問"},
     {"case": "case8_林威", "keyword": "林威", "alt": "林威｜amomris業務經理"},
@@ -210,7 +210,7 @@ def handle_message(event):
             else:
                 reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
 
-        elif "一昌哥" in user_msg:
+        elif "一昌" in user_msg:
             flex_data = load_flex("case5_一昌/card_一昌.json")
             if flex_data:
                 reply_msg = FlexMessage(
@@ -267,7 +267,7 @@ def handle_message(event):
                      "🔹 鍾師富\n"
                      "🔹 emma\n"
                      "🔹 傑哥\n"
-                     "🔹 一昌哥\n"
+                     "🔹 一昌\n"
                      "🔹 寧寧\n"
                      "🔹 雙雙\n"
                      "🔹 林威\n"

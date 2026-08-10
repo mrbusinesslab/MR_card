@@ -9,7 +9,7 @@
         "contents": [
           {
             "type": "image",
-            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/namecard/case9_%E8%B3%B4%E6%98%BA%E8%AB%BA/1.png?raw=true",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case9_%E8%B3%B4%E6%98%BA%E8%AB%BA/1.png?raw=true",
             "size": "full",
             "aspectMode": "cover",
             "aspectRatio": "2:3",
@@ -112,7 +112,7 @@
         "contents": [
           {
             "type": "image",
-            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/namecard/case9_%E8%B3%B4%E6%98%BA%E8%AB%BA/2.png?raw=true",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case9_%E8%B3%B4%E6%98%BA%E8%AB%BA/2.png?raw=true",
             "size": "full",
             "aspectMode": "cover",
             "aspectRatio": "2:3",
@@ -215,7 +215,7 @@
         "contents": [
           {
             "type": "image",
-            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/namecard/case9_%E8%B3%B4%E6%98%BA%E8%AB%BA/3.png?raw=true",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case9_%E8%B3%B4%E6%98%BA%E8%AB%BA/3.png?raw=true",
             "size": "full",
             "aspectMode": "cover",
             "aspectRatio": "2:3",
@@ -295,6 +295,109 @@
                   "type": "uri",
                   "label": "action",
                   "uri": "https://www.instagram.com/hulk1988325/"
+                }
+              }
+            ],
+            "position": "relative",
+            "offsetBottom": "0px",
+            "offsetStart": "0px",
+            "offsetEnd": "0px",
+            "backgroundColor": "#efe4d6",
+            "paddingAll": "15px",
+            "paddingTop": "5px"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/namecard/mr_1.png?raw=true",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "2:3",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "電子名片｜預約",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#bf5405",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#bf5405",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://lin.ee/erAsi6c"
+                }
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "商務男士形象｜IG",
+                        "color": "#2a2a2a",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "light",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#2a2a2a",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#ffffff",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://www.instagram.com/mr.business.lab/"
                 }
               }
             ],

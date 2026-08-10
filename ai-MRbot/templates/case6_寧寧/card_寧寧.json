@@ -45,10 +45,10 @@
                 "borderWidth": "none",
                 "cornerRadius": "4px",
                 "spacing": "sm",
-                "borderColor": "#D4A373",
+                "borderColor": "#686766",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#5C3D2E",
+                "backgroundColor": "#686766",
                 "action": {
                   "type": "uri",
                   "label": "action",
@@ -68,7 +68,7 @@
                       {
                         "type": "text",
                         "text": "分享電子名片",
-                        "color": "#5C3D2E",
+                        "color": "#686766",
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
@@ -81,10 +81,10 @@
                 "borderWidth": "light",
                 "cornerRadius": "4px",
                 "spacing": "sm",
-                "borderColor": "#5C3D2E",
+                "borderColor": "#686766",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#ffffff",
+                "backgroundColor": "#e0dcd6",
                 "action": {
                   "type": "uri",
                   "label": "action",
@@ -96,7 +96,7 @@
             "offsetBottom": "0px",
             "offsetStart": "0px",
             "offsetEnd": "0px",
-            "backgroundColor": "#F9F6F0",
+            "backgroundColor": "#000000",
             "paddingAll": "15px",
             "paddingTop": "5px"
           }
@@ -148,10 +148,10 @@
                 "borderWidth": "none",
                 "cornerRadius": "4px",
                 "spacing": "sm",
-                "borderColor": "#D4A373",
+                "borderColor": "#686766",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#5C3D2E",
+                "backgroundColor": "#686766",
                 "action": {
                   "type": "uri",
                   "label": "action",
@@ -171,7 +171,7 @@
                       {
                         "type": "text",
                         "text": "產品研發理念",
-                        "color": "#5C3D2E",
+                        "color": "#686766",
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
@@ -184,10 +184,10 @@
                 "borderWidth": "light",
                 "cornerRadius": "4px",
                 "spacing": "sm",
-                "borderColor": "#5C3D2E",
+                "borderColor": "#686766",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#ffffff",
+                "backgroundColor": "#e0dcd6",
                 "action": {
                   "type": "uri",
                   "label": "action",
@@ -199,7 +199,7 @@
             "offsetBottom": "0px",
             "offsetStart": "0px",
             "offsetEnd": "0px",
-            "backgroundColor": "#F9F6F0",
+            "backgroundColor": "#000000",
             "paddingAll": "15px",
             "paddingTop": "5px"
           }
@@ -251,10 +251,10 @@
                 "borderWidth": "none",
                 "cornerRadius": "4px",
                 "spacing": "sm",
-                "borderColor": "#D4A373",
+                "borderColor": "#686766",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#5C3D2E",
+                "backgroundColor": "#686766",
                 "action": {
                   "type": "uri",
                   "label": "action",
@@ -274,7 +274,7 @@
                       {
                         "type": "text",
                         "text": "頭皮理療體驗",
-                        "color": "#5C3D2E",
+                        "color": "#686766",
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
@@ -287,10 +287,10 @@
                 "borderWidth": "light",
                 "cornerRadius": "4px",
                 "spacing": "sm",
-                "borderColor": "#5C3D2E",
+                "borderColor": "#686766",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#ffffff",
+                "backgroundColor": "#e0dcd6",
                 "action": {
                   "type": "uri",
                   "label": "action",
@@ -302,7 +302,7 @@
             "offsetBottom": "0px",
             "offsetStart": "0px",
             "offsetEnd": "0px",
-            "backgroundColor": "#F9F6F0",
+            "backgroundColor": "#000000",
             "paddingAll": "15px",
             "paddingTop": "5px"
           }
@@ -354,10 +354,10 @@
                 "borderWidth": "none",
                 "cornerRadius": "4px",
                 "spacing": "sm",
-                "borderColor": "#D4A373",
+                "borderColor": "#686766",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#5C3D2E",
+                "backgroundColor": "#686766",
                 "action": {
                   "type": "uri",
                   "label": "action",
@@ -377,7 +377,7 @@
                       {
                         "type": "text",
                         "text": "品牌故事",
-                        "color": "#5C3D2E",
+                        "color": "#686766",
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
@@ -390,10 +390,10 @@
                 "borderWidth": "light",
                 "cornerRadius": "4px",
                 "spacing": "sm",
-                "borderColor": "#5C3D2E",
+                "borderColor": "#686766",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#ffffff",
+                "backgroundColor": "#e0dcd6",
                 "action": {
                   "type": "uri",
                   "label": "action",
@@ -405,7 +405,7 @@
             "offsetBottom": "0px",
             "offsetStart": "0px",
             "offsetEnd": "0px",
-            "backgroundColor": "#F9F6F0",
+            "backgroundColor": "#000000",
             "paddingAll": "15px",
             "paddingTop": "5px"
           }
@@ -457,10 +457,10 @@
                 "borderWidth": "none",
                 "cornerRadius": "4px",
                 "spacing": "sm",
-                "borderColor": "#D4A373",
+                "borderColor": "#686766",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#5C3D2E",
+                "backgroundColor": "#686766",
                 "action": {
                   "type": "uri",
                   "label": "action",
@@ -480,7 +480,7 @@
                       {
                         "type": "text",
                         "text": "商務男士形象｜IG",
-                        "color": "#5C3D2E",
+                        "color": "#686766",
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
@@ -493,10 +493,10 @@
                 "borderWidth": "light",
                 "cornerRadius": "4px",
                 "spacing": "sm",
-                "borderColor": "#5C3D2E",
+                "borderColor": "#686766",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#ffffff",
+                "backgroundColor": "#e0dcd6",
                 "action": {
                   "type": "uri",
                   "label": "action",
@@ -508,7 +508,7 @@
             "offsetBottom": "0px",
             "offsetStart": "0px",
             "offsetEnd": "0px",
-            "backgroundColor": "#F9F6F0",
+            "backgroundColor": "#000000",
             "paddingAll": "15px",
             "paddingTop": "5px"
           }

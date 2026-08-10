@@ -1,0 +1,595 @@
+{
+  "type": "carousel",
+  "contents": [
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "2:3",
+            "gravity": "top",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case5_%E4%B8%80%E6%98%8C/1.jpg?raw=true"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "filler"
+                  },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      {
+                        "type": "filler"
+                      },
+                      {
+                        "type": "text",
+                        "text": "來電諮詢",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      {
+                        "type": "filler"
+                      }
+                    ],
+                    "spacing": "sm"
+                  },
+                  {
+                    "type": "filler"
+                  }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#e0be60",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#022855",
+                "action": {
+                  "type": "uri",
+                  "label": "電話",
+                  "uri": "tel:0956821090"
+                }
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "filler"
+                  },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      {
+                        "type": "filler"
+                      },
+                      {
+                        "type": "text",
+                        "text": "分享名片",
+                        "color": "#022855",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      {
+                        "type": "filler"
+                      }
+                    ],
+                    "spacing": "sm"
+                  },
+                  {
+                    "type": "filler"
+                  }
+                ],
+                "borderWidth": "light",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#022855",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#ffffff",
+                "action": {
+                  "type": "uri",
+                  "label": "分享",
+                  "uri": "https://liff.line.me/2009755863-CXbhqkVa"
+                }
+              }
+            ],
+            "position": "relative",
+            "offsetBottom": "0px",
+            "offsetStart": "0px",
+            "offsetEnd": "0px",
+            "backgroundColor": "#fdf7eb",
+            "paddingAll": "15px",
+            "paddingTop": "5px"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case5_%E4%B8%80%E6%98%8C/2.jpg?raw=true",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "2:3",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "filler"
+                  },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      {
+                        "type": "filler"
+                      },
+                      {
+                        "type": "text",
+                        "text": "財務規劃｜諮詢",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      {
+                        "type": "filler"
+                      }
+                    ],
+                    "spacing": "sm"
+                  },
+                  {
+                    "type": "filler"
+                  }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#e0be60",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#022855",
+                "action": {
+                  "type": "uri",
+                  "label": "line",
+                  "uri": "https://line.me/ti/p/~@202fpqwz"
+                }
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "filler"
+                  },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      {
+                        "type": "filler"
+                      },
+                      {
+                        "type": "text",
+                        "text": "IG 追蹤",
+                        "color": "#022855",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      {
+                        "type": "filler"
+                      }
+                    ],
+                    "spacing": "sm"
+                  },
+                  {
+                    "type": "filler"
+                  }
+                ],
+                "borderWidth": "light",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#022855",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#ffffff",
+                "action": {
+                  "type": "uri",
+                  "label": "ig",
+                  "uri": "https://www.instagram.com/accounts/login/?next=%2Ffinancial.arthurtic%2F&source=omni_redirect"
+                }
+              }
+            ],
+            "position": "relative",
+            "offsetBottom": "0px",
+            "offsetStart": "0px",
+            "offsetEnd": "0px",
+            "backgroundColor": "#fdf7eb",
+            "paddingAll": "15px",
+            "paddingTop": "5px"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "2:3",
+            "gravity": "top",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case5_%E4%B8%80%E6%98%8C/3.jpg?raw=true"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "filler"
+                  },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      {
+                        "type": "filler"
+                      },
+                      {
+                        "type": "text",
+                        "text": "法拍屋｜諮詢",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      {
+                        "type": "filler"
+                      }
+                    ],
+                    "spacing": "sm"
+                  },
+                  {
+                    "type": "filler"
+                  }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#e0be60",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#022855",
+                "action": {
+                  "type": "uri",
+                  "label": "FB",
+                  "uri": "https://line.me/ti/p/~@810ztemx"
+                }
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "filler"
+                  },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      {
+                        "type": "filler"
+                      },
+                      {
+                        "type": "text",
+                        "text": "?",
+                        "color": "#022855",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      {
+                        "type": "filler"
+                      }
+                    ],
+                    "spacing": "sm"
+                  },
+                  {
+                    "type": "filler"
+                  }
+                ],
+                "borderWidth": "light",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#022855",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#ffffff"
+              }
+            ],
+            "position": "relative",
+            "offsetBottom": "0px",
+            "offsetStart": "0px",
+            "offsetEnd": "0px",
+            "backgroundColor": "#fdf7eb",
+            "paddingAll": "15px",
+            "paddingTop": "5px"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case5_%E4%B8%80%E6%98%8C/4.jpg?raw=true",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "2:3",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "filler"
+                  },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      {
+                        "type": "filler"
+                      },
+                      {
+                        "type": "text",
+                        "text": "法拍屋｜官網",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      {
+                        "type": "filler"
+                      }
+                    ],
+                    "spacing": "sm"
+                  },
+                  {
+                    "type": "filler"
+                  }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#e0be60",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#022855",
+                "action": {
+                  "type": "uri",
+                  "label": "FB",
+                  "uri": "http://www.5137.com.tw/"
+                }
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "filler"
+                  },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      {
+                        "type": "filler"
+                      },
+                      {
+                        "type": "text",
+                        "text": "法拍屋的風險?",
+                        "color": "#022855",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      {
+                        "type": "filler"
+                      }
+                    ],
+                    "spacing": "sm"
+                  },
+                  {
+                    "type": "filler"
+                  }
+                ],
+                "borderWidth": "light",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#022855",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#ffffff",
+                "action": {
+                  "type": "uri",
+                  "label": "影片",
+                  "uri": "https://www.youtube.com/watch?v=VU65BUWvX-8"
+                }
+              }
+            ],
+            "position": "relative",
+            "offsetBottom": "0px",
+            "offsetStart": "0px",
+            "offsetEnd": "0px",
+            "backgroundColor": "#fdf7eb",
+            "paddingAll": "15px",
+            "paddingTop": "5px"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://github.com/mrbusinesslab/MR/blob/main/namecard/mr_1.png?raw=true",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "2:3",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "filler"
+                  },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      {
+                        "type": "filler"
+                      },
+                      {
+                        "type": "text",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px",
+                        "text": "電子名片｜預約"
+                      },
+                      {
+                        "type": "filler"
+                      }
+                    ],
+                    "spacing": "sm"
+                  },
+                  {
+                    "type": "filler"
+                  }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#e0be60",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#000000",
+                "action": {
+                  "type": "uri",
+                  "label": "mr. line",
+                  "uri": "https://lin.ee/erAsi6c"
+                }
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "filler"
+                  },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      {
+                        "type": "filler"
+                      },
+                      {
+                        "type": "text",
+                        "text": "商務男士形象｜IG",
+                        "color": "#000000",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      {
+                        "type": "filler"
+                      }
+                    ],
+                    "spacing": "sm"
+                  },
+                  {
+                    "type": "filler"
+                  }
+                ],
+                "borderWidth": "light",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#000000",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#ffffff",
+                "action": {
+                  "type": "uri",
+                  "label": "IG",
+                  "uri": "https://www.instagram.com/mr.business.lab/"
+                }
+              }
+            ],
+            "position": "relative",
+            "offsetBottom": "0px",
+            "offsetStart": "0px",
+            "offsetEnd": "0px",
+            "backgroundColor": "#ffffff",
+            "paddingAll": "15px",
+            "paddingTop": "5px"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    }
+  ]
+}

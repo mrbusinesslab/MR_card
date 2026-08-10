@@ -1,0 +1,520 @@
+{
+  "type": "carousel",
+  "contents": [
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/namecard/case8_%E6%9E%97%E5%A8%81/1.png?raw=true",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "2:3",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "陪你變好的人",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#C9A96E",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#1fac4c",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://www.instagram.com/sd19961104/"
+                }
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "分享我的名片",
+                        "color": "#1fac4c",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "light",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#1fac4c",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#ffffff",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://mr-6c1r.onrender.com/liff/case8/LinWei"
+                }
+              }
+            ],
+            "position": "relative",
+            "offsetBottom": "0px",
+            "offsetStart": "0px",
+            "offsetEnd": "0px",
+            "backgroundColor": "#f7f7f7",
+            "paddingAll": "15px",
+            "paddingTop": "5px"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/namecard/case8_%E6%9E%97%E5%A8%81/2.png?raw=true",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "2:3",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "電話聯繫",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#C9A96E",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#1fac4c",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "tel:0934338600"
+                }
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "品牌官網探索",
+                        "color": "#1fac4c",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "light",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#1fac4c",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#ffffff",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://www.amomris.com/"
+                }
+              }
+            ],
+            "position": "relative",
+            "offsetBottom": "0px",
+            "offsetStart": "0px",
+            "offsetEnd": "0px",
+            "backgroundColor": "#f7f7f7",
+            "paddingAll": "15px",
+            "paddingTop": "5px"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/namecard/case8_%E6%9E%97%E5%A8%81/3.png?raw=true",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "2:3",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "實體販售地點",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#C9A96E",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#1fac4c",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://www.amomris.com/pages/new-page-5"
+                }
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "給你的保健選擇",
+                        "color": "#1fac4c",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "light",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#1fac4c",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#ffffff",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://www.amomris.com/products"
+                }
+              }
+            ],
+            "position": "relative",
+            "offsetBottom": "0px",
+            "offsetStart": "0px",
+            "offsetEnd": "0px",
+            "backgroundColor": "#f7f7f7",
+            "paddingAll": "15px",
+            "paddingTop": "5px"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/namecard/case8_%E6%9E%97%E5%A8%81/4.png?raw=true",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "2:3",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "FB 粉絲專頁",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#C9A96E",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#1fac4c",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://www.facebook.com/profile.php?id=61561036084756&locale=zh_TW"
+                }
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "IG 追蹤我們",
+                        "color": "#1fac4c",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "light",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#1fac4c",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#ffffff",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://www.instagram.com/amomris/"
+                }
+              }
+            ],
+            "position": "relative",
+            "offsetBottom": "0px",
+            "offsetStart": "0px",
+            "offsetEnd": "0px",
+            "backgroundColor": "#f7f7f7",
+            "paddingAll": "15px",
+            "paddingTop": "5px"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/namecard/mr_1.png?raw=true",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "2:3",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "電子名片｜預約",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#C9A96E",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#1fac4c",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://lin.ee/erAsi6c"
+                }
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "商務男士形象｜IG",
+                        "color": "#1fac4c",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "light",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#1fac4c",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#ffffff",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://www.instagram.com/mr.business.lab/"
+                }
+              }
+            ],
+            "position": "relative",
+            "offsetBottom": "0px",
+            "offsetStart": "0px",
+            "offsetEnd": "0px",
+            "backgroundColor": "#f7f7f7",
+            "paddingAll": "15px",
+            "paddingTop": "5px"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    }
+  ]
+}

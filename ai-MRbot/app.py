@@ -157,7 +157,7 @@ def liff_linwei():
     return content, 200, {"Content-Type": "text/html; charset=utf-8"}
 
 
-@app.route("/liff/case9/bingyan")
+@app.route("/liff/case9/昺諺")
 def liff_bingyan():
     content = load_liff("case9/liff_昺諺.html")
     return content, 200, {"Content-Type": "text/html; charset=utf-8"}

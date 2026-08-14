@@ -1,5 +1,6 @@
 import os
 import json
+from datetime import date
 from flask import Flask, request, abort
 
 from linebot.v3 import WebhookHandler
@@ -41,14 +42,22 @@ def load_flex(filepath):
         print(f"ERROR: 找不到檔案 {full_path}")
         return None
     with open(full_path, "r", encoding="utf-8") as f:
-        return json.load(f)
+        content = f.read()
+    # 自動加今天日期，強制刷新 GitHub 圖片快取
+    today = date.today().strftime("%Y%m%d")
+    content = content.replace("?raw=true", f"?raw=true&v={today}")
+    return json.loads(content)
 
 
 def load_liff(filepath):
     base_dir = os.path.dirname(os.path.abspath(__file__))
     full_path = os.path.join(base_dir, "templates", filepath)
     with open(full_path, "r", encoding="utf-8") as f:
-        return f.read()
+        content = f.read()
+    # liff.html 裡的圖片也同步刷新
+    today = date.today().strftime("%Y%m%d")
+    content = content.replace("?raw=true", f"?raw=true&v={today}")
+    return content
 
 
 @app.route("/cases")
@@ -173,90 +182,63 @@ def handle_message(event):
         if "小如如" in user_msg:
             flex_data = load_flex("case1_小如如/card_小如如.json")
             if flex_data:
-                reply_msg = FlexMessage(
-                    alt_text="小如如｜MR.主理人",
-                    contents=FlexContainer.from_dict(flex_data)
-                )
+                reply_msg = FlexMessage(alt_text="小如如｜MR.主理人", contents=FlexContainer.from_dict(flex_data))
             else:
                 reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
 
         elif "鍾師富" in user_msg:
             flex_data = load_flex("case2_鍾師富/card_鍾師富.json")
             if flex_data:
-                reply_msg = FlexMessage(
-                    alt_text="鍾師富｜詠順工程行老闆",
-                    contents=FlexContainer.from_dict(flex_data)
-                )
+                reply_msg = FlexMessage(alt_text="鍾師富｜詠順工程行老闆", contents=FlexContainer.from_dict(flex_data))
             else:
                 reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
 
         elif "emma" in user_msg or "大象木地板" in user_msg:
             flex_data = load_flex("case3_emma/card_emma.json")
             if flex_data:
-                reply_msg = FlexMessage(
-                    alt_text="emma｜大象木地板",
-                    contents=FlexContainer.from_dict(flex_data)
-                )
+                reply_msg = FlexMessage(alt_text="emma｜大象木地板", contents=FlexContainer.from_dict(flex_data))
             else:
                 reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
 
         elif "傑哥" in user_msg:
             flex_data = load_flex("case4_傑哥/card_傑哥.json")
             if flex_data:
-                reply_msg = FlexMessage(
-                    alt_text="蘇祺傑｜傑出油漆工程行",
-                    contents=FlexContainer.from_dict(flex_data)
-                )
+                reply_msg = FlexMessage(alt_text="蘇祺傑｜傑出油漆工程行", contents=FlexContainer.from_dict(flex_data))
             else:
                 reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
 
         elif "一昌" in user_msg:
             flex_data = load_flex("case5_一昌/card_一昌.json")
             if flex_data:
-                reply_msg = FlexMessage(
-                    alt_text="蔡一昌｜平衡之道-財務規劃師",
-                    contents=FlexContainer.from_dict(flex_data)
-                )
+                reply_msg = FlexMessage(alt_text="蔡一昌｜平衡之道-財務規劃師", contents=FlexContainer.from_dict(flex_data))
             else:
                 reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
 
         elif "寧寧" in user_msg:
             flex_data = load_flex("case6_寧寧/card_寧寧.json")
             if flex_data:
-                reply_msg = FlexMessage(
-                    alt_text="寧寧｜雅如詩品牌經營人",
-                    contents=FlexContainer.from_dict(flex_data)
-                )
+                reply_msg = FlexMessage(alt_text="寧寧｜雅如詩品牌經營人", contents=FlexContainer.from_dict(flex_data))
             else:
                 reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
 
         elif "雙雙" in user_msg:
             flex_data = load_flex("case7_雙雙/card_雙雙.json")
             if flex_data:
-                reply_msg = FlexMessage(
-                    alt_text="品雙｜葡眾健康顧問",
-                    contents=FlexContainer.from_dict(flex_data)
-                )
+                reply_msg = FlexMessage(alt_text="品雙｜葡眾健康顧問", contents=FlexContainer.from_dict(flex_data))
             else:
                 reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
 
         elif "林威" in user_msg:
             flex_data = load_flex("case8_林威/card_林威.json")
             if flex_data:
-                reply_msg = FlexMessage(
-                    alt_text="林威｜amomris業務經理",
-                    contents=FlexContainer.from_dict(flex_data)
-                )
+                reply_msg = FlexMessage(alt_text="林威｜amomris業務經理", contents=FlexContainer.from_dict(flex_data))
             else:
                 reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
 
         elif "昺諺" in user_msg:
             flex_data = load_flex("case9_昺諺/card_昺諺.json")
             if flex_data:
-                reply_msg = FlexMessage(
-                    alt_text="賴昺諺｜兆朋工程",
-                    contents=FlexContainer.from_dict(flex_data)
-                )
+                reply_msg = FlexMessage(alt_text="賴昺諺｜兆朋工程", contents=FlexContainer.from_dict(flex_data))
             else:
                 reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
 

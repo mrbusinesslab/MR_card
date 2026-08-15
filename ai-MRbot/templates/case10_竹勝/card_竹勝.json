@@ -1,0 +1,407 @@
+{
+  "type": "carousel",
+  "contents": [
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case10_%E7%AB%B9%E5%8B%9D/1.png?raw=true",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "2:3",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "主廚的日常",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#b96a35",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#b96a35",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://www.instagram.com/zhu.zhou/"
+                }
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "分享名片",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#323231",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#323231",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://liff.line.me/2009755863-ej3tMQZl"
+                }
+              }
+            ],
+            "position": "relative",
+            "offsetBottom": "0px",
+            "offsetStart": "0px",
+            "offsetEnd": "0px",
+            "backgroundColor": "#f6ede3",
+            "paddingAll": "15px",
+            "paddingTop": "5px"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case10_%E7%AB%B9%E5%8B%9D/2.png?raw=true",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "2:3",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "線上訂位",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#b96a35",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#b96a35",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://eatsy.tech/booking/paradiso_0523"
+                }
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "美食搶先看",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#323231",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#323231",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://www.instagram.com/paradiso_0523/"
+                }
+              }
+            ],
+            "position": "relative",
+            "offsetBottom": "0px",
+            "offsetStart": "0px",
+            "offsetEnd": "0px",
+            "backgroundColor": "#f6ede3",
+            "paddingAll": "15px",
+            "paddingTop": "5px"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case10_%E7%AB%B9%E5%8B%9D/3.png?raw=true",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "2:3",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "看看大家怎麼說",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#b96a35",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#b96a35",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://amanda390.com/paradiso/"
+                }
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "餐廳位置",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#323231",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#323231",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://maps.app.goo.gl/1gyukYELHUchs4Uk9"
+                }
+              }
+            ],
+            "position": "relative",
+            "offsetBottom": "0px",
+            "offsetStart": "0px",
+            "offsetEnd": "0px",
+            "backgroundColor": "#f6ede3",
+            "paddingAll": "15px",
+            "paddingTop": "5px"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case10_%E7%AB%B9%E5%8B%9D/4.png?raw=true",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "2:3",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "BNI 五表",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#b96a35",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#b96a35"
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "合作洽詢",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#323231",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#323231"
+              }
+            ],
+            "position": "relative",
+            "offsetBottom": "0px",
+            "offsetStart": "0px",
+            "offsetEnd": "0px",
+            "backgroundColor": "#f6ede3",
+            "paddingAll": "15px",
+            "paddingTop": "5px"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    }
+  ]
+}

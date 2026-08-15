@@ -402,6 +402,109 @@
         ],
         "paddingAll": "0px"
       }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/namecard/mr_1.png?raw=true",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "2:3",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "電子名片｜預約",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#b96a35",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#b96a35",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://lin.ee/erAsi6c"
+                }
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "商務男士形象｜IG",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#323231",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#323231",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://www.instagram.com/mr.business.lab/"
+                }
+              }
+            ],
+            "position": "relative",
+            "offsetBottom": "0px",
+            "offsetStart": "0px",
+            "offsetEnd": "0px",
+            "backgroundColor": "#f6ede3",
+            "paddingAll": "15px",
+            "paddingTop": "5px"
+          }
+        ],
+        "paddingAll": "0px"
+      }
     }
   ]
 }

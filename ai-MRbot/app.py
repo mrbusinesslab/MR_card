@@ -12,7 +12,10 @@ from linebot.v3.messaging import (
     ReplyMessageRequest,
     TextMessage,
     FlexMessage,
-    FlexContainer
+    FlexContainer,
+    QuickReply,
+    QuickReplyItem,
+    MessageAction
 )
 from linebot.v3.webhooks import MessageEvent, TextMessageContent
 
@@ -102,6 +105,9 @@ CASE_LIST = [
     },
 ]
 
+# 展示清單：依你指定的順序顯示（小如如、寧寧、鍾師富、傑哥、林威、竹勝）
+DEMO_KEYWORDS = ["小如如", "寧寧", "鍾師富", "傑哥", "林威", "竹勝"]
+
 # 使用者是否處於「請輸入姓名或產業關鍵字」等待狀態（記憶體暫存，重啟會清空）
 PENDING_SEARCH_USERS = set()
 
@@ -153,9 +159,15 @@ def search_cases(query):
     return matched
 
 
-def build_search_result_flex(query, matched_cases):
+def get_demo_cases():
+    """依 DEMO_KEYWORDS 指定順序取出展示案例"""
+    keyword_map = {c["keyword"]: c for c in CASE_LIST}
+    return [keyword_map[k] for k in DEMO_KEYWORDS if k in keyword_map]
+
+
+def build_list_flex(alt_text, header_text, matched_cases):
     """
-    橫列條目樣式：
+    橫列條目樣式（搜尋結果 / 展示清單共用）：
     - 標號用圓形，顯示 GitHub case 變數的編號（case1 -> 1）
     - 稱謂照 app.py 的 alt 顯示文字
     - 點擊該列會送出該案例的姓名關鍵字，觸發原本的名片回覆邏輯
@@ -233,7 +245,7 @@ def build_search_result_flex(query, matched_cases):
             "contents": [
                 {
                     "type": "text",
-                    "text": f"「{query}」搜尋結果，共 {len(matched_cases)} 筆",
+                    "text": header_text,
                     "size": "xs",
                     "color": "#888888"
                 },
@@ -246,7 +258,24 @@ def build_search_result_flex(query, matched_cases):
             ]
         }
     }
-    return FlexMessage(alt_text=f"{query} 搜尋結果", contents=FlexContainer.from_dict(bubble))
+    return FlexMessage(alt_text=alt_text, contents=FlexContainer.from_dict(bubble))
+
+
+def build_search_result_flex(query, matched_cases):
+    return build_list_flex(
+        alt_text=f"{query} 搜尋結果",
+        header_text=f"「{query}」搜尋結果，共 {len(matched_cases)} 筆",
+        matched_cases=matched_cases
+    )
+
+
+def build_demo_flex():
+    demo_cases = get_demo_cases()
+    return build_list_flex(
+        alt_text="案例展示清單",
+        header_text=f"案例展示清單，共 {len(demo_cases)} 筆",
+        matched_cases=demo_cases
+    )
 
 
 @app.route("/cases")
@@ -281,7 +310,7 @@ def cases():
     </head>
     <body>
         <h1>MR. Bot 案例對照表</h1>
-        <p>共 {len(CASE_LIST)} 個案例</p>
+        <p>共 {len(CASE_LIST)} 個案例｜展示清單：{'、'.join(DEMO_KEYWORDS)}</p>
         <table>
             <tr>
                 <th>標號</th>
@@ -391,12 +420,26 @@ def handle_message(event):
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
 
-        # 1) 觸發「電子名片」搜尋流程
+        # 1) 觸發「電子名片」搜尋流程，並附上「展示」快速按鈕
         if user_msg == "電子名片":
             PENDING_SEARCH_USERS.add(user_id)
-            reply_msg = TextMessage(text="請輸入姓名或產業關鍵字搜尋")
+            reply_msg = TextMessage(
+                text="請輸入姓名或產業關鍵字搜尋\n或是查看展示清單請點選【展示】",
+                quick_reply=QuickReply(
+                    items=[
+                        QuickReplyItem(
+                            action=MessageAction(label="展示", text="展示")
+                        )
+                    ]
+                )
+            )
 
-        # 2) 使用者剛輸入過「電子名片」，這一則訊息視為搜尋關鍵字
+        # 2) 點選「展示」按鈕（或直接手動輸入「展示」）→ 顯示展示清單
+        elif user_msg == "展示":
+            PENDING_SEARCH_USERS.discard(user_id)
+            reply_msg = build_demo_flex()
+
+        # 3) 使用者剛輸入過「電子名片」，這一則訊息視為搜尋關鍵字
         elif user_id in PENDING_SEARCH_USERS:
             PENDING_SEARCH_USERS.discard(user_id)
             matched = search_cases(user_msg)
@@ -407,7 +450,7 @@ def handle_message(event):
             else:
                 reply_msg = build_search_result_flex(user_msg, matched)
 
-        # 3) 沿用原本：輸入姓名關鍵字直接顯示名片（維持既有使用習慣）
+        # 4) 沿用原本：輸入姓名關鍵字直接顯示名片（維持既有使用習慣）
         else:
             direct_matches = [c for c in CASE_LIST if c["keyword"].lower() in user_msg.lower()
                                or user_msg.lower() in c["keyword"].lower()]

@@ -108,6 +108,15 @@ CASE_LIST = [
 # 展示清單：依你指定的順序顯示（小如如、寧寧、鍾師富、傑哥、林威、竹勝）
 DEMO_KEYWORDS = ["小如如", "寧寧", "鍾師富", "傑哥", "林威", "竹勝"]
 
+# 快速按鈕上顯示的廣泛產業分類：(按鈕上顯示的文字, 拿去比對 industry_keywords 用的關鍵字)
+CATEGORY_QUICK_REPLIES = [
+    ("建築組", "建築組"),
+    ("健康", "健康"),
+    ("美業", "個人服務"),
+    ("食品飲料", "食品&飲料"),
+    ("金融", "財務規劃"),
+]
+
 # 使用者是否處於「請輸入姓名或產業關鍵字」等待狀態（記憶體暫存，重啟會清空）
 PENDING_SEARCH_USERS = set()
 
@@ -420,18 +429,17 @@ def handle_message(event):
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
 
-        # 1) 觸發「電子名片」搜尋流程，並附上「展示」快速按鈕
+        # 1) 觸發「電子名片」搜尋流程，並附上「展示」+ 常見產業分類快速按鈕
         if user_msg == "電子名片":
             PENDING_SEARCH_USERS.add(user_id)
+            quick_items = [QuickReplyItem(action=MessageAction(label="展示", text="展示"))]
+            quick_items += [
+                QuickReplyItem(action=MessageAction(label=label, text=label))
+                for label, _ in CATEGORY_QUICK_REPLIES
+            ]
             reply_msg = TextMessage(
-                text="請輸入姓名或產業關鍵字搜尋\n或是查看展示清單請點選【展示】",
-                quick_reply=QuickReply(
-                    items=[
-                        QuickReplyItem(
-                            action=MessageAction(label="展示", text="展示")
-                        )
-                    ]
-                )
+                text="請輸入姓名或產業關鍵字搜尋\n或是點選下方按鈕快速查看",
+                quick_reply=QuickReply(items=quick_items)
             )
 
         # 2) 點選「展示」按鈕（或直接手動輸入「展示」）→ 顯示展示清單
@@ -439,7 +447,17 @@ def handle_message(event):
             PENDING_SEARCH_USERS.discard(user_id)
             reply_msg = build_demo_flex()
 
-        # 3) 使用者剛輸入過「電子名片」，這一則訊息視為搜尋關鍵字
+        # 3) 點選產業分類快速按鈕（建築組／健康／個人服務／食品飲料／房地產）
+        elif user_msg in dict(CATEGORY_QUICK_REPLIES):
+            PENDING_SEARCH_USERS.discard(user_id)
+            search_keyword = dict(CATEGORY_QUICK_REPLIES)[user_msg]
+            matched = search_cases(search_keyword)
+            if matched:
+                reply_msg = build_search_result_flex(user_msg, matched)
+            else:
+                reply_msg = TextMessage(text=f"目前「{user_msg}」還沒有對應的案例。")
+
+        # 4) 使用者剛輸入過「電子名片」，這一則訊息視為搜尋關鍵字
         elif user_id in PENDING_SEARCH_USERS:
             PENDING_SEARCH_USERS.discard(user_id)
             matched = search_cases(user_msg)
@@ -450,7 +468,7 @@ def handle_message(event):
             else:
                 reply_msg = build_search_result_flex(user_msg, matched)
 
-        # 4) 沿用原本：輸入姓名關鍵字直接顯示名片（維持既有使用習慣）
+        # 5) 沿用原本：輸入姓名關鍵字直接顯示名片（維持既有使用習慣）
         else:
             direct_matches = [c for c in CASE_LIST if c["keyword"].lower() in user_msg.lower()
                                or user_msg.lower() in c["keyword"].lower()]

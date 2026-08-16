@@ -31,7 +31,7 @@
                       { "type": "filler" },
                       {
                         "type": "text",
-                        "text": "預約頭皮養護",
+                        "text": "寧寧的日常",
                         "color": "#ffffff",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -52,7 +52,7 @@
                 "action": {
                   "type": "uri",
                   "label": "action",
-                  "uri": "https://lin.ee/abc123"
+                  "uri": "https://www.instagram.com/eniehair_ning/"
                 }
               },
               {
@@ -67,7 +67,7 @@
                       { "type": "filler" },
                       {
                         "type": "text",
-                        "text": "分享電子名片",
+                        "text": "分享我的名片",
                         "color": "#686766",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -134,7 +134,7 @@
                       { "type": "filler" },
                       {
                         "type": "text",
-                        "text": "品牌合作洽談",
+                        "text": "雅如詩｜官網",
                         "color": "#ffffff",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -155,7 +155,7 @@
                 "action": {
                   "type": "uri",
                   "label": "action",
-                  "uri": "https://www.instagram.com/ningning_brand/"
+                  "uri": "https://www.enie.tw/"
                 }
               },
               {
@@ -170,7 +170,7 @@
                       { "type": "filler" },
                       {
                         "type": "text",
-                        "text": "產品研發理念",
+                        "text": "專業沙龍直擊",
                         "color": "#686766",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -191,7 +191,7 @@
                 "action": {
                   "type": "uri",
                   "label": "action",
-                  "uri": "https://ningning.com.tw/product"
+                  "uri": "https://www.instagram.com/eniehair?utm_source=qr"
                 }
               }
             ],
@@ -225,6 +225,42 @@
             "type": "box",
             "layout": "vertical",
             "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "美髮小訣竅",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#686766",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#686766",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://www.enie.tw/blog/posts"
+                }
+              },
               {
                 "type": "box",
                 "layout": "vertical",
@@ -238,42 +274,6 @@
                       {
                         "type": "text",
                         "text": "沙龍教育培訓",
-                        "color": "#ffffff",
-                        "flex": 0,
-                        "offsetTop": "-2px"
-                      },
-                      { "type": "filler" }
-                    ],
-                    "spacing": "sm"
-                  },
-                  { "type": "filler" }
-                ],
-                "borderWidth": "none",
-                "cornerRadius": "4px",
-                "spacing": "sm",
-                "borderColor": "#686766",
-                "margin": "md",
-                "height": "50px",
-                "backgroundColor": "#686766",
-                "action": {
-                  "type": "uri",
-                  "label": "action",
-                  "uri": "https://www.youtube.com/ningning"
-                }
-              },
-              {
-                "type": "box",
-                "layout": "vertical",
-                "contents": [
-                  { "type": "filler" },
-                  {
-                    "type": "box",
-                    "layout": "baseline",
-                    "contents": [
-                      { "type": "filler" },
-                      {
-                        "type": "text",
-                        "text": "頭皮理療體驗",
                         "color": "#686766",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -294,7 +294,7 @@
                 "action": {
                   "type": "uri",
                   "label": "action",
-                  "uri": "https://lin.ee/def456"
+                  "uri": "https://www.enie.tw/pages/hair-dye-formula-sharing-1"
                 }
               }
             ],
@@ -340,7 +340,7 @@
                       { "type": "filler" },
                       {
                         "type": "text",
-                        "text": "通路合作計畫",
+                        "text": "預約頭皮檢測",
                         "color": "#ffffff",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -361,7 +361,7 @@
                 "action": {
                   "type": "uri",
                   "label": "action",
-                  "uri": "https://ningning.com.tw/partner"
+                  "uri": "https://line.me/R/ti/p/@790jiwqz?ts=02181523&oat_content=url"
                 }
               },
               {
@@ -376,7 +376,7 @@
                       { "type": "filler" },
                       {
                         "type": "text",
-                        "text": "品牌故事",
+                        "text": "概念店【森莫】",
                         "color": "#686766",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -397,8 +397,106 @@
                 "action": {
                   "type": "uri",
                   "label": "action",
-                  "uri": "https://www.facebook.com/ningning"
+                  "uri": "https://www.instagram.com/senmohair/?igsh=MWE0eWI0OTFlYWQwNA%3D%3D&utm_source=qr#"
                 }
+              }
+            ],
+            "position": "relative",
+            "offsetBottom": "0px",
+            "offsetStart": "0px",
+            "offsetEnd": "0px",
+            "backgroundColor": "#000000",
+            "paddingAll": "15px",
+            "paddingTop": "5px"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/namecard/%E8%A6%8F%E5%8A%83%E4%B8%AD.png?raw=true",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "2:3",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "通路合作洽談",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#686766",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#686766",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://line.me/ti/p/FFoGhuE0UV"
+                }
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "BNI 五表",
+                        "color": "#686766",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "light",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#686766",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#e0dcd6"
               }
             ],
             "position": "relative",

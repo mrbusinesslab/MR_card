@@ -33,6 +33,7 @@ CASE_LIST = [
     {"case": "case9_昺諺", "keyword": "昺諺", "alt": "賴昺諺｜兆朋工程"},
     {"case": "case10_竹勝", "keyword": "竹勝", "alt": "周竹勝｜Paradiso爬樓梯創辦人"},
     {"case": "case11_耀宗", "keyword": "耀宗", "alt": "王耀宗｜健康管理顧問"},
+    {"case": "case12_凱程", "keyword": "凱程", "alt": "阮凱程｜耕家實業公司經理"},
 ]
 
 
@@ -186,6 +187,12 @@ def liff_耀宗():
     return content, 200, {"Content-Type": "text/html; charset=utf-8"}
 
 
+@app.route("/liff/case12/凱程")
+def liff_凱程():
+    content = load_liff("case12_凱程/liff_凱程.html")
+    return content, 200, {"Content-Type": "text/html; charset=utf-8"}
+
+
 @handler.add(MessageEvent, message=TextMessageContent)
 def handle_message(event):
     user_msg = event.message.text.strip()
@@ -270,6 +277,13 @@ def handle_message(event):
             else:
                 reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
 
+        elif "凱程" in user_msg:
+            flex_data = load_flex("case12_凱程/card_凱程.json")
+            if flex_data:
+                reply_msg = FlexMessage(alt_text="阮凱程｜耕家實業公司經理", contents=FlexContainer.from_dict(flex_data))
+            else:
+                reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
+
         else:
             reply_msg = TextMessage(
                 text="請輸入關鍵字：\n"
@@ -283,7 +297,8 @@ def handle_message(event):
                      "🔹 林威\n"
                      "🔹 昺諺\n"
                      "🔹 竹勝\n"
-                     "🔹 耀宗"
+                     "🔹 耀宗\n"
+                     "🔹 凱程"
             )
 
         line_bot_api.reply_message(

@@ -21,20 +21,89 @@ app = Flask(__name__)
 configuration = Configuration(access_token=os.getenv('LINE_CHANNEL_ACCESS_TOKEN'))
 handler = WebhookHandler(os.getenv('LINE_CHANNEL_SECRET'))
 
+# ============================================================
+# 案例資料
+# num：對照 GitHub templates 資料夾 case1~case12 的編號（圓形標號用）
+# name_keywords：任何輸入含有其中一個字串，或使用者輸入是其中一個字串的一部分，都算命中姓名
+# industry_keywords：依分會名單的職業分類 / 公司名稱 / 額外指定關鍵字
+# ============================================================
 CASE_LIST = [
-    {"case": "case1_小如如", "keyword": "小如如", "alt": "小如如｜MR.主理人"},
-    {"case": "case2_鍾師富", "keyword": "鍾師富", "alt": "鍾師富｜詠順工程行老闆"},
-    {"case": "case3_emma", "keyword": "emma", "alt": "emma｜大象木地板"},
-    {"case": "case4_傑哥", "keyword": "傑哥", "alt": "蘇祺傑｜傑出油漆工程行"},
-    {"case": "case5_一昌", "keyword": "一昌", "alt": "蔡一昌｜平衡之道-財務規劃師"},
-    {"case": "case6_寧寧", "keyword": "寧寧", "alt": "寧寧｜雅如詩品牌經營人"},
-    {"case": "case7_雙雙", "keyword": "雙雙", "alt": "品雙｜葡眾健康顧問"},
-    {"case": "case8_林威", "keyword": "林威", "alt": "林威｜amomris業務經理"},
-    {"case": "case9_昺諺", "keyword": "昺諺", "alt": "賴昺諺｜兆朋工程"},
-    {"case": "case10_竹勝", "keyword": "竹勝", "alt": "周竹勝｜Paradiso爬樓梯創辦人"},
-    {"case": "case11_耀宗", "keyword": "耀宗", "alt": "王耀宗｜健康管理顧問"},
-    {"case": "case12_凱程", "keyword": "凱程", "alt": "阮凱程｜耕家實業公司經理"},
+    {
+        "case": "case1_小如如", "num": 1,
+        "keyword": "小如如", "alt": "小如如｜MR.主理人",
+        "name_keywords": ["小如如", "潘昱如", "潘 昱如"],
+        "industry_keywords": ["顧問", "建築組", "個人服務", "美容美體", "如妍美學", "MN13"],
+    },
+    {
+        "case": "case2_鍾師富", "num": 2,
+        "keyword": "鍾師富", "alt": "鍾師富｜詠順工程行老闆",
+        "name_keywords": ["鍾師富", "鍾一德", "鍾 一德"],
+        "industry_keywords": ["建築組", "防水", "防風雨", "抓漏", "詠順工程行"],
+    },
+    {
+        "case": "case3_emma", "num": 3,
+        "keyword": "emma", "alt": "Emma｜大象木地板",
+        "name_keywords": ["emma", "Emma", "吳玫勳", "吳 玫勳", "大象木地板"],
+        "industry_keywords": ["建築組", "地板", "大象木地板", "廣德地板企業有限公司"],
+    },
+    {
+        "case": "case4_傑哥", "num": 4,
+        "keyword": "傑哥", "alt": "蘇祺傑｜傑出油漆工程行",
+        "name_keywords": ["傑哥", "蘇祺傑", "蘇 祺傑"],
+        "industry_keywords": ["建築組", "油漆", "粉刷師", "裝飾師", "傑出油漆工程行"],
+    },
+    {
+        "case": "case5_一昌", "num": 5,
+        "keyword": "一昌", "alt": "蔡一昌｜平衡之道-財務規劃師",
+        "name_keywords": ["一昌", "蔡一昌", "蔡 一昌"],
+        "industry_keywords": ["房地產服務", "房地產投資", "財務規劃", "富屋實業有限公司"],
+    },
+    {
+        "case": "case6_寧寧", "num": 6,
+        "keyword": "寧寧", "alt": "寧寧｜雅如詩品牌經營人",
+        "name_keywords": ["寧寧", "吳芷寧", "吳 芷寧"],
+        "industry_keywords": ["個人服務", "頭皮理療", "SPA", "雅如詩", "森莫生技有限公司"],
+    },
+    {
+        "case": "case7_雙雙", "num": 7,
+        "keyword": "雙雙", "alt": "品雙｜葡眾健康顧問",
+        "name_keywords": ["雙雙", "高品雙", "高 品雙"],
+        "industry_keywords": ["健康", "保健", "保健品", "葡眾企業股份有限公司"],
+    },
+    {
+        "case": "case8_林威", "num": 8,
+        "keyword": "林威", "alt": "林威｜amomris業務經理",
+        "name_keywords": ["林威"],
+        "industry_keywords": ["健康", "保健食品", "amomris", "Amomris"],
+    },
+    {
+        "case": "case9_昺諺", "num": 9,
+        "keyword": "昺諺", "alt": "賴昺諺｜兆朋工程",
+        "name_keywords": ["昺諺", "賴昺諺", "賴 昺諺"],
+        "industry_keywords": ["建築組", "裝修", "改造", "清運", "兆朋工程股份有限公司"],
+    },
+    {
+        "case": "case10_竹勝", "num": 10,
+        "keyword": "竹勝", "alt": "周竹勝｜Paradiso爬樓梯創辦人",
+        "name_keywords": ["竹勝", "周竹勝", "周 竹勝"],
+        "industry_keywords": ["食品&飲料", "餐飲服務", "爬樓梯", "必昇有限公司"],
+    },
+    {
+        "case": "case11_耀宗", "num": 11,
+        "keyword": "耀宗", "alt": "王耀宗｜健康管理顧問",
+        "name_keywords": ["耀宗", "王耀宗", "王 耀宗"],
+        "industry_keywords": ["健康", "保健品", "蘆薈汁", "永久產品公司"],
+    },
+    {
+        "case": "case12_凱程", "num": 12,
+        "keyword": "凱程", "alt": "阮凱程｜耕家實業公司經理",
+        "name_keywords": ["凱程", "阮凱程", "阮 凱程"],
+        "industry_keywords": ["建築組", "裝修", "改造", "裝潢", "耕家實業有限公司"],
+    },
 ]
+
+# 使用者是否處於「請輸入姓名或產業關鍵字」等待狀態（記憶體暫存，重啟會清空）
+PENDING_SEARCH_USERS = set()
 
 
 def load_flex(filepath):
@@ -46,7 +115,6 @@ def load_flex(filepath):
         return None
     with open(full_path, "r", encoding="utf-8") as f:
         content = f.read()
-    # 自動加今天日期，強制刷新 GitHub 圖片快取
     today = date.today().strftime("%Y%m%d")
     content = content.replace("?raw=true", f"?raw=true&v={today}")
     return json.loads(content)
@@ -57,10 +125,128 @@ def load_liff(filepath):
     full_path = os.path.join(base_dir, "templates", filepath)
     with open(full_path, "r", encoding="utf-8") as f:
         content = f.read()
-    # liff.html 裡的圖片也同步刷新
     today = date.today().strftime("%Y%m%d")
     content = content.replace("?raw=true", f"?raw=true&v={today}")
     return content
+
+
+def build_card_message(case_item):
+    """讀取單一案例的名片 Flex Message，讀取失敗則回傳文字訊息"""
+    filepath = f"{case_item['case']}/card_{case_item['case'].split('_', 1)[1]}.json"
+    flex_data = load_flex(filepath)
+    if flex_data:
+        return FlexMessage(alt_text=case_item["alt"], contents=FlexContainer.from_dict(flex_data))
+    return TextMessage(text="抱歉，名片檔案讀取失敗")
+
+
+def search_cases(query):
+    """依姓名關鍵字（全名/暱稱/部分字皆可）或產業關鍵字比對，回傳命中的案例清單"""
+    query = query.strip()
+    if not query:
+        return []
+    matched = []
+    for case_item in CASE_LIST:
+        all_keywords = case_item["name_keywords"] + case_item["industry_keywords"]
+        hit = any((query in kw) or (kw in query) for kw in all_keywords)
+        if hit:
+            matched.append(case_item)
+    return matched
+
+
+def build_search_result_flex(query, matched_cases):
+    """
+    橫列條目樣式：
+    - 標號用圓形，顯示 GitHub case 變數的編號（case1 -> 1）
+    - 稱謂照 app.py 的 alt 顯示文字
+    - 點擊該列會送出該案例的姓名關鍵字，觸發原本的名片回覆邏輯
+    """
+    rows = []
+    for case_item in matched_cases:
+        rows.append({
+            "type": "box",
+            "layout": "horizontal",
+            "spacing": "md",
+            "action": {
+                "type": "message",
+                "label": case_item["alt"][:20],
+                "text": case_item["keyword"]
+            },
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "width": "36px",
+                    "height": "36px",
+                    "cornerRadius": "18px",
+                    "backgroundColor": "#473C38",
+                    "justifyContent": "center",
+                    "alignItems": "center",
+                    "contents": [
+                        {
+                            "type": "text",
+                            "text": str(case_item["num"]),
+                            "color": "#F8EED2",
+                            "size": "sm",
+                            "weight": "bold",
+                            "align": "center"
+                        }
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "flex": 1,
+                    "contents": [
+                        {
+                            "type": "text",
+                            "text": case_item["alt"],
+                            "size": "sm",
+                            "weight": "bold",
+                            "color": "#473C38",
+                            "wrap": True
+                        },
+                        {
+                            "type": "text",
+                            "text": "・".join(case_item["industry_keywords"][:3]),
+                            "size": "xs",
+                            "color": "#888888",
+                            "wrap": True
+                        }
+                    ]
+                }
+            ]
+        })
+        rows.append({"type": "separator", "margin": "md"})
+
+    if rows:
+        rows.pop()  # 移除最後一條多餘分隔線
+
+    bubble = {
+        "type": "bubble",
+        "size": "mega",
+        "body": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#FFFFFF",
+            "paddingAll": "16px",
+            "spacing": "md",
+            "contents": [
+                {
+                    "type": "text",
+                    "text": f"「{query}」搜尋結果，共 {len(matched_cases)} 筆",
+                    "size": "xs",
+                    "color": "#888888"
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "spacing": "md",
+                    "contents": rows
+                }
+            ]
+        }
+    }
+    return FlexMessage(alt_text=f"{query} 搜尋結果", contents=FlexContainer.from_dict(bubble))
 
 
 @app.route("/cases")
@@ -69,9 +255,11 @@ def cases():
     for c in CASE_LIST:
         rows += f"""
         <tr>
+            <td>{c['num']}</td>
             <td>{c['case']}</td>
-            <td>{c['keyword']}</td>
             <td>{c['alt']}</td>
+            <td>{'、'.join(c['name_keywords'])}</td>
+            <td>{'、'.join(c['industry_keywords'])}</td>
         </tr>"""
 
     html = f"""
@@ -86,7 +274,7 @@ def cases():
             p {{ color: #888; font-size: 14px; margin-bottom: 20px; }}
             table {{ border-collapse: collapse; width: 100%; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }}
             th {{ background: #473c38; color: #f8eed2; padding: 12px 16px; text-align: left; font-size: 14px; }}
-            td {{ padding: 12px 16px; border-bottom: 1px solid #f0e8d8; font-size: 14px; }}
+            td {{ padding: 12px 16px; border-bottom: 1px solid #f0e8d8; font-size: 13px; vertical-align: top; }}
             tr:last-child td {{ border-bottom: none; }}
             tr:hover td {{ background: #fdf6ec; }}
         </style>
@@ -96,9 +284,11 @@ def cases():
         <p>共 {len(CASE_LIST)} 個案例</p>
         <table>
             <tr>
+                <th>標號</th>
                 <th>Case</th>
-                <th>關鍵字</th>
                 <th>Alt Text</th>
+                <th>姓名關鍵字</th>
+                <th>產業關鍵字</th>
             </tr>
             {rows}
         </table>
@@ -196,110 +386,49 @@ def liff_凱程():
 @handler.add(MessageEvent, message=TextMessageContent)
 def handle_message(event):
     user_msg = event.message.text.strip()
+    user_id = event.source.user_id if hasattr(event.source, "user_id") else "unknown"
 
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
 
-        if "小如如" in user_msg:
-            flex_data = load_flex("case1_小如如/card_小如如.json")
-            if flex_data:
-                reply_msg = FlexMessage(alt_text="小如如｜MR.主理人", contents=FlexContainer.from_dict(flex_data))
-            else:
-                reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
+        # 1) 觸發「電子名片」搜尋流程
+        if user_msg == "電子名片":
+            PENDING_SEARCH_USERS.add(user_id)
+            reply_msg = TextMessage(text="請輸入姓名或產業關鍵字搜尋")
 
-        elif "鍾師富" in user_msg:
-            flex_data = load_flex("case2_鍾師富/card_鍾師富.json")
-            if flex_data:
-                reply_msg = FlexMessage(alt_text="鍾師富｜詠順工程行老闆", contents=FlexContainer.from_dict(flex_data))
+        # 2) 使用者剛輸入過「電子名片」，這一則訊息視為搜尋關鍵字
+        elif user_id in PENDING_SEARCH_USERS:
+            PENDING_SEARCH_USERS.discard(user_id)
+            matched = search_cases(user_msg)
+            if not matched:
+                reply_msg = TextMessage(text=f"找不到與「{user_msg}」相關的名片，請換個關鍵字再試一次。")
+            elif len(matched) == 1:
+                reply_msg = build_card_message(matched[0])
             else:
-                reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
+                reply_msg = build_search_result_flex(user_msg, matched)
 
-        elif "emma" in user_msg or "大象木地板" in user_msg:
-            flex_data = load_flex("case3_emma/card_emma.json")
-            if flex_data:
-                reply_msg = FlexMessage(alt_text="emma｜大象木地板", contents=FlexContainer.from_dict(flex_data))
-            else:
-                reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
-
-        elif "傑哥" in user_msg:
-            flex_data = load_flex("case4_傑哥/card_傑哥.json")
-            if flex_data:
-                reply_msg = FlexMessage(alt_text="蘇祺傑｜傑出油漆工程行", contents=FlexContainer.from_dict(flex_data))
-            else:
-                reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
-
-        elif "一昌" in user_msg:
-            flex_data = load_flex("case5_一昌/card_一昌.json")
-            if flex_data:
-                reply_msg = FlexMessage(alt_text="蔡一昌｜平衡之道-財務規劃師", contents=FlexContainer.from_dict(flex_data))
-            else:
-                reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
-
-        elif "寧寧" in user_msg:
-            flex_data = load_flex("case6_寧寧/card_寧寧.json")
-            if flex_data:
-                reply_msg = FlexMessage(alt_text="寧寧｜雅如詩品牌經營人", contents=FlexContainer.from_dict(flex_data))
-            else:
-                reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
-
-        elif "雙雙" in user_msg:
-            flex_data = load_flex("case7_雙雙/card_雙雙.json")
-            if flex_data:
-                reply_msg = FlexMessage(alt_text="品雙｜葡眾健康顧問", contents=FlexContainer.from_dict(flex_data))
-            else:
-                reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
-
-        elif "林威" in user_msg:
-            flex_data = load_flex("case8_林威/card_林威.json")
-            if flex_data:
-                reply_msg = FlexMessage(alt_text="林威｜amomris業務經理", contents=FlexContainer.from_dict(flex_data))
-            else:
-                reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
-
-        elif "昺諺" in user_msg:
-            flex_data = load_flex("case9_昺諺/card_昺諺.json")
-            if flex_data:
-                reply_msg = FlexMessage(alt_text="賴昺諺｜兆朋工程", contents=FlexContainer.from_dict(flex_data))
-            else:
-                reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
-
-        elif "竹勝" in user_msg:
-            flex_data = load_flex("case10_竹勝/card_竹勝.json")
-            if flex_data:
-                reply_msg = FlexMessage(alt_text="周竹勝｜Paradiso爬樓梯創辦人", contents=FlexContainer.from_dict(flex_data))
-            else:
-                reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
-
-        elif "耀宗" in user_msg:
-            flex_data = load_flex("case11_耀宗/card_耀宗.json")
-            if flex_data:
-                reply_msg = FlexMessage(alt_text="王耀宗｜健康管理顧問", contents=FlexContainer.from_dict(flex_data))
-            else:
-                reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
-
-        elif "凱程" in user_msg:
-            flex_data = load_flex("case12_凱程/card_凱程.json")
-            if flex_data:
-                reply_msg = FlexMessage(alt_text="阮凱程｜耕家實業公司經理", contents=FlexContainer.from_dict(flex_data))
-            else:
-                reply_msg = TextMessage(text="抱歉，名片檔案讀取失敗")
-
+        # 3) 沿用原本：輸入姓名關鍵字直接顯示名片（維持既有使用習慣）
         else:
-            reply_msg = TextMessage(
-                text="請輸入關鍵字：\n"
-                     "🔹 小如如\n"
-                     "🔹 鍾師富\n"
-                     "🔹 emma\n"
-                     "🔹 傑哥\n"
-                     "🔹 一昌\n"
-                     "🔹 寧寧\n"
-                     "🔹 雙雙\n"
-                     "🔹 林威\n"
-                     "🔹 昺諺\n"
-                     "🔹 竹勝\n"
-                     "🔹 耀宗\n"
-                     "🔹 凱程"
-            )
+            direct_matches = [c for c in CASE_LIST if c["keyword"].lower() in user_msg.lower()
+                               or user_msg.lower() in c["keyword"].lower()]
+            if direct_matches:
+                reply_msg = build_card_message(direct_matches[0])
+            else:
+                reply_msg = TextMessage(
+                    text="輸入「電子名片」開始搜尋，或直接輸入姓名關鍵字：\n"
+                         "🔹 小如如\n"
+                         "🔹 鍾師富\n"
+                         "🔹 emma\n"
+                         "🔹 傑哥\n"
+                         "🔹 一昌\n"
+                         "🔹 寧寧\n"
+                         "🔹 雙雙\n"
+                         "🔹 林威\n"
+                         "🔹 昺諺\n"
+                         "🔹 竹勝\n"
+                         "🔹 耀宗\n"
+                         "🔹 凱程"
+                )
 
         line_bot_api.reply_message(
             ReplyMessageRequest(

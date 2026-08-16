@@ -1,0 +1,417 @@
+{
+  "type": "carousel",
+  "contents": [
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case12_%E5%87%B1%E7%A8%8B/1.png?raw=true",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "2:3",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "電話聯繫",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#323233",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#323233",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "tel:0908192867"
+                }
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "分享我的名片",
+                        "color": "#323233",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "light",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#323233",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#ffffff",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://liff.line.me/2009755863-m9P45XKX"
+                }
+              }
+            ],
+            "position": "relative",
+            "offsetBottom": "0px",
+            "offsetStart": "0px",
+            "offsetEnd": "0px",
+            "backgroundColor": "#e2ddd7",
+            "paddingAll": "15px",
+            "paddingTop": "5px"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case12_%E5%87%B1%E7%A8%8B/2.png?raw=true",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "2:3",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "預約免費丈量",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#323233",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#323233",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://lin.ee/z0TScCM"
+                }
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "耕家．裝潢案例",
+                        "color": "#323233",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "light",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#323233",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#ffffff",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://www.instagram.com/gengjia.life?igsh=bGNjeXM3b2VuNG85&utm_source=qr"
+                }
+              }
+            ],
+            "position": "relative",
+            "offsetBottom": "0px",
+            "offsetStart": "0px",
+            "offsetEnd": "0px",
+            "backgroundColor": "#e2ddd7",
+            "paddingAll": "15px",
+            "paddingTop": "5px"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/namecard/%E8%A6%8F%E5%8A%83%E4%B8%AD.png?raw=true",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "2:3",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "錒凱是誰 ?",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#323233",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#323233",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://www.instagram.com/despair0802?igsh=MmdiY3FtcXQ2d3B2&utm_source=qr"
+                }
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "預約一對一",
+                        "color": "#323233",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "light",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#323233",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#ffffff",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://line.me/ti/p/SKmzgi3wQY"
+                }
+              }
+            ],
+            "position": "relative",
+            "offsetBottom": "0px",
+            "offsetStart": "0px",
+            "offsetEnd": "0px",
+            "backgroundColor": "#e2ddd7",
+            "paddingAll": "15px",
+            "paddingTop": "5px"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/namecard/mr_1.png?raw=true",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "2:3",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "電子名片｜預約",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#323233",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#323233",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://lin.ee/erAsi6c"
+                }
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  { "type": "filler" },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      { "type": "filler" },
+                      {
+                        "type": "text",
+                        "text": "商務男士形象｜IG",
+                        "color": "#323233",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      { "type": "filler" }
+                    ],
+                    "spacing": "sm"
+                  },
+                  { "type": "filler" }
+                ],
+                "borderWidth": "light",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#323233",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#ffffff",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://www.instagram.com/mr.business.lab/"
+                }
+              }
+            ],
+            "position": "relative",
+            "offsetBottom": "0px",
+            "offsetStart": "0px",
+            "offsetEnd": "0px",
+            "backgroundColor": "#e2ddd7",
+            "paddingAll": "15px",
+            "paddingTop": "5px"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    }
+  ]
+}

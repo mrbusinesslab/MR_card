@@ -50,19 +50,19 @@ CASE_LIST = [
         "case": "case4_傑哥", "num": 4,
         "keyword": "傑哥", "alt": "蘇祺傑｜傑出油漆工程行",
         "name_keywords": ["傑哥", "蘇祺傑", "蘇 祺傑"],
-        "industry_keywords": ["建築組", "油漆", "粉刷師", "裝飾師", "傑出油漆工程行"],
+        "industry_keywords": ["建築組", "油漆", "粉刷師", "裝飾師", "傑出油漆"],
     },
     {
         "case": "case5_一昌", "num": 5,
         "keyword": "一昌", "alt": "蔡一昌｜平衡之道-財務規劃師",
         "name_keywords": ["一昌", "蔡一昌", "蔡 一昌"],
-        "industry_keywords": ["房地產服務", "房地產投資", "財務規劃", "富屋實業有限公司"],
+        "industry_keywords": ["房地產服務", "房地產投資", "財務規劃", "富屋"],
     },
     {
         "case": "case6_寧寧", "num": 6,
         "keyword": "寧寧", "alt": "寧寧｜雅如詩品牌經營人",
         "name_keywords": ["寧寧", "吳芷寧", "吳 芷寧"],
-        "industry_keywords": ["個人服務", "頭皮理療", "SPA", "雅如詩", "森莫生技有限公司"],
+        "industry_keywords": ["個人服務", "頭皮理療", "SPA", "雅如詩", "森莫"],
     },
     {
         "case": "case7_雙雙", "num": 7,
@@ -98,7 +98,7 @@ CASE_LIST = [
         "case": "case12_凱程", "num": 12,
         "keyword": "凱程", "alt": "阮凱程｜耕家實業公司經理",
         "name_keywords": ["凱程", "阮凱程", "阮 凱程"],
-        "industry_keywords": ["建築組", "裝修", "改造", "裝潢", "耕家實業有限公司"],
+        "industry_keywords": ["建築組", "裝修", "改造", "裝潢", "耕家"],
     },
 ]
 

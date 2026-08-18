@@ -120,6 +120,9 @@ CASE_LIST = [
 # 展示清單：依你指定的順序顯示（小如如、寧寧、鍾師富、傑哥、林威、竹勝）
 DEMO_KEYWORDS = ["小如如", "寧寧", "鍾師富", "傑哥", "林威", "竹勝"]
 
+# 最近新增的名片：不用手動維護，會自動抓 CASE_LIST 裡 num 最大的兩筆
+RECENTLY_ADDED_COUNT = 2
+
 # 快速按鈕上顯示的廣泛產業分類：(按鈕上顯示的文字, 拿去比對 industry_keywords 用的關鍵字)
 CATEGORY_QUICK_REPLIES = [
     ("建築組", "建築組"),
@@ -129,8 +132,25 @@ CATEGORY_QUICK_REPLIES = [
     ("金融", "財務規劃"),
 ]
 
+# 姓名關鍵字 -> 案例資料，供快速查表使用
+CASE_BY_KEYWORD = {c["keyword"]: c for c in CASE_LIST}
+
 # 使用者是否處於「請輸入姓名或產業關鍵字」等待狀態（記憶體暫存，重啟會清空）
 PENDING_SEARCH_USERS = set()
+
+# 每位使用者最近查看過的名片關鍵字（記憶體暫存，重啟會清空），最新的排最前面
+RECENT_VIEWS = {}
+RECENT_VIEWS_LIMIT = 8
+
+
+def record_view(user_id, case_item):
+    """記錄使用者剛看過的名片，供「最近查看的名片」使用"""
+    keyword_list = RECENT_VIEWS.setdefault(user_id, [])
+    kw = case_item["keyword"]
+    if kw in keyword_list:
+        keyword_list.remove(kw)
+    keyword_list.insert(0, kw)
+    del keyword_list[RECENT_VIEWS_LIMIT:]
 
 
 def load_flex(filepath):
@@ -182,8 +202,7 @@ def search_cases(query):
 
 def get_demo_cases():
     """依 DEMO_KEYWORDS 指定順序取出展示案例"""
-    keyword_map = {c["keyword"]: c for c in CASE_LIST}
-    return [keyword_map[k] for k in DEMO_KEYWORDS if k in keyword_map]
+    return [CASE_BY_KEYWORD[k] for k in DEMO_KEYWORDS if k in CASE_BY_KEYWORD]
 
 
 def build_list_flex(alt_text, header_text, matched_cases):
@@ -296,6 +315,34 @@ def build_demo_flex():
         alt_text="案例展示清單",
         header_text=f"案例展示清單，共 {len(demo_cases)} 筆",
         matched_cases=demo_cases
+    )
+
+
+def get_recently_added_cases():
+    """自動抓 CASE_LIST 裡 num 最大的幾筆，當作『最近新增』，不用手動維護清單"""
+    return sorted(CASE_LIST, key=lambda c: c["num"], reverse=True)[:RECENTLY_ADDED_COUNT]
+
+
+def build_recent_flex(user_id):
+    """
+    最近查看的名片：
+    - 先放這位使用者最近實際看過 / 搜尋命中過的名片（最新在前）
+    - 不足的話，補上最近新增的新案例（num 最大的幾筆）
+    - 都沒有紀錄時，就只顯示最近新增的案例
+    """
+    recent_keywords = RECENT_VIEWS.get(user_id, [])
+    recent_cases = [CASE_BY_KEYWORD[kw] for kw in recent_keywords if kw in CASE_BY_KEYWORD]
+
+    for case_item in get_recently_added_cases():
+        if case_item not in recent_cases:
+            recent_cases.append(case_item)
+
+    recent_cases = recent_cases[:RECENT_VIEWS_LIMIT]
+
+    return build_list_flex(
+        alt_text="最近查看的名片",
+        header_text=f"最近查看的名片，共 {len(recent_cases)} 筆",
+        matched_cases=recent_cases
     )
 
 
@@ -453,10 +500,13 @@ def handle_message(event):
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
 
-        # 1) 觸發「電子名片」搜尋流程，並附上「展示」+ 常見產業分類快速按鈕
+        # 1) 觸發「電子名片」搜尋流程，並附上「展示」+「最近查看」+ 常見產業分類快速按鈕
         if user_msg == "電子名片":
             PENDING_SEARCH_USERS.add(user_id)
-            quick_items = [QuickReplyItem(action=MessageAction(label="展示", text="展示"))]
+            quick_items = [
+                QuickReplyItem(action=MessageAction(label="展示", text="展示")),
+                QuickReplyItem(action=MessageAction(label="最近查看的名片", text="最近查看的名片")),
+            ]
             quick_items += [
                 QuickReplyItem(action=MessageAction(label=label, text=label))
                 for label, _ in CATEGORY_QUICK_REPLIES
@@ -471,7 +521,12 @@ def handle_message(event):
             PENDING_SEARCH_USERS.discard(user_id)
             reply_msg = build_demo_flex()
 
-        # 3) 點選產業分類快速按鈕（建築組／健康／個人服務／食品飲料／房地產）
+        # 3) 點選「最近查看的名片」按鈕 → 顯示這位使用者最近看過／搜尋過的名片
+        elif user_msg == "最近查看的名片":
+            PENDING_SEARCH_USERS.discard(user_id)
+            reply_msg = build_recent_flex(user_id)
+
+        # 4) 點選產業分類快速按鈕（建築組／健康／美業／食品飲料／金融）
         elif user_msg in dict(CATEGORY_QUICK_REPLIES):
             PENDING_SEARCH_USERS.discard(user_id)
             search_keyword = dict(CATEGORY_QUICK_REPLIES)[user_msg]
@@ -481,22 +536,24 @@ def handle_message(event):
             else:
                 reply_msg = TextMessage(text=f"目前「{user_msg}」還沒有對應的案例。")
 
-        # 4) 使用者剛輸入過「電子名片」，這一則訊息視為搜尋關鍵字
+        # 5) 使用者剛輸入過「電子名片」，這一則訊息視為搜尋關鍵字
         elif user_id in PENDING_SEARCH_USERS:
             PENDING_SEARCH_USERS.discard(user_id)
             matched = search_cases(user_msg)
             if not matched:
                 reply_msg = TextMessage(text=f"找不到與「{user_msg}」相關的名片，請換個關鍵字再試一次。")
             elif len(matched) == 1:
+                record_view(user_id, matched[0])
                 reply_msg = build_card_message(matched[0])
             else:
                 reply_msg = build_search_result_flex(user_msg, matched)
 
-        # 5) 沿用原本：輸入姓名關鍵字直接顯示名片（維持既有使用習慣）
+        # 6) 沿用原本：輸入姓名關鍵字直接顯示名片（維持既有使用習慣）
         else:
             direct_matches = [c for c in CASE_LIST if c["keyword"].lower() in user_msg.lower()
                                or user_msg.lower() in c["keyword"].lower()]
             if direct_matches:
+                record_view(user_id, direct_matches[0])
                 reply_msg = build_card_message(direct_matches[0])
             else:
                 reply_msg = TextMessage(

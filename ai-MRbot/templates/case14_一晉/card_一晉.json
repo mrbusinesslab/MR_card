@@ -48,7 +48,12 @@
                 "borderColor": "#2f4888",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#2f4888"
+                "backgroundColor": "#2f4888",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "tel:0916040417"
+                }
               },
               {
                 "type": "box",
@@ -146,7 +151,12 @@
                 "borderColor": "#2f4888",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#2f4888"
+                "backgroundColor": "#2f4888",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://line.me/ti/p/0y3K4hro37"
+                }
               },
               {
                 "type": "box",

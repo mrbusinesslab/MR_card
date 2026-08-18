@@ -9,7 +9,7 @@
         "contents": [
           {
             "type": "image",
-            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case14_%E4%B8%80%E6%99%89/1_1.png?raw=true",
+            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case14_%E4%B8%80%E6%99%89/1.png?raw=true",
             "size": "full",
             "aspectMode": "cover",
             "aspectRatio": "2:3",
@@ -170,7 +170,7 @@
                       { "type": "filler" },
                       {
                         "type": "text",
-                        "text": "【待命名】",
+                        "text": "預約一對一",
                         "color": "#020a15",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -187,7 +187,12 @@
                 "borderColor": "#020a15",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#ffffff"
+                "backgroundColor": "#ffffff",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://line.me/ti/p/0y3K4hro37"
+                }
               }
             ],
             "position": "relative",

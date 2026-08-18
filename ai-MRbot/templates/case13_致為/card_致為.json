@@ -48,7 +48,12 @@
                 "borderColor": "#0c1722",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#0c1722"
+                "backgroundColor": "#0c1722",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "tel:0976048830"
+                }
               },
               {
                 "type": "box",
@@ -146,7 +151,12 @@
                 "borderColor": "#0c1722",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#0c1722"
+                "backgroundColor": "#0c1722",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://line.me/ti/p/Cnm8B4vXS5"
+                }
               },
               {
                 "type": "box",

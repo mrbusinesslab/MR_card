@@ -103,6 +103,18 @@ CASE_LIST = [
         "name_keywords": ["凱程", "阮凱程", "阮 凱程"],
         "industry_keywords": ["建築組", "裝修", "改造", "裝潢", "耕家"],
     },
+    {
+        "case": "case13_致為", "num": 13,
+        "keyword": "致為", "alt": "黃致為｜蒔旭科技",
+        "name_keywords": ["致為", "小捲", "黃致為", "黃 致為"],
+        "industry_keywords": ["電腦&程式設計", "資訊科技顧問", "蒔旭有限公司"],
+    },
+    {
+        "case": "case14_一晉", "num": 14,
+        "keyword": "一晉", "alt": "邱一晉｜尚晉通信",
+        "name_keywords": ["一晉", "邱一晉", "邱 一晉"],
+        "industry_keywords": ["建築組", "電工", "電工-商業", "尚晉通科技企業社"],
+    },
 ]
 
 # 展示清單：依你指定的順序顯示（小如如、寧寧、鍾師富、傑哥、林威、竹勝）
@@ -421,6 +433,18 @@ def liff_凱程():
     return content, 200, {"Content-Type": "text/html; charset=utf-8"}
 
 
+@app.route("/liff/case13/致為")
+def liff_致為():
+    content = load_liff("case13_致為/liff_致為.html")
+    return content, 200, {"Content-Type": "text/html; charset=utf-8"}
+
+
+@app.route("/liff/case14/一晉")
+def liff_一晉():
+    content = load_liff("case14_一晉/liff_一晉.html")
+    return content, 200, {"Content-Type": "text/html; charset=utf-8"}
+
+
 @handler.add(MessageEvent, message=TextMessageContent)
 def handle_message(event):
     user_msg = event.message.text.strip()
@@ -488,7 +512,9 @@ def handle_message(event):
                          "🔹 昺諺\n"
                          "🔹 竹勝\n"
                          "🔹 耀宗\n"
-                         "🔹 凱程"
+                         "🔹 凱程\n"
+                         "🔹 致為\n"
+                         "🔹 一晉"
                 )
 
         line_bot_api.reply_message(

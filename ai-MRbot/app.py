@@ -59,7 +59,7 @@ CASE_LIST = [
         "case": "case5_一昌", "num": 5,
         "keyword": "一昌", "alt": "蔡一昌｜平衡之道-財務規劃師",
         "name_keywords": ["一昌", "蔡一昌", "蔡 一昌"],
-        "industry_keywords": ["房地產服務", "房地產投資", "財務規劃", "富屋"],
+        "industry_keywords": ["房地產服務", "房地產投資", "財務規劃", "金融", "富屋"],
     },
     {
         "case": "case6_寧寧", "num": 6,
@@ -115,6 +115,18 @@ CASE_LIST = [
         "name_keywords": ["一晉", "邱一晉", "邱 一晉"],
         "industry_keywords": ["建築組", "電工", "電工-商業", "尚晉通科技企業社"],
     },
+    {
+        "case": "case16_齊齊", "num": 16,
+        "keyword": "齊齊", "alt": "游宛齊｜馬鹿整合廣告",
+        "name_keywords": ["齊齊", "游宛齊", "游 宛齊"],
+        "industry_keywords": ["廣告&行銷", "廣告招牌輸出", "馬鹿整合廣告股份有限公司"],
+    },
+    {
+        "case": "case17_重凱", "num": 17,
+        "keyword": "重凱", "alt": "王重凱｜鉅沅管理顧問",
+        "name_keywords": ["重凱", "王重凱", "王 重凱"],
+        "industry_keywords": ["金融&保險", "金融投資", "金融", "鉅沅管理顧問有限公司"],
+    },
 ]
 
 # 展示清單：依你指定的順序顯示（小如如、寧寧、鍾師富、傑哥、林威、竹勝）
@@ -129,7 +141,7 @@ CATEGORY_QUICK_REPLIES = [
     ("健康", "健康"),
     ("美業", "個人服務"),
     ("食品飲料", "食品&飲料"),
-    ("金融", "財務規劃"),
+    ("金融", "金融"),
 ]
 
 # 姓名關鍵字 -> 案例資料，供快速查表使用
@@ -492,6 +504,18 @@ def liff_一晉():
     return content, 200, {"Content-Type": "text/html; charset=utf-8"}
 
 
+@app.route("/liff/case16/齊齊")
+def liff_齊齊():
+    content = load_liff("case16_齊齊/liff_齊齊.html")
+    return content, 200, {"Content-Type": "text/html; charset=utf-8"}
+
+
+@app.route("/liff/case17/重凱")
+def liff_重凱():
+    content = load_liff("case17_重凱/liff_重凱.html")
+    return content, 200, {"Content-Type": "text/html; charset=utf-8"}
+
+
 @handler.add(MessageEvent, message=TextMessageContent)
 def handle_message(event):
     user_msg = event.message.text.strip()
@@ -571,7 +595,9 @@ def handle_message(event):
                          "🔹 耀宗\n"
                          "🔹 凱程\n"
                          "🔹 致為\n"
-                         "🔹 一晉"
+                         "🔹 一晉\n"
+                         "🔹 齊齊\n"
+                         "🔹 重凱"
                 )
 
         line_bot_api.reply_message(

@@ -31,7 +31,7 @@
                       { "type": "filler" },
                       {
                         "type": "text",
-                        "text": "分享我的名片",
+                        "text": "預約一對一",
                         "color": "#ffffff",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -52,7 +52,7 @@
                 "action": {
                   "type": "uri",
                   "label": "action",
-                  "uri": "https://liff.line.me/2009755863-ClNS93l6"
+                  "uri": "https://line.me/ti/p/0DSes2F7RO"
                 }
               },
               {

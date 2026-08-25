@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>分享電子名片 - 齊齊</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+<body>
+<script>
+  const flexContent = {
+    "type": "carousel",
+    "contents": [
+      {
+        "type": "bubble",
+        "body": {
+          "type": "box",
+          "layout": "vertical",
+          "contents": [
+            {
+              "type": "image",
+              "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case16_%E9%BD%8A%E9%BD%8A/1.png?raw=true",
+              "size": "full",
+              "aspectMode": "cover",
+              "aspectRatio": "2:3",
+              "gravity": "top"
+            },
+            {
+              "type": "box",
+              "layout": "vertical",
+              "contents": [
+                {
+                  "type": "box",
+                  "layout": "vertical",
+                  "contents": [
+                    { "type": "filler" },
+                    {
+                      "type": "box",
+                      "layout": "baseline",
+                      "contents": [
+                        { "type": "filler" },
+                        {
+                          "type": "text",
+                          "text": "關於 okemaruu",
+                          "color": "#ffffff",
+                          "flex": 0,
+                          "offsetTop": "-2px"
+                        },
+                        { "type": "filler" }
+                      ],
+                      "spacing": "sm"
+                    },
+                    { "type": "filler" }
+                  ],
+                  "borderWidth": "none",
+                  "cornerRadius": "4px",
+                  "spacing": "sm",
+                  "borderColor": "#045755",
+                  "margin": "md",
+                  "height": "50px",
+                  "backgroundColor": "#045755",
+                  "action": {
+                    "type": "uri",
+                    "label": "action",
+                    "uri": "https://www.instagram.com/okemaruuuu"
+                  }
+                },
+                {
+                  "type": "box",
+                  "layout": "vertical",
+                  "contents": [
+                    { "type": "filler" },
+                    {
+                      "type": "box",
+                      "layout": "baseline",
+                      "contents": [
+                        { "type": "filler" },
+                        {
+                          "type": "text",
+                          "text": "分享我的名片",
+                          "color": "#045755",
+                          "flex": 0,
+                          "offsetTop": "-2px"
+                        },
+                        { "type": "filler" }
+                      ],
+                      "spacing": "sm"
+                    },
+                    { "type": "filler" }
+                  ],
+                  "borderWidth": "light",
+                  "cornerRadius": "4px",
+                  "spacing": "sm",
+                  "borderColor": "#045755",
+                  "margin": "md",
+                  "height": "50px",
+                  "backgroundColor": "#ffffff",
+                  "action": {
+                    "type": "uri",
+                    "label": "action",
+                    "uri": "https://liff.line.me/2009755863-vnymhSrc"
+                  }
+                }
+              ],
+              "position": "relative",
+              "offsetBottom": "0px",
+              "offsetStart": "0px",
+              "offsetEnd": "0px",
+              "backgroundColor": "#eae9e2",
+              "paddingAll": "15px",
+              "paddingTop": "5px"
+            }
+          ],
+          "paddingAll": "0px"
+        }
+      },
+      {
+        "type": "bubble",
+        "body": {
+          "type": "box",
+          "layout": "vertical",
+          "contents": [
+            {
+              "type": "image",
+              "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case16_%E9%BD%8A%E9%BD%8A/2.png?raw=true",
+              "size": "full",
+              "aspectMode": "cover",
+              "aspectRatio": "2:3",
+              "gravity": "top"
+            },
+            {
+              "type": "box",
+              "layout": "vertical",
+              "contents": [
+                {
+                  "type": "box",
+                  "layout": "vertical",
+                  "contents": [
+                    { "type": "filler" },
+                    {
+                      "type": "box",
+                      "layout": "baseline",
+                      "contents": [
+                        { "type": "filler" },
+                        {
+                          "type": "text",
+                          "text": "廣告招牌作品",
+                          "color": "#ffffff",
+                          "flex": 0,
+                          "offsetTop": "-2px"
+                        },
+                        { "type": "filler" }
+                      ],
+                      "spacing": "sm"
+                    },
+                    { "type": "filler" }
+                  ],
+                  "borderWidth": "none",
+                  "cornerRadius": "4px",
+                  "spacing": "sm",
+                  "borderColor": "#045755",
+                  "margin": "md",
+                  "height": "50px",
+                  "backgroundColor": "#045755",
+                  "action": {
+                    "type": "uri",
+                    "label": "action",
+                    "uri": "https://www.instagram.com/okemaru.1100"
+                  }
+                },
+                {
+                  "type": "box",
+                  "layout": "vertical",
+                  "contents": [
+                    { "type": "filler" },
+                    {
+                      "type": "box",
+                      "layout": "baseline",
+                      "contents": [
+                        { "type": "filler" },
+                        {
+                          "type": "text",
+                          "text": "工程案例紀錄",
+                          "color": "#045755",
+                          "flex": 0,
+                          "offsetTop": "-2px"
+                        },
+                        { "type": "filler" }
+                      ],
+                      "spacing": "sm"
+                    },
+                    { "type": "filler" }
+                  ],
+                  "borderWidth": "light",
+                  "cornerRadius": "4px",
+                  "spacing": "sm",
+                  "borderColor": "#045755",
+                  "margin": "md",
+                  "height": "50px",
+                  "backgroundColor": "#ffffff",
+                  "action": {
+                    "type": "uri",
+                    "label": "action",
+                    "uri": "https://www.instagram.com/okemaruuuu"
+                  }
+                }
+              ],
+              "position": "relative",
+              "offsetBottom": "0px",
+              "offsetStart": "0px",
+              "offsetEnd": "0px",
+              "backgroundColor": "#eae9e2",
+              "paddingAll": "15px",
+              "paddingTop": "5px"
+            }
+          ],
+          "paddingAll": "0px"
+        }
+      },
+      {
+        "type": "bubble",
+        "body": {
+          "type": "box",
+          "layout": "vertical",
+          "contents": [
+            {
+              "type": "image",
+              "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case16_%E9%BD%8A%E9%BD%8A/3.png?raw=true",
+              "size": "full",
+              "aspectMode": "cover",
+              "aspectRatio": "2:3",
+              "gravity": "top"
+            },
+            {
+              "type": "box",
+              "layout": "vertical",
+              "contents": [
+                {
+                  "type": "box",
+                  "layout": "vertical",
+                  "contents": [
+                    { "type": "filler" },
+                    {
+                      "type": "box",
+                      "layout": "baseline",
+                      "contents": [
+                        { "type": "filler" },
+                        {
+                          "type": "text",
+                          "text": "品牌形象官網",
+                          "color": "#ffffff",
+                          "flex": 0,
+                          "offsetTop": "-2px"
+                        },
+                        { "type": "filler" }
+                      ],
+                      "spacing": "sm"
+                    },
+                    { "type": "filler" }
+                  ],
+                  "borderWidth": "none",
+                  "cornerRadius": "4px",
+                  "spacing": "sm",
+                  "borderColor": "#045755",
+                  "margin": "md",
+                  "height": "50px",
+                  "backgroundColor": "#045755",
+                  "action": {
+                    "type": "uri",
+                    "label": "action",
+                    "uri": "https://www.okemaru1100.com.tw/"
+                  }
+                },
+                {
+                  "type": "box",
+                  "layout": "vertical",
+                  "contents": [
+                    { "type": "filler" },
+                    {
+                      "type": "box",
+                      "layout": "baseline",
+                      "contents": [
+                        { "type": "filler" },
+                        {
+                          "type": "text",
+                          "text": "公司位置",
+                          "color": "#045755",
+                          "flex": 0,
+                          "offsetTop": "-2px"
+                        },
+                        { "type": "filler" }
+                      ],
+                      "spacing": "sm"
+                    },
+                    { "type": "filler" }
+                  ],
+                  "borderWidth": "light",
+                  "cornerRadius": "4px",
+                  "spacing": "sm",
+                  "borderColor": "#045755",
+                  "margin": "md",
+                  "height": "50px",
+                  "backgroundColor": "#ffffff",
+                  "action": {
+                    "type": "uri",
+                    "label": "action",
+                    "uri": "https://maps.app.goo.gl/UedtG93DMzbNB2xP6"
+                  }
+                }
+              ],
+              "position": "relative",
+              "offsetBottom": "0px",
+              "offsetStart": "0px",
+              "offsetEnd": "0px",
+              "backgroundColor": "#eae9e2",
+              "paddingAll": "15px",
+              "paddingTop": "5px"
+            }
+          ],
+          "paddingAll": "0px"
+        }
+      },
+      {
+        "type": "bubble",
+        "body": {
+          "type": "box",
+          "layout": "vertical",
+          "contents": [
+            {
+              "type": "image",
+              "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case16_%E9%BD%8A%E9%BD%8A/4.png?raw=true",
+              "size": "full",
+              "aspectMode": "cover",
+              "aspectRatio": "2:3",
+              "gravity": "top"
+            },
+            {
+              "type": "box",
+              "layout": "vertical",
+              "contents": [
+                {
+                  "type": "box",
+                  "layout": "vertical",
+                  "contents": [
+                    { "type": "filler" },
+                    {
+                      "type": "box",
+                      "layout": "baseline",
+                      "contents": [
+                        { "type": "filler" },
+                        {
+                          "type": "text",
+                          "text": "作品案例",
+                          "color": "#ffffff",
+                          "flex": 0,
+                          "offsetTop": "-2px"
+                        },
+                        { "type": "filler" }
+                      ],
+                      "spacing": "sm"
+                    },
+                    { "type": "filler" }
+                  ],
+                  "borderWidth": "none",
+                  "cornerRadius": "4px",
+                  "spacing": "sm",
+                  "borderColor": "#045755",
+                  "margin": "md",
+                  "height": "50px",
+                  "backgroundColor": "#045755",
+                  "action": {
+                    "type": "uri",
+                    "label": "action",
+                    "uri": "https://okemaru1100.com.tw/portfolio-all/"
+                  }
+                },
+                {
+                  "type": "box",
+                  "layout": "vertical",
+                  "contents": [
+                    { "type": "filler" },
+                    {
+                      "type": "box",
+                      "layout": "baseline",
+                      "contents": [
+                        { "type": "filler" },
+                        {
+                          "type": "text",
+                          "text": "展示門市資訊",
+                          "color": "#045755",
+                          "flex": 0,
+                          "offsetTop": "-2px"
+                        },
+                        { "type": "filler" }
+                      ],
+                      "spacing": "sm"
+                    },
+                    { "type": "filler" }
+                  ],
+                  "borderWidth": "light",
+                  "cornerRadius": "4px",
+                  "spacing": "sm",
+                  "borderColor": "#045755",
+                  "margin": "md",
+                  "height": "50px",
+                  "backgroundColor": "#ffffff",
+                  "action": {
+                    "type": "uri",
+                    "label": "action",
+                    "uri": "https://okemaru1100.com.tw/showroom/"
+                  }
+                }
+              ],
+              "position": "relative",
+              "offsetBottom": "0px",
+              "offsetStart": "0px",
+              "offsetEnd": "0px",
+              "backgroundColor": "#eae9e2",
+              "paddingAll": "15px",
+              "paddingTop": "5px"
+            }
+          ],
+          "paddingAll": "0px"
+        }
+      },
+      {
+        "type": "bubble",
+        "body": {
+          "type": "box",
+          "layout": "vertical",
+          "contents": [
+            {
+              "type": "image",
+              "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case16_%E9%BD%8A%E9%BD%8A/5.png?raw=true",
+              "size": "full",
+              "aspectMode": "cover",
+              "aspectRatio": "2:3",
+              "gravity": "top"
+            },
+            {
+              "type": "box",
+              "layout": "vertical",
+              "contents": [
+                {
+                  "type": "box",
+                  "layout": "vertical",
+                  "contents": [
+                    { "type": "filler" },
+                    {
+                      "type": "box",
+                      "layout": "baseline",
+                      "contents": [
+                        { "type": "filler" },
+                        {
+                          "type": "text",
+                          "text": "線上購物",
+                          "color": "#ffffff",
+                          "flex": 0,
+                          "offsetTop": "-2px"
+                        },
+                        { "type": "filler" }
+                      ],
+                      "spacing": "sm"
+                    },
+                    { "type": "filler" }
+                  ],
+                  "borderWidth": "none",
+                  "cornerRadius": "4px",
+                  "spacing": "sm",
+                  "borderColor": "#045755",
+                  "margin": "md",
+                  "height": "50px",
+                  "backgroundColor": "#045755",
+                  "action": {
+                    "type": "uri",
+                    "label": "action",
+                    "uri": "https://okemaru1100.com.tw/shop/"
+                  }
+                },
+                {
+                  "type": "box",
+                  "layout": "vertical",
+                  "contents": [
+                    { "type": "filler" },
+                    {
+                      "type": "box",
+                      "layout": "baseline",
+                      "contents": [
+                        { "type": "filler" },
+                        {
+                          "type": "text",
+                          "text": "工程安裝服務",
+                          "color": "#045755",
+                          "flex": 0,
+                          "offsetTop": "-2px"
+                        },
+                        { "type": "filler" }
+                      ],
+                      "spacing": "sm"
+                    },
+                    { "type": "filler" }
+                  ],
+                  "borderWidth": "light",
+                  "cornerRadius": "4px",
+                  "spacing": "sm",
+                  "borderColor": "#045755",
+                  "margin": "md",
+                  "height": "50px",
+                  "backgroundColor": "#ffffff",
+                  "action": {
+                    "type": "uri",
+                    "label": "action",
+                    "uri": "https://okemaru1100.likehelper.com/service/"
+                  }
+                }
+              ],
+              "position": "relative",
+              "offsetBottom": "0px",
+              "offsetStart": "0px",
+              "offsetEnd": "0px",
+              "backgroundColor": "#eae9e2",
+              "paddingAll": "15px",
+              "paddingTop": "5px"
+            }
+          ],
+          "paddingAll": "0px"
+        }
+      }
+    ]
+  };
+
+  liff.init({ liffId: "2009755863-vnymhSrc" })
+    .then(() => {
+      return liff.shareTargetPicker([
+        {
+          type: "flex",
+          altText: "齊齊｜okemaruu",
+          contents: flexContent
+        }
+      ]);
+    })
+    .then((res) => {
+      if (res) {
+        liff.closeWindow();
+      }
+    })
+    .catch((err) => {
+      console.error("分享失敗", err);
+    });
+</script>
+</body>
+</html>

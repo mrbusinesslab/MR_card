@@ -31,7 +31,7 @@
                       { "type": "filler" },
                       {
                         "type": "text",
-                        "text": "認識王重凱",
+                        "text": "分享我的名片",
                         "color": "#ffffff",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -48,7 +48,12 @@
                 "borderColor": "#034183",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#034183"
+                "backgroundColor": "#034183",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://liff.line.me/2009755863-ClNS93l6"
+                }
               },
               {
                 "type": "box",
@@ -129,7 +134,7 @@
                       { "type": "filler" },
                       {
                         "type": "text",
-                        "text": "公司簡介",
+                        "text": "分享我的名片",
                         "color": "#ffffff",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -146,7 +151,12 @@
                 "borderColor": "#034183",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#034183"
+                "backgroundColor": "#034183",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://liff.line.me/2009755863-ClNS93l6"
+                }
               },
               {
                 "type": "box",
@@ -160,7 +170,7 @@
                       { "type": "filler" },
                       {
                         "type": "text",
-                        "text": "服務項目",
+                        "text": "分享我的名片",
                         "color": "#034183",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -177,7 +187,12 @@
                 "borderColor": "#034183",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#e7e7e7"
+                "backgroundColor": "#e7e7e7",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://liff.line.me/2009755863-ClNS93l6"
+                }
               }
             ],
             "position": "relative",
@@ -222,7 +237,7 @@
                       { "type": "filler" },
                       {
                         "type": "text",
-                        "text": "成功案例",
+                        "text": "分享我的名片",
                         "color": "#ffffff",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -239,7 +254,12 @@
                 "borderColor": "#034183",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#034183"
+                "backgroundColor": "#034183",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://liff.line.me/2009755863-ClNS93l6"
+                }
               },
               {
                 "type": "box",
@@ -253,7 +273,7 @@
                       { "type": "filler" },
                       {
                         "type": "text",
-                        "text": "客戶見證",
+                        "text": "分享我的名片",
                         "color": "#034183",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -270,7 +290,12 @@
                 "borderColor": "#034183",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#e7e7e7"
+                "backgroundColor": "#e7e7e7",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://liff.line.me/2009755863-ClNS93l6"
+                }
               }
             ],
             "position": "relative",
@@ -315,7 +340,7 @@
                       { "type": "filler" },
                       {
                         "type": "text",
-                        "text": "合作流程",
+                        "text": "分享我的名片",
                         "color": "#ffffff",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -332,7 +357,12 @@
                 "borderColor": "#034183",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#034183"
+                "backgroundColor": "#034183",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://liff.line.me/2009755863-ClNS93l6"
+                }
               },
               {
                 "type": "box",
@@ -346,7 +376,7 @@
                       { "type": "filler" },
                       {
                         "type": "text",
-                        "text": "常見問題",
+                        "text": "分享我的名片",
                         "color": "#034183",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -363,7 +393,12 @@
                 "borderColor": "#034183",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#e7e7e7"
+                "backgroundColor": "#e7e7e7",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://liff.line.me/2009755863-ClNS93l6"
+                }
               }
             ],
             "position": "relative",
@@ -408,7 +443,7 @@
                       { "type": "filler" },
                       {
                         "type": "text",
-                        "text": "聯繫我們",
+                        "text": "分享我的名片",
                         "color": "#ffffff",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -425,7 +460,12 @@
                 "borderColor": "#034183",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#034183"
+                "backgroundColor": "#034183",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://liff.line.me/2009755863-ClNS93l6"
+                }
               },
               {
                 "type": "box",
@@ -439,7 +479,7 @@
                       { "type": "filler" },
                       {
                         "type": "text",
-                        "text": "加入好友",
+                        "text": "分享我的名片",
                         "color": "#034183",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -456,7 +496,12 @@
                 "borderColor": "#034183",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#e7e7e7"
+                "backgroundColor": "#e7e7e7",
+                "action": {
+                  "type": "uri",
+                  "label": "action",
+                  "uri": "https://liff.line.me/2009755863-ClNS93l6"
+                }
               }
             ],
             "position": "relative",

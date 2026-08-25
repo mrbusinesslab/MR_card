@@ -129,7 +129,7 @@
                       { "type": "filler" },
                       {
                         "type": "text",
-                        "text": "服務項目",
+                        "text": "公司簡介",
                         "color": "#ffffff",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -160,7 +160,7 @@
                       { "type": "filler" },
                       {
                         "type": "text",
-                        "text": "預約諮詢",
+                        "text": "服務項目",
                         "color": "#034183",
                         "flex": 0,
                         "offsetTop": "-2px"

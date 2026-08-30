@@ -1,5 +1,6 @@
 import os
 import json
+from difflib import SequenceMatcher
 from datetime import date
 from flask import Flask, request, abort
 
@@ -212,6 +213,37 @@ def search_cases(query):
     return matched
 
 
+def normalize_name(text):
+    """姓名錯字比對前的簡單正規化：去除空白並轉小寫。"""
+    return "".join(text.split()).lower()
+
+
+def fuzzy_search_cases(query, threshold=0.5, limit=3):
+    """
+    搜尋不到時使用的姓名錯字推薦。
+    只比對 keyword / name_keywords，不拿產業關鍵字來猜人名，避免誤推薦。
+    最多回傳 limit 筆，並依相似度由高到低排序。
+    """
+    query_normalized = normalize_name(query)
+    if not query_normalized:
+        return []
+
+    scored_cases = []
+    for case_item in CASE_LIST:
+        name_keywords = [case_item["keyword"]] + case_item["name_keywords"]
+        scores = [
+            SequenceMatcher(None, query_normalized, normalize_name(keyword)).ratio()
+            for keyword in name_keywords
+            if normalize_name(keyword)
+        ]
+        best_score = max(scores) if scores else 0
+        if best_score >= threshold:
+            scored_cases.append((best_score, case_item))
+
+    scored_cases.sort(key=lambda item: (-item[0], item[1]["num"]))
+    return [case_item for _, case_item in scored_cases[:limit]]
+
+
 def get_demo_cases():
     """依 DEMO_KEYWORDS 指定順序取出展示案例"""
     return [CASE_BY_KEYWORD[k] for k in DEMO_KEYWORDS if k in CASE_BY_KEYWORD]
@@ -318,6 +350,14 @@ def build_search_result_flex(query, matched_cases):
         alt_text=f"{query} 搜尋結果",
         header_text=f"「{query}」搜尋結果，共 {len(matched_cases)} 筆",
         matched_cases=matched_cases
+    )
+
+
+def build_suggestion_flex(query, suggested_cases):
+    return build_list_flex(
+        alt_text=f"你可能想找的電子名片",
+        header_text=f"找不到「{query}」，你是不是想找：",
+        matched_cases=suggested_cases
     )
 
 
@@ -565,14 +605,18 @@ def handle_message(event):
             PENDING_SEARCH_USERS.discard(user_id)
             matched = search_cases(user_msg)
             if not matched:
-                reply_msg = TextMessage(text=f"找不到與「{user_msg}」相關的名片，請換個關鍵字再試一次。")
+                suggestions = fuzzy_search_cases(user_msg)
+                if suggestions:
+                    reply_msg = build_suggestion_flex(user_msg, suggestions)
+                else:
+                    reply_msg = TextMessage(text=f"找不到與「{user_msg}」相關的名片，請換個關鍵字再試一次。")
             elif len(matched) == 1:
                 record_view(user_id, matched[0])
                 reply_msg = build_card_message(matched[0])
             else:
                 reply_msg = build_search_result_flex(user_msg, matched)
 
-        # 6) 沿用原本：輸入姓名關鍵字直接顯示名片（維持既有使用習慣）
+        # 6) 沿用原本：輸入姓名關鍵字直接顯示名片；若打錯字則提供相似姓名推薦
         else:
             direct_matches = [c for c in CASE_LIST if c["keyword"].lower() in user_msg.lower()
                                or user_msg.lower() in c["keyword"].lower()]
@@ -580,25 +624,29 @@ def handle_message(event):
                 record_view(user_id, direct_matches[0])
                 reply_msg = build_card_message(direct_matches[0])
             else:
-                reply_msg = TextMessage(
-                    text="輸入「電子名片」開始搜尋，或直接輸入姓名關鍵字：\n"
-                         "🔹 小如如\n"
-                         "🔹 鍾師富\n"
-                         "🔹 emma\n"
-                         "🔹 傑哥\n"
-                         "🔹 一昌\n"
-                         "🔹 寧寧\n"
-                         "🔹 雙雙\n"
-                         "🔹 林威\n"
-                         "🔹 昺諺\n"
-                         "🔹 竹勝\n"
-                         "🔹 耀宗\n"
-                         "🔹 凱程\n"
-                         "🔹 致為\n"
-                         "🔹 一晉\n"
-                         "🔹 齊齊\n"
-                         "🔹 重凱"
-                )
+                suggestions = fuzzy_search_cases(user_msg)
+                if suggestions:
+                    reply_msg = build_suggestion_flex(user_msg, suggestions)
+                else:
+                    reply_msg = TextMessage(
+                        text="輸入「電子名片」開始搜尋，或直接輸入姓名關鍵字：\n"
+                             "🔹 小如如\n"
+                             "🔹 鍾師富\n"
+                             "🔹 emma\n"
+                             "🔹 傑哥\n"
+                             "🔹 一昌\n"
+                             "🔹 寧寧\n"
+                             "🔹 雙雙\n"
+                             "🔹 林威\n"
+                             "🔹 昺諺\n"
+                             "🔹 竹勝\n"
+                             "🔹 耀宗\n"
+                             "🔹 凱程\n"
+                             "🔹 致為\n"
+                             "🔹 一晉\n"
+                             "🔹 齊齊\n"
+                             "🔹 重凱"
+                    )
 
         line_bot_api.reply_message(
             ReplyMessageRequest(

@@ -1,5 +1,6 @@
 import os
 import re
+from urllib.parse import urlparse
 from flask import request, abort
 
 import legacy_app as legacy
@@ -29,6 +30,11 @@ def normalize(text):
     return "".join(str(text or "").split()).lower()
 
 
+def normalize_compare(text):
+    text = re.sub(r"https?://\S+", "", str(text or "")).lower()
+    return re.sub(r"[\s，,。；;、：:／/｜|（）()\-—_•●▪・]+", "", text)
+
+
 def clean_text(value, limit=120):
     text = str(value or "").strip()
     text = re.sub(r"[ \t]+", " ", text)
@@ -42,25 +48,15 @@ def bullet_text(value, limit=220, max_items=5):
     text = str(value or "").strip()
     if not text:
         return ""
-
-    # 移除網址，網址另外以按鈕呈現，避免卡片文字很亂。
     text = re.sub(r"https?://[^\s，、；;）)]+", "", text)
     text = text.replace("•", "\n").replace("●", "\n").replace("▪", "\n")
-
-    # 優先保留原換行，再利用常見中文標點拆成短句。
     raw_parts = re.split(r"\n+|[；;]+|(?<=[。！？!?])|[、]+", text)
     parts = []
     for raw in raw_parts:
         raw = re.sub(r"^[\s\-–—•●▪・]+|[\s\-–—•●▪・]+$", "", raw).strip("，,。")
         if not raw:
             continue
-
-        # 若一句仍很長，再用逗號切，但避免把很短的語意切得太碎。
-        if len(raw) > 42 and ("，" in raw or "," in raw):
-            subparts = re.split(r"[，,]+", raw)
-        else:
-            subparts = [raw]
-
+        subparts = re.split(r"[，,]+", raw) if len(raw) > 42 and ("，" in raw or "," in raw) else [raw]
         for sub in subparts:
             sub = sub.strip(" ，,。")
             if sub and sub not in parts:
@@ -69,14 +65,27 @@ def bullet_text(value, limit=220, max_items=5):
                 break
         if len(parts) >= max_items:
             break
-
     if not parts:
         return clean_text(text, limit)
-
     result = "\n".join(f"• {p}" for p in parts)
-    if len(result) > limit:
-        result = result[: limit - 1].rstrip(" ，、；;。\n") + "…"
-    return result
+    return result if len(result) <= limit else result[: limit - 1].rstrip(" ，、；;。\n") + "…"
+
+
+def should_show_detail(core, detail):
+    """核心已說過就不重複；只有 detail 明顯提供更多資訊才保留。"""
+    c = normalize_compare(core)
+    d = normalize_compare(detail)
+    if not d:
+        return False
+    if not c:
+        return True
+    if c == d:
+        return False
+    if d in c:
+        return False
+    if c in d:
+        return len(d) >= max(len(c) + 18, int(len(c) * 1.35))
+    return True
 
 
 def find_card_for_person(name):
@@ -157,38 +166,86 @@ def summary_row(label, value):
     ]}
 
 
+def platform_label(url, source_text=""):
+    low = url.lower()
+    host = urlparse(url).netloc.lower().replace("www.", "")
+    known = [
+        (("instagram.com",), "Instagram"),
+        (("facebook.com", "fb.com"), "Facebook"),
+        (("threads.net",), "Threads"),
+        (("linkedin.com",), "LinkedIn"),
+        (("youtube.com", "youtu.be"), "YouTube"),
+        (("lin.ee", "line.me"), "LINE"),
+        (("pro360.com.tw", "pro360.com"), "PRO360"),
+        (("maps.google", "google.com/maps", "maps.app.goo.gl"), "Google 地圖"),
+    ]
+    for keys, label in known:
+        if any(k in low for k in keys):
+            return label
+
+    # 如果網址所在那一行前方有名稱，例如「官網：https://...」，優先使用該名稱。
+    for line in str(source_text or "").splitlines():
+        if url in line:
+            prefix = line.split(url, 1)[0].strip(" ：:｜|－-→>・•")
+            if 1 < len(prefix) <= 18:
+                return prefix
+
+    if host:
+        root = host.split(".")[0]
+        if root and root not in ("docs", "drive", "sites"):
+            return root[:18]
+    return "官方連結"
+
+
 def link_buttons_from_text(text):
-    buttons = []
-    urls = extract_urls(text or "")
-    for i, url in enumerate(urls[:4], start=1):
-        label = "開啟連結" if len(urls) == 1 else f"開啟連結 {i}"
-        buttons.append({"type": "button", "style": "secondary", "height": "sm", "action": {"type": "uri", "label": label, "uri": url}})
+    buttons, used = [], set()
+    for url in extract_urls(text or "")[:4]:
+        label = platform_label(url, text)
+        base = label
+        index = 2
+        while label in used:
+            label = f"{base} {index}"
+            index += 1
+        used.add(label)
+        buttons.append({"type": "button", "style": "secondary", "height": "sm", "action": {"type": "uri", "label": label[:20], "uri": url}})
     return buttons
 
 
 def contact_buttons(text):
-    buttons = []
+    buttons, used = [], set()
     for url in extract_urls(text or "")[:2]:
-        buttons.append({"type": "button", "style": "secondary", "height": "sm", "action": {"type": "uri", "label": "開啟聯絡連結", "uri": url}})
+        label = platform_label(url, text)
+        if label not in used:
+            used.add(label)
+            buttons.append({"type": "button", "style": "secondary", "height": "sm", "action": {"type": "uri", "label": label[:20], "uri": url}})
 
     emails = re.findall(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}", text or "")
     if emails:
-        buttons.append({"type": "button", "style": "secondary", "height": "sm", "action": {"type": "uri", "label": "寄送 Email", "uri": f"mailto:{emails[0]}"}})
+        buttons.append({"type": "button", "style": "secondary", "height": "sm", "action": {"type": "uri", "label": "Email", "uri": f"mailto:{emails[0]}"}})
 
     phones = re.findall(r"(?:\+?886[-\s]?)?0?9\d{2}[-\s]?\d{3}[-\s]?\d{3}|0\d{1,2}[-\s]?\d{3,4}[-\s]?\d{4}", text or "")
     if phones:
         phone = re.sub(r"[^\d+]", "", phones[0])
-        buttons.append({"type": "button", "style": "secondary", "height": "sm", "action": {"type": "uri", "label": "直接撥打", "uri": f"tel:{phone}"}})
+        buttons.append({"type": "button", "style": "secondary", "height": "sm", "action": {"type": "uri", "label": "電話", "uri": f"tel:{phone}"}})
     return buttons[:4]
+
+
+def append_nonduplicate_rows(contents, core, items):
+    shown = set()
+    for label, value in items:
+        value = str(value or "").strip()
+        key = normalize_compare(value)
+        if not value or not key or key in shown:
+            continue
+        shown.add(key)
+        if should_show_detail(core, value):
+            contents.append(summary_row(label, value))
 
 
 def build_category_card(person, category):
     name = person["姓名"]
     data = person.get("資料蒐集", {})
-    title = "人物資料"
-    core = ""
-    items = []
-    footer_buttons = []
+    title, core, items, footer_buttons = "人物資料", "", [], []
 
     if category == "basic":
         title = "基本資料"
@@ -211,21 +268,21 @@ def build_category_card(person, category):
     elif category == "contact":
         title = "聯絡方式"
         core = data.get("聯絡資訊")
-        items = [("聯絡資訊", data.get("聯絡資訊"))]
+        # 聯絡資訊本身就是重點，不再在下方原文重複一次。
+        items = []
         footer_buttons = contact_buttons(data.get("聯絡資訊") or "")
 
     contents = [
         {"type": "text", "text": f"{name}｜{title}", "size": "lg", "weight": "bold", "color": "#473C38", "wrap": True},
         {"type": "text", "text": "重點", "size": "xs", "weight": "bold", "color": "#9A7B4F", "margin": "md"},
         {"type": "text", "text": bullet_text(core or "目前沒有可用的重點資料。", 240, 5), "size": "md", "weight": "bold", "color": "#473C38", "wrap": True},
-        {"type": "separator", "margin": "lg"},
     ]
-    seen = set()
-    for label, value in items:
-        value = str(value or "").strip()
-        if value and value not in seen:
-            seen.add(value)
-            contents.append(summary_row(label, value))
+    before = len(contents)
+    extra = []
+    append_nonduplicate_rows(extra, core, items)
+    if extra:
+        contents.append({"type": "separator", "margin": "lg"})
+        contents.extend(extra)
 
     footer = footer_buttons[:]
     footer.append({"type": "button", "style": "link", "height": "sm", "action": {"type": "message", "label": "查看完整資料", "text": f"人物完整|{name}|{category}"}})
@@ -240,22 +297,32 @@ def build_insight_card(person, category):
         data = person.get("顧問快診", {})
         title = "顧問快診"
         core = data.get("顧問現場一句話") or data.get("第一眼印象") or data.get("搜尋現況")
-        items = [("目前優勢", data.get("目前優勢")), ("最大落差", data.get("外界可能看不懂的地方") or data.get("缺少的關鍵資產")), ("下一步", data.get("建議下一步"))]
+        items = [
+            ("目前優勢", data.get("目前優勢")),
+            ("最大落差", data.get("外界可能看不懂的地方") or data.get("缺少的關鍵資產")),
+            ("下一步", data.get("建議下一步")),
+        ]
     else:
         data = person.get("盲蒐", {})
         title = "盲搜／品牌落差"
         core = data.get("盲搜結論") or data.get("品牌落差") or data.get("外界第一眼會怎麼理解")
-        items = [("搜得到什麼", data.get("自然出現的品牌／名稱") or data.get("搜尋到的平台／資產")), ("最大問題", data.get("本人與公司／品牌關聯是否看得懂") or data.get("搜尋干擾／同名問題")), ("品牌落差", data.get("品牌落差") or data.get("盲搜時沒有自然出現的資訊"))]
+        items = [
+            ("搜得到什麼", data.get("自然出現的品牌／名稱") or data.get("搜尋到的平台／資產")),
+            ("最大問題", data.get("本人與公司／品牌關聯是否看得懂") or data.get("搜尋干擾／同名問題")),
+            ("品牌落差", data.get("品牌落差") or data.get("盲搜時沒有自然出現的資訊")),
+        ]
 
     contents = [
         {"type": "text", "text": f"{name}｜{title}", "size": "lg", "weight": "bold", "color": "#473C38", "wrap": True},
         {"type": "text", "text": "核心結論", "size": "xs", "weight": "bold", "color": "#9A7B4F", "margin": "md"},
         {"type": "text", "text": bullet_text(core or "目前沒有可用的核心結論。", 240, 4), "size": "md", "weight": "bold", "color": "#473C38", "wrap": True},
-        {"type": "separator", "margin": "lg"},
     ]
-    for label, value in items:
-        if value:
-            contents.append(summary_row(label, value))
+    extra = []
+    append_nonduplicate_rows(extra, core, items)
+    if extra:
+        contents.append({"type": "separator", "margin": "lg"})
+        contents.extend(extra)
+
     bubble = {"type": "bubble", "size": "mega", "body": {"type": "box", "layout": "vertical", "paddingAll": "18px", "spacing": "md", "contents": contents},
               "footer": {"type": "box", "layout": "vertical", "paddingAll": "14px", "contents": [
                   {"type": "button", "style": "secondary", "height": "sm", "action": {"type": "message", "label": "查看完整資料", "text": f"人物完整|{name}|{category}"}}
@@ -333,7 +400,10 @@ def handle_message(event):
 
         if user_msg == "電子名片":
             legacy.PENDING_SEARCH_USERS.add(user_id)
-            quick_items = [QuickReplyItem(action=MessageAction(label="展示", text="展示")), QuickReplyItem(action=MessageAction(label="最近查看的名片", text="最近查看的名片"))]
+            quick_items = [
+                QuickReplyItem(action=MessageAction(label="展示", text="展示")),
+                QuickReplyItem(action=MessageAction(label="最近查看的名片", text="最近查看的名片")),
+            ]
             quick_items += [QuickReplyItem(action=MessageAction(label=label, text=label)) for label, _ in legacy.CATEGORY_QUICK_REPLIES]
             reply(line_bot_api, event, TextMessage(text="請輸入姓名或產業關鍵字搜尋\n或是點選下方按鈕快速查看", quick_reply=QuickReply(items=quick_items)))
             return

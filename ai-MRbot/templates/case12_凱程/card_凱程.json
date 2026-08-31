@@ -237,7 +237,7 @@
                       { "type": "filler" },
                       {
                         "type": "text",
-                        "text": "錒凱是誰 ?",
+                        "text": "耕家實業｜IG",
                         "color": "#ffffff",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -258,7 +258,7 @@
                 "action": {
                   "type": "uri",
                   "label": "action",
-                  "uri": "https://www.instagram.com/despair0802?igsh=MmdiY3FtcXQ2d3B2&utm_source=qr"
+                  "uri": "https://www.instagram.com/gengjia.life?igsh=bGNjeXM3b2VuNG85&utm_source=qr"
                 }
               },
               {

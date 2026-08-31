@@ -1,8 +1,9 @@
 import os
+import re
 from flask import request, abort
 
 import legacy_app as legacy
-from people_lookup import find_people, get_person, available_categories, category_text
+from people_lookup import find_people, get_person, available_categories, category_text, extract_urls
 
 from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
@@ -54,8 +55,7 @@ def resolve_people(query):
         aliases = [c["keyword"]] + c.get("name_keywords", [])
         if any(q == normalize(a) or q in normalize(a) or normalize(a) in q for a in aliases):
             candidate_names.extend(c.get("name_keywords", []))
-    results = []
-    seen = set()
+    results, seen = [], set()
     for candidate in candidate_names:
         for person in find_people(candidate):
             name = person.get("姓名")
@@ -69,17 +69,12 @@ def build_person_menu(person):
     name = person["姓名"]
     collected = person.get("資料蒐集", {})
     company = collected.get("公司") or person.get("顧問快診", {}).get("公司") or person.get("盲蒐", {}).get("公司") or ""
-    card_item = find_card_for_person(name)
-    categories = available_categories(person, has_card=bool(card_item))
+    categories = available_categories(person, has_card=bool(find_card_for_person(name)))
     number_map = {"basic": 1, "service": 2, "links": 3, "contact": 4, "diagnosis": 5, "blind": 6, "card": 7}
     rows = []
     for key, label in categories:
         rows.append({
-            "type": "box",
-            "layout": "horizontal",
-            "paddingAll": "12px",
-            "cornerRadius": "8px",
-            "backgroundColor": "#F8F4EA",
+            "type": "box", "layout": "horizontal", "paddingAll": "12px", "cornerRadius": "8px", "backgroundColor": "#F8F4EA",
             "action": {"type": "message", "label": label[:20], "text": f"人物資料|{name}|{key}"},
             "contents": [
                 {"type": "text", "text": str(number_map.get(key, "")), "size": "sm", "weight": "bold", "color": "#9A7B4F", "flex": 0},
@@ -87,16 +82,12 @@ def build_person_menu(person):
                 {"type": "text", "text": "›", "size": "md", "color": "#9A7B4F", "flex": 0},
             ],
         })
-    bubble = {
-        "type": "bubble",
-        "size": "mega",
-        "body": {"type": "box", "layout": "vertical", "paddingAll": "18px", "spacing": "md", "contents": [
-            {"type": "text", "text": name, "size": "xl", "weight": "bold", "color": "#473C38"},
-            {"type": "text", "text": company or "人物資料", "size": "sm", "color": "#888888", "wrap": True},
-            {"type": "text", "text": "請選擇要查看的資料", "size": "xs", "color": "#AAAAAA", "margin": "sm"},
-            {"type": "box", "layout": "vertical", "spacing": "sm", "contents": rows},
-        ]},
-    }
+    bubble = {"type": "bubble", "size": "mega", "body": {"type": "box", "layout": "vertical", "paddingAll": "18px", "spacing": "md", "contents": [
+        {"type": "text", "text": name, "size": "xl", "weight": "bold", "color": "#473C38"},
+        {"type": "text", "text": company or "人物資料", "size": "sm", "color": "#888888", "wrap": True},
+        {"type": "text", "text": "請選擇要查看的資料", "size": "xs", "color": "#AAAAAA", "margin": "sm"},
+        {"type": "box", "layout": "vertical", "spacing": "sm", "contents": rows},
+    ]}}
     return FlexMessage(alt_text=f"{name} 人物資料", contents=FlexContainer.from_dict(bubble))
 
 
@@ -105,14 +96,10 @@ def build_people_result(query, people):
     for p in people:
         name = p["姓名"]
         company = p.get("資料蒐集", {}).get("公司") or ""
-        rows.append({
-            "type": "box", "layout": "vertical", "paddingAll": "12px",
-            "action": {"type": "message", "label": name[:20], "text": f"人物選單|{name}"},
-            "contents": [
-                {"type": "text", "text": name, "size": "sm", "weight": "bold", "color": "#473C38"},
-                {"type": "text", "text": company, "size": "xs", "color": "#888888", "wrap": True},
-            ],
-        })
+        rows.append({"type": "box", "layout": "vertical", "paddingAll": "12px", "action": {"type": "message", "label": name[:20], "text": f"人物選單|{name}"}, "contents": [
+            {"type": "text", "text": name, "size": "sm", "weight": "bold", "color": "#473C38"},
+            {"type": "text", "text": company, "size": "xs", "color": "#888888", "wrap": True},
+        ]})
     bubble = {"type": "bubble", "size": "mega", "body": {"type": "box", "layout": "vertical", "paddingAll": "16px", "spacing": "sm", "contents": [
         {"type": "text", "text": f"「{query}」找到 {len(people)} 位", "size": "sm", "weight": "bold", "color": "#473C38"},
         {"type": "box", "layout": "vertical", "spacing": "xs", "contents": rows},
@@ -121,13 +108,87 @@ def build_people_result(query, people):
 
 
 def summary_row(label, value):
-    return {
-        "type": "box", "layout": "vertical", "spacing": "xs",
-        "contents": [
-            {"type": "text", "text": label, "size": "xs", "weight": "bold", "color": "#9A7B4F"},
-            {"type": "text", "text": clean_text(value, 150), "size": "sm", "color": "#473C38", "wrap": True},
-        ],
-    }
+    return {"type": "box", "layout": "vertical", "spacing": "xs", "contents": [
+        {"type": "text", "text": label, "size": "xs", "weight": "bold", "color": "#9A7B4F"},
+        {"type": "text", "text": clean_text(value, 150), "size": "sm", "color": "#473C38", "wrap": True},
+    ]}
+
+
+def link_buttons_from_text(text):
+    buttons = []
+    urls = extract_urls(text or "")
+    for i, url in enumerate(urls[:4], start=1):
+        label = "開啟連結" if len(urls) == 1 else f"開啟連結 {i}"
+        buttons.append({"type": "button", "style": "secondary", "height": "sm", "action": {"type": "uri", "label": label, "uri": url}})
+    return buttons
+
+
+def contact_buttons(text):
+    buttons = []
+    for url in extract_urls(text or "")[:2]:
+        buttons.append({"type": "button", "style": "secondary", "height": "sm", "action": {"type": "uri", "label": "開啟聯絡連結", "uri": url}})
+
+    emails = re.findall(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}", text or "")
+    if emails:
+        buttons.append({"type": "button", "style": "secondary", "height": "sm", "action": {"type": "uri", "label": "寄送 Email", "uri": f"mailto:{emails[0]}"}})
+
+    phones = re.findall(r"(?:\+?886[-\s]?)?0?9\d{2}[-\s]?\d{3}[-\s]?\d{3}|0\d{1,2}[-\s]?\d{3,4}[-\s]?\d{4}", text or "")
+    if phones:
+        phone = re.sub(r"[^\d+]", "", phones[0])
+        buttons.append({"type": "button", "style": "secondary", "height": "sm", "action": {"type": "uri", "label": "直接撥打", "uri": f"tel:{phone}"}})
+    return buttons[:4]
+
+
+def build_category_card(person, category):
+    name = person["姓名"]
+    data = person.get("資料蒐集", {})
+    title = "人物資料"
+    core = ""
+    items = []
+    footer_buttons = []
+
+    if category == "basic":
+        title = "基本資料"
+        core = data.get("基本資料") or data.get("品牌") or data.get("公司")
+        items = [("公司", data.get("公司")), ("品牌", data.get("品牌"))]
+    elif category == "service":
+        title = "主要服務"
+        core = data.get("主要服務")
+        items = [("核心客群", data.get("主要客群"))]
+    elif category == "links":
+        title = "社群／公開連結"
+        core = data.get("品牌對外資訊") or data.get("線上平台／社群媒體") or data.get("公開案例／口碑")
+        items = [
+            ("品牌對外資訊", data.get("品牌對外資訊")),
+            ("社群平台", data.get("線上平台／社群媒體")),
+            ("公開案例／口碑", data.get("公開案例／口碑")),
+        ]
+        combined = "\n".join(str(v or "") for _, v in items)
+        footer_buttons = link_buttons_from_text(combined)
+    elif category == "contact":
+        title = "聯絡方式"
+        core = data.get("聯絡資訊")
+        items = [("聯絡資訊", data.get("聯絡資訊"))]
+        footer_buttons = contact_buttons(data.get("聯絡資訊") or "")
+
+    contents = [
+        {"type": "text", "text": f"{name}｜{title}", "size": "lg", "weight": "bold", "color": "#473C38", "wrap": True},
+        {"type": "text", "text": "重點", "size": "xs", "weight": "bold", "color": "#9A7B4F", "margin": "md"},
+        {"type": "text", "text": clean_text(core or "目前沒有可用的重點資料。", 180), "size": "md", "weight": "bold", "color": "#473C38", "wrap": True},
+        {"type": "separator", "margin": "lg"},
+    ]
+    seen = set()
+    for label, value in items:
+        value = str(value or "").strip()
+        if value and value not in seen:
+            seen.add(value)
+            contents.append(summary_row(label, value))
+
+    footer = footer_buttons[:]
+    footer.append({"type": "button", "style": "link", "height": "sm", "action": {"type": "message", "label": "查看完整資料", "text": f"人物完整|{name}|{category}"}})
+    bubble = {"type": "bubble", "size": "mega", "body": {"type": "box", "layout": "vertical", "paddingAll": "18px", "spacing": "md", "contents": contents},
+              "footer": {"type": "box", "layout": "vertical", "spacing": "sm", "paddingAll": "14px", "contents": footer}}
+    return FlexMessage(alt_text=f"{name} {title}", contents=FlexContainer.from_dict(bubble))
 
 
 def build_insight_card(person, category):
@@ -136,20 +197,12 @@ def build_insight_card(person, category):
         data = person.get("顧問快診", {})
         title = "顧問快診"
         core = data.get("顧問現場一句話") or data.get("第一眼印象") or data.get("搜尋現況")
-        items = [
-            ("目前優勢", data.get("目前優勢")),
-            ("最大落差", data.get("外界可能看不懂的地方") or data.get("缺少的關鍵資產")),
-            ("下一步", data.get("建議下一步")),
-        ]
+        items = [("目前優勢", data.get("目前優勢")), ("最大落差", data.get("外界可能看不懂的地方") or data.get("缺少的關鍵資產")), ("下一步", data.get("建議下一步"))]
     else:
         data = person.get("盲蒐", {})
         title = "盲搜／品牌落差"
         core = data.get("盲搜結論") or data.get("品牌落差") or data.get("外界第一眼會怎麼理解")
-        items = [
-            ("搜得到什麼", data.get("自然出現的品牌／名稱") or data.get("搜尋到的平台／資產")),
-            ("最大問題", data.get("本人與公司／品牌關聯是否看得懂") or data.get("搜尋干擾／同名問題")),
-            ("品牌落差", data.get("品牌落差") or data.get("盲搜時沒有自然出現的資訊")),
-        ]
+        items = [("搜得到什麼", data.get("自然出現的品牌／名稱") or data.get("搜尋到的平台／資產")), ("最大問題", data.get("本人與公司／品牌關聯是否看得懂") or data.get("搜尋干擾／同名問題")), ("品牌落差", data.get("品牌落差") or data.get("盲搜時沒有自然出現的資訊"))]
 
     contents = [
         {"type": "text", "text": f"{name}｜{title}", "size": "lg", "weight": "bold", "color": "#473C38", "wrap": True},
@@ -160,14 +213,10 @@ def build_insight_card(person, category):
     for label, value in items:
         if value:
             contents.append(summary_row(label, value))
-
-    bubble = {
-        "type": "bubble", "size": "mega",
-        "body": {"type": "box", "layout": "vertical", "paddingAll": "18px", "spacing": "md", "contents": contents},
-        "footer": {"type": "box", "layout": "vertical", "paddingAll": "14px", "contents": [
-            {"type": "button", "style": "secondary", "height": "sm", "action": {"type": "message", "label": "查看完整資料", "text": f"人物完整|{name}|{category}"}},
-        ]},
-    }
+    bubble = {"type": "bubble", "size": "mega", "body": {"type": "box", "layout": "vertical", "paddingAll": "18px", "spacing": "md", "contents": contents},
+              "footer": {"type": "box", "layout": "vertical", "paddingAll": "14px", "contents": [
+                  {"type": "button", "style": "secondary", "height": "sm", "action": {"type": "message", "label": "查看完整資料", "text": f"人物完整|{name}|{category}"}}
+              ]}}
     return FlexMessage(alt_text=f"{name} {title}", contents=FlexContainer.from_dict(bubble))
 
 
@@ -180,6 +229,8 @@ def person_category_reply(name, category):
         return legacy.build_card_message(c) if c else TextMessage(text=f"{name} 目前尚未建立電子名片。")
     if category in ("diagnosis", "blind"):
         return build_insight_card(person, category)
+    if category in ("basic", "service", "links", "contact"):
+        return build_category_card(person, category)
     text = category_text(person, category)
     return TextMessage(text=text) if text else TextMessage(text=f"{name} 的這個分類目前沒有資料。")
 
@@ -239,10 +290,7 @@ def handle_message(event):
 
         if user_msg == "電子名片":
             legacy.PENDING_SEARCH_USERS.add(user_id)
-            quick_items = [
-                QuickReplyItem(action=MessageAction(label="展示", text="展示")),
-                QuickReplyItem(action=MessageAction(label="最近查看的名片", text="最近查看的名片")),
-            ]
+            quick_items = [QuickReplyItem(action=MessageAction(label="展示", text="展示")), QuickReplyItem(action=MessageAction(label="最近查看的名片", text="最近查看的名片"))]
             quick_items += [QuickReplyItem(action=MessageAction(label=label, text=label)) for label, _ in legacy.CATEGORY_QUICK_REPLIES]
             reply(line_bot_api, event, TextMessage(text="請輸入姓名或產業關鍵字搜尋\n或是點選下方按鈕快速查看", quick_reply=QuickReply(items=quick_items)))
             return
@@ -251,19 +299,16 @@ def handle_message(event):
             legacy.PENDING_SEARCH_USERS.discard(user_id)
             reply(line_bot_api, event, legacy.build_demo_flex())
             return
-
         if user_msg == "最近查看的名片":
             legacy.PENDING_SEARCH_USERS.discard(user_id)
             reply(line_bot_api, event, legacy.build_recent_flex(user_id))
             return
-
         if user_msg in dict(legacy.CATEGORY_QUICK_REPLIES):
             legacy.PENDING_SEARCH_USERS.discard(user_id)
             matched = legacy.search_cases(dict(legacy.CATEGORY_QUICK_REPLIES)[user_msg])
             message = legacy.build_search_result_flex(user_msg, matched) if matched else TextMessage(text=f"目前「{user_msg}」還沒有對應的案例。")
             reply(line_bot_api, event, message)
             return
-
         if user_id in legacy.PENDING_SEARCH_USERS:
             legacy.PENDING_SEARCH_USERS.discard(user_id)
             matched = legacy.search_cases(user_msg)

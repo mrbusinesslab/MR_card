@@ -30,10 +30,53 @@ def normalize(text):
 
 
 def clean_text(value, limit=120):
-    text = " ".join(str(value or "").replace("\n", " ").split())
+    text = str(value or "").strip()
+    text = re.sub(r"[ \t]+", " ", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
     if len(text) <= limit:
         return text
-    return text[: limit - 1].rstrip() + "…"
+    return text[: limit - 1].rstrip(" ，、；;。") + "…"
+
+
+def bullet_text(value, limit=220, max_items=5):
+    text = str(value or "").strip()
+    if not text:
+        return ""
+
+    # 移除網址，網址另外以按鈕呈現，避免卡片文字很亂。
+    text = re.sub(r"https?://[^\s，、；;）)]+", "", text)
+    text = text.replace("•", "\n").replace("●", "\n").replace("▪", "\n")
+
+    # 優先保留原換行，再利用常見中文標點拆成短句。
+    raw_parts = re.split(r"\n+|[；;]+|(?<=[。！？!?])|[、]+", text)
+    parts = []
+    for raw in raw_parts:
+        raw = re.sub(r"^[\s\-–—•●▪・]+|[\s\-–—•●▪・]+$", "", raw).strip("，,。")
+        if not raw:
+            continue
+
+        # 若一句仍很長，再用逗號切，但避免把很短的語意切得太碎。
+        if len(raw) > 42 and ("，" in raw or "," in raw):
+            subparts = re.split(r"[，,]+", raw)
+        else:
+            subparts = [raw]
+
+        for sub in subparts:
+            sub = sub.strip(" ，,。")
+            if sub and sub not in parts:
+                parts.append(sub)
+            if len(parts) >= max_items:
+                break
+        if len(parts) >= max_items:
+            break
+
+    if not parts:
+        return clean_text(text, limit)
+
+    result = "\n".join(f"• {p}" for p in parts)
+    if len(result) > limit:
+        result = result[: limit - 1].rstrip(" ，、；;。\n") + "…"
+    return result
 
 
 def find_card_for_person(name):
@@ -110,7 +153,7 @@ def build_people_result(query, people):
 def summary_row(label, value):
     return {"type": "box", "layout": "vertical", "spacing": "xs", "contents": [
         {"type": "text", "text": label, "size": "xs", "weight": "bold", "color": "#9A7B4F"},
-        {"type": "text", "text": clean_text(value, 150), "size": "sm", "color": "#473C38", "wrap": True},
+        {"type": "text", "text": bullet_text(value, 220, 5), "size": "sm", "color": "#473C38", "wrap": True},
     ]}
 
 
@@ -174,7 +217,7 @@ def build_category_card(person, category):
     contents = [
         {"type": "text", "text": f"{name}｜{title}", "size": "lg", "weight": "bold", "color": "#473C38", "wrap": True},
         {"type": "text", "text": "重點", "size": "xs", "weight": "bold", "color": "#9A7B4F", "margin": "md"},
-        {"type": "text", "text": clean_text(core or "目前沒有可用的重點資料。", 180), "size": "md", "weight": "bold", "color": "#473C38", "wrap": True},
+        {"type": "text", "text": bullet_text(core or "目前沒有可用的重點資料。", 240, 5), "size": "md", "weight": "bold", "color": "#473C38", "wrap": True},
         {"type": "separator", "margin": "lg"},
     ]
     seen = set()
@@ -207,7 +250,7 @@ def build_insight_card(person, category):
     contents = [
         {"type": "text", "text": f"{name}｜{title}", "size": "lg", "weight": "bold", "color": "#473C38", "wrap": True},
         {"type": "text", "text": "核心結論", "size": "xs", "weight": "bold", "color": "#9A7B4F", "margin": "md"},
-        {"type": "text", "text": clean_text(core or "目前沒有可用的核心結論。", 180), "size": "md", "weight": "bold", "color": "#473C38", "wrap": True},
+        {"type": "text", "text": bullet_text(core or "目前沒有可用的核心結論。", 240, 4), "size": "md", "weight": "bold", "color": "#473C38", "wrap": True},
         {"type": "separator", "margin": "lg"},
     ]
     for label, value in items:

@@ -2,7 +2,9 @@ import os
 import json
 from difflib import SequenceMatcher
 from datetime import date
-from flask import Flask, request, abort
+from urllib.parse import quote, unquote
+from urllib.request import Request, urlopen
+from flask import Flask, request, abort, redirect
 
 from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
@@ -24,6 +26,9 @@ app = Flask(__name__)
 
 configuration = Configuration(access_token=os.getenv('LINE_CHANNEL_ACCESS_TOKEN'))
 handler = WebhookHandler(os.getenv('LINE_CHANNEL_SECRET'))
+
+ANALYTICS_ENDPOINT = "https://packaiwgsswrjvxdsejw.supabase.co/functions/v1/card-analytics"
+TRACKING_BASE_URL = os.getenv("TRACKING_BASE_URL", "https://mr-6c1r.onrender.com")
 
 CASE_LIST = [
     {"case":"case1_小如如","num":1,"keyword":"小如如","alt":"小如如｜MR.主理人","name_keywords":["小如如","潘昱如","潘 昱如"],"industry_keywords":["顧問","建築組","個人服務","美容美體","如妍美學","MN13"]},
@@ -52,27 +57,137 @@ PENDING_SEARCH_USERS=set()
 RECENT_VIEWS={}
 RECENT_VIEWS_LIMIT=8
 
+
+def case_person_name(case_item):
+    alt = str(case_item.get("alt", ""))
+    return alt.split("｜", 1)[0].strip() or case_item.get("keyword", "")
+
+
+def send_analytics(case_item, event_type, page_no=None, button_position=None, button_label=None):
+    payload = {
+        "case_id": case_item["case"],
+        "person_name": case_person_name(case_item),
+        "event_type": event_type,
+        "page_no": page_no,
+        "button_position": button_position,
+        "button_label": button_label,
+    }
+    try:
+        data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+        req = Request(ANALYTICS_ENDPOINT, data=data, headers={"Content-Type": "application/json"}, method="POST")
+        with urlopen(req, timeout=2) as response:
+            response.read(1)
+    except Exception as exc:
+        print("analytics warning:", exc)
+
+
+def node_text(node):
+    texts = []
+    if isinstance(node, dict):
+        if node.get("type") == "text" and node.get("text"):
+            texts.append(str(node["text"]))
+        for value in node.values():
+            if isinstance(value, (dict, list)):
+                texts.extend(node_text(value))
+    elif isinstance(node, list):
+        for item in node:
+            texts.extend(node_text(item))
+    return texts
+
+
+def add_tracking_to_flex(flex_data, case_item):
+    if not isinstance(flex_data, dict):
+        return flex_data
+    pages = flex_data.get("contents") if flex_data.get("type") == "carousel" else [flex_data]
+    if not isinstance(pages, list):
+        pages = [flex_data]
+
+    for page_index, page in enumerate(pages, start=1):
+        button_index = 0
+
+        def walk(node):
+            nonlocal button_index
+            if isinstance(node, dict):
+                action = node.get("action")
+                if isinstance(action, dict) and action.get("type") == "uri" and action.get("uri"):
+                    button_index += 1
+                    labels = [t.strip() for t in node_text(node) if t.strip()]
+                    label = labels[-1] if labels else f"按鈕{button_index}"
+                    target = str(action["uri"])
+                    if "分享我的名片" not in label and "/track/click" not in target:
+                        wrapped = (
+                            f"{TRACKING_BASE_URL}/track/click?case_id={quote(case_item['case'], safe='')}"
+                            f"&page={page_index}&button={button_index}&label={quote(label, safe='')}"
+                            f"&target={quote(target, safe='')}"
+                        )
+                        action["uri"] = wrapped
+                for value in node.values():
+                    if isinstance(value, (dict, list)):
+                        walk(value)
+            elif isinstance(node, list):
+                for item in node:
+                    walk(item)
+
+        walk(page)
+    return flex_data
+
+
+def inject_liff_tracking(content, case_item):
+    marker = "const flexContent = "
+    start = content.find(marker)
+    if start >= 0:
+        json_start = start + len(marker)
+        try:
+            decoder = json.JSONDecoder()
+            flex_data, used = decoder.raw_decode(content[json_start:])
+            flex_data = add_tracking_to_flex(flex_data, case_item)
+            replacement = json.dumps(flex_data, ensure_ascii=False, separators=(",", ":"))
+            content = content[:json_start] + replacement + content[json_start + used:]
+        except Exception as exc:
+            print("liff tracking parse warning:", exc)
+
+    success_marker = "if (res) {"
+    if success_marker in content and "card-analytics-share-success" not in content:
+        share_js = (
+            "if (res) {\n"
+            "        // card-analytics-share-success\n"
+            f"        fetch('{ANALYTICS_ENDPOINT}', {{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{case_id:{json.dumps(case_item['case'], ensure_ascii=False)},person_name:{json.dumps(case_person_name(case_item), ensure_ascii=False)},event_type:'share'}}),keepalive:true}}).catch(()=>{{}});"
+        )
+        content = content.replace(success_marker, share_js, 1)
+    return content
+
+
 def record_view(user_id,case_item):
     items=RECENT_VIEWS.setdefault(user_id,[]); kw=case_item["keyword"]
     if kw in items: items.remove(kw)
     items.insert(0,kw); del items[RECENT_VIEWS_LIMIT:]
 
-def load_flex(filepath):
+
+def load_flex(filepath, case_item=None):
     base_dir=os.path.dirname(os.path.abspath(__file__)); full_path=os.path.join(base_dir,"templates",filepath)
     if not os.path.exists(full_path): return None
     with open(full_path,"r",encoding="utf-8") as f: content=f.read()
     today=date.today().strftime("%Y%m%d"); content=content.replace("?raw=true",f"?raw=true&v={today}")
-    return json.loads(content)
+    flex_data = json.loads(content)
+    return add_tracking_to_flex(flex_data, case_item) if case_item else flex_data
+
 
 def load_liff(filepath):
     base_dir=os.path.dirname(os.path.abspath(__file__)); full_path=os.path.join(base_dir,"templates",filepath)
     with open(full_path,"r",encoding="utf-8") as f: content=f.read()
-    today=date.today().strftime("%Y%m%d"); return content.replace("?raw=true",f"?raw=true&v={today}")
+    today=date.today().strftime("%Y%m%d"); content=content.replace("?raw=true",f"?raw=true&v={today}")
+    case_key = filepath.split("/", 1)[0]
+    case_item = next((c for c in CASE_LIST if c["case"] == case_key), None)
+    return inject_liff_tracking(content, case_item) if case_item else content
+
 
 def build_card_message(case_item):
-    filepath=f"{case_item['case']}/card_{case_item['case'].split('_',1)[1]}.json"; flex_data=load_flex(filepath)
-    if flex_data: return FlexMessage(alt_text=case_item["alt"],contents=FlexContainer.from_dict(flex_data))
+    filepath=f"{case_item['case']}/card_{case_item['case'].split('_',1)[1]}.json"; flex_data=load_flex(filepath, case_item)
+    if flex_data:
+        send_analytics(case_item, "card_view")
+        return FlexMessage(alt_text=case_item["alt"],contents=FlexContainer.from_dict(flex_data))
     return TextMessage(text="抱歉，名片檔案讀取失敗")
+
 
 def search_cases(query):
     query=query.strip(); matched=[]
@@ -81,6 +196,7 @@ def search_cases(query):
         all_keywords=c["name_keywords"]+c["industry_keywords"]
         if any((query in kw) or (kw in query) for kw in all_keywords):matched.append(c)
     return matched
+
 
 def normalize_name(text): return "".join(text.split()).lower()
 def fuzzy_search_cases(query,threshold=0.5,limit=3):
@@ -92,6 +208,7 @@ def fuzzy_search_cases(query,threshold=0.5,limit=3):
         best=max([SequenceMatcher(None,q,normalize_name(k)).ratio() for k in kws if normalize_name(k)] or [0])
         if best>=threshold:scored.append((best,c))
     scored.sort(key=lambda x:(-x[0],x[1]["num"])); return [c for _,c in scored[:limit]]
+
 
 def get_demo_cases(): return [CASE_BY_KEYWORD[k] for k in DEMO_KEYWORDS if k in CASE_BY_KEYWORD]
 def build_list_flex(alt_text,header_text,matched_cases):
@@ -111,6 +228,24 @@ def build_recent_flex(user_id):
     for c in get_recently_added_cases():
         if c not in cases:cases.append(c)
     cases=cases[:RECENT_VIEWS_LIMIT]; return build_list_flex("最近查看的名片",f"最近查看的名片，共 {len(cases)} 筆",cases)
+
+
+@app.route("/track/click")
+def track_click():
+    case_id = request.args.get("case_id", "")
+    case_item = next((c for c in CASE_LIST if c["case"] == case_id), None)
+    target = unquote(request.args.get("target", ""))
+    if not case_item or not target:
+        abort(400)
+    try:
+        page_no = int(request.args.get("page", ""))
+    except ValueError:
+        page_no = None
+    button_no = request.args.get("button", "")
+    label = unquote(request.args.get("label", ""))[:120]
+    send_analytics(case_item, "button_click", page_no, f"button{button_no}" if button_no else None, label)
+    return redirect(target, code=302)
+
 
 @app.route("/cases")
 def cases(): return "MR Bot",200

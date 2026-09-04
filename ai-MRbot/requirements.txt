@@ -1,3 +1,5 @@
 line-bot-sdk
 flask
 gunicorn
+requests
+google-auth

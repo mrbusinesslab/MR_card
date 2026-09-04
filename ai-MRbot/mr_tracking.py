@@ -109,10 +109,11 @@ def update_tracking_field(name, field, value):
         raise ValueError(f"找不到「{name}」的追蹤列")
 
     cell = f"'{SHEET_NAME}'!{TRACKING_FIELDS[field]}{row['_row']}"
+    encoded_cell = quote(cell, safe="'!:")
     creds = _credentials()
     url = (
         f"https://sheets.googleapis.com/v4/spreadsheets/{SPREADSHEET_ID}/values/"
-        f"{quote(cell, safe="'!:")}?valueInputOption=USER_ENTERED"
+        f"{encoded_cell}?valueInputOption=USER_ENTERED"
     )
     response = requests.put(
         url,

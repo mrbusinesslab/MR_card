@@ -248,7 +248,7 @@ h1 {
   font-size: 22px;
 }
 
-.actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+.actions { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 14px; }
 
 .actions button {
   min-height: 54px;

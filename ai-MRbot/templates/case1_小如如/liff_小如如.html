@@ -1,632 +1,73 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>分享電子名片 - 小如如</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      color: #5f554d;
+      background: #ffffff;
+      font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    }
+    .status { padding: 24px; text-align: center; line-height: 1.7; }
+    .status strong { display: block; margin-bottom: 6px; color: #2c2723; }
+  </style>
 </head>
 <body>
-<script>
-  const flexContent = {
-    "type": "carousel",
-    "contents": [
-      {
-        "type": "bubble",
-        "body": {
-          "type": "box",
-          "layout": "vertical",
-          "contents": [
-            {
-              "type": "image",
-              "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case1_%E5%B0%8F%E5%A6%82%E5%A6%82/v1.png?raw=true",
-              "size": "full",
-              "aspectMode": "cover",
-              "aspectRatio": "2:3",
-              "gravity": "top"
-            },
-            {
-              "type": "box",
-              "layout": "vertical",
-              "contents": [
-                {
-                  "type": "box",
-                  "layout": "vertical",
-                  "contents": [
-                    {
-                      "type": "filler"
-                    },
-                    {
-                      "type": "box",
-                      "layout": "baseline",
-                      "contents": [
-                        {
-                          "type": "filler"
-                        },
-                        {
-                          "type": "text",
-                          "text": "關於小如如",
-                          "color": "#ffffff",
-                          "flex": 0,
-                          "offsetTop": "-2px"
-                        },
-                        {
-                          "type": "filler"
-                        }
-                      ],
-                      "spacing": "sm"
-                    },
-                    {
-                      "type": "filler"
-                    }
-                  ],
-                  "borderWidth": "none",
-                  "cornerRadius": "4px",
-                  "spacing": "sm",
-                  "borderColor": "#6d513e",
-                  "margin": "md",
-                  "height": "50px",
-                  "backgroundColor": "#6d513e",
-                  "action": {
-                    "type": "uri",
-                    "label": "action",
-                    "uri": "https://www.instagram.com/0421_luru/"
-                  }
-                },
-                {
-                  "type": "box",
-                  "layout": "vertical",
-                  "contents": [
-                    {
-                      "type": "filler"
-                    },
-                    {
-                      "type": "box",
-                      "layout": "baseline",
-                      "contents": [
-                        {
-                          "type": "filler"
-                        },
-                        {
-                          "type": "text",
-                          "text": "分享電子名片",
-                          "color": "#6d513e",
-                          "flex": 0,
-                          "offsetTop": "-2px"
-                        },
-                        {
-                          "type": "filler"
-                        }
-                      ],
-                      "spacing": "sm"
-                    },
-                    {
-                      "type": "filler"
-                    }
-                  ],
-                  "borderWidth": "light",
-                  "cornerRadius": "4px",
-                  "spacing": "sm",
-                  "borderColor": "#6d513e",
-                  "margin": "md",
-                  "height": "50px",
-                  "backgroundColor": "#f3ebe0",
-                  "action": {
-                    "type": "uri",
-                    "label": "action",
-                    "uri": "https://liff.line.me/2009755863-mNfBQrRM"
-                  }
-                }
-              ],
-              "position": "relative",
-              "offsetBottom": "0px",
-              "offsetStart": "0px",
-              "offsetEnd": "0px",
-              "backgroundColor": "#060603",
-              "paddingAll": "15px",
-              "paddingTop": "5px"
-            }
-          ],
-          "paddingAll": "0px"
-        }
-      },
-      {
-        "type": "bubble",
-        "body": {
-          "type": "box",
-          "layout": "vertical",
-          "contents": [
-            {
-              "type": "image",
-              "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case1_%E5%B0%8F%E5%A6%82%E5%A6%82/v1_2.png?raw=true",
-              "size": "full",
-              "aspectMode": "cover",
-              "aspectRatio": "2:3",
-              "gravity": "top"
-            },
-            {
-              "type": "box",
-              "layout": "vertical",
-              "contents": [
-                {
-                  "type": "box",
-                  "layout": "vertical",
-                  "contents": [
-                    {
-                      "type": "filler"
-                    },
-                    {
-                      "type": "box",
-                      "layout": "baseline",
-                      "contents": [
-                        {
-                          "type": "filler"
-                        },
-                        {
-                          "type": "text",
-                          "text": "探索商務形象",
-                          "color": "#ffffff",
-                          "flex": 0,
-                          "offsetTop": "-2px"
-                        },
-                        {
-                          "type": "filler"
-                        }
-                      ],
-                      "spacing": "sm"
-                    },
-                    {
-                      "type": "filler"
-                    }
-                  ],
-                  "borderWidth": "none",
-                  "cornerRadius": "4px",
-                  "spacing": "sm",
-                  "borderColor": "#6d513e",
-                  "margin": "md",
-                  "height": "50px",
-                  "backgroundColor": "#6d513e",
-                  "action": {
-                    "type": "uri",
-                    "label": "action",
-                    "uri": "https://mrbusinesslab.github.io/official/MR/index.html#about"
-                  }
-                },
-                {
-                  "type": "box",
-                  "layout": "vertical",
-                  "contents": [
-                    {
-                      "type": "filler"
-                    },
-                    {
-                      "type": "box",
-                      "layout": "baseline",
-                      "contents": [
-                        {
-                          "type": "filler"
-                        },
-                        {
-                          "type": "text",
-                          "text": "預約一對一交流",
-                          "color": "#6d513e",
-                          "flex": 0,
-                          "offsetTop": "-2px"
-                        },
-                        {
-                          "type": "filler"
-                        }
-                      ],
-                      "spacing": "sm"
-                    },
-                    {
-                      "type": "filler"
-                    }
-                  ],
-                  "borderWidth": "light",
-                  "cornerRadius": "4px",
-                  "spacing": "sm",
-                  "borderColor": "#6d513e",
-                  "margin": "md",
-                  "height": "50px",
-                  "backgroundColor": "#f3ebe0",
-                  "action": {
-                    "type": "uri",
-                    "label": "action",
-                    "uri": "https://line.me/ti/p/FGAd3F8Asx"
-                  }
-                }
-              ],
-              "position": "relative",
-              "offsetBottom": "0px",
-              "offsetStart": "0px",
-              "offsetEnd": "0px",
-              "backgroundColor": "#060603",
-              "paddingAll": "15px",
-              "paddingTop": "5px"
-            }
-          ],
-          "paddingAll": "0px"
-        }
-      },
-      {
-        "type": "bubble",
-        "body": {
-          "type": "box",
-          "layout": "vertical",
-          "contents": [
-            {
-              "type": "image",
-              "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case1_%E5%B0%8F%E5%A6%82%E5%A6%82/v1_3.png?raw=true",
-              "size": "full",
-              "aspectMode": "cover",
-              "aspectRatio": "2:3",
-              "gravity": "top"
-            },
-            {
-              "type": "box",
-              "layout": "vertical",
-              "contents": [
-                {
-                  "type": "box",
-                  "layout": "vertical",
-                  "contents": [
-                    {
-                      "type": "filler"
-                    },
-                    {
-                      "type": "box",
-                      "layout": "baseline",
-                      "contents": [
-                        {
-                          "type": "filler"
-                        },
-                        {
-                          "type": "text",
-                          "text": "商務形象 AI 健檢",
-                          "color": "#ffffff",
-                          "flex": 0,
-                          "offsetTop": "-2px"
-                        },
-                        {
-                          "type": "filler"
-                        }
-                      ],
-                      "spacing": "sm"
-                    },
-                    {
-                      "type": "filler"
-                    }
-                  ],
-                  "borderWidth": "none",
-                  "cornerRadius": "4px",
-                  "spacing": "sm",
-                  "borderColor": "#6d513e",
-                  "margin": "md",
-                  "height": "50px",
-                  "backgroundColor": "#6d513e",
-                  "action": {
-                    "type": "uri",
-                    "label": "action",
-                    "uri": "https://lin.ee/erAsi6c"
-                  }
-                },
-                {
-                  "type": "box",
-                  "layout": "vertical",
-                  "contents": [
-                    {
-                      "type": "filler"
-                    },
-                    {
-                      "type": "box",
-                      "layout": "baseline",
-                      "contents": [
-                        {
-                          "type": "filler"
-                        },
-                        {
-                          "type": "text",
-                          "text": "商業影響力",
-                          "color": "#6d513e",
-                          "flex": 0,
-                          "offsetTop": "-2px"
-                        },
-                        {
-                          "type": "filler"
-                        }
-                      ],
-                      "spacing": "sm"
-                    },
-                    {
-                      "type": "filler"
-                    }
-                  ],
-                  "borderWidth": "light",
-                  "cornerRadius": "4px",
-                  "spacing": "sm",
-                  "borderColor": "#6d513e",
-                  "margin": "md",
-                  "height": "50px",
-                  "backgroundColor": "#f3ebe0",
-                  "action": {
-                    "type": "uri",
-                    "label": "action",
-                    "uri": "https://canva.link/zbgay7hu9rimt4m"
-                  }
-                }
-              ],
-              "position": "relative",
-              "offsetBottom": "0px",
-              "offsetStart": "0px",
-              "offsetEnd": "0px",
-              "backgroundColor": "#060603",
-              "paddingAll": "15px",
-              "paddingTop": "5px"
-            }
-          ],
-          "paddingAll": "0px"
-        }
-      },
-      {
-        "type": "bubble",
-        "body": {
-          "type": "box",
-          "layout": "vertical",
-          "contents": [
-            {
-              "type": "image",
-              "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case1_%E5%B0%8F%E5%A6%82%E5%A6%82/v1_4.png?raw=true",
-              "size": "full",
-              "aspectMode": "cover",
-              "aspectRatio": "2:3",
-              "gravity": "top"
-            },
-            {
-              "type": "box",
-              "layout": "vertical",
-              "contents": [
-                {
-                  "type": "box",
-                  "layout": "vertical",
-                  "contents": [
-                    {
-                      "type": "filler"
-                    },
-                    {
-                      "type": "box",
-                      "layout": "baseline",
-                      "contents": [
-                        {
-                          "type": "filler"
-                        },
-                        {
-                          "type": "text",
-                          "text": "防水抓漏｜鍾師富",
-                          "color": "#ffffff",
-                          "flex": 0,
-                          "offsetTop": "-2px"
-                        },
-                        {
-                          "type": "filler"
-                        }
-                      ],
-                      "spacing": "sm"
-                    },
-                    {
-                      "type": "filler"
-                    }
-                  ],
-                  "borderWidth": "none",
-                  "cornerRadius": "4px",
-                  "spacing": "sm",
-                  "borderColor": "#6d513e",
-                  "margin": "md",
-                  "height": "50px",
-                  "backgroundColor": "#6d513e",
-                  "action": {
-                    "type": "uri",
-                    "label": "action",
-                    "uri": "https://lin.ee/VXd6zM9"
-                  }
-                },
-                {
-                  "type": "box",
-                  "layout": "vertical",
-                  "contents": [
-                    {
-                      "type": "filler"
-                    },
-                    {
-                      "type": "box",
-                      "layout": "baseline",
-                      "contents": [
-                        {
-                          "type": "filler"
-                        },
-                        {
-                          "type": "text",
-                          "text": "外貌說服力",
-                          "color": "#6d513e",
-                          "flex": 0,
-                          "offsetTop": "-2px"
-                        },
-                        {
-                          "type": "filler"
-                        }
-                      ],
-                      "spacing": "sm"
-                    },
-                    {
-                      "type": "filler"
-                    }
-                  ],
-                  "borderWidth": "light",
-                  "cornerRadius": "4px",
-                  "spacing": "sm",
-                  "borderColor": "#6d513e",
-                  "margin": "md",
-                  "height": "50px",
-                  "backgroundColor": "#f3ebe0",
-                  "action": {
-                    "type": "uri",
-                    "label": "action",
-                    "uri": "https://canva.link/jnkda0cmmnkbraf"
-                  }
-                }
-              ],
-              "position": "relative",
-              "offsetBottom": "0px",
-              "offsetStart": "0px",
-              "offsetEnd": "0px",
-              "backgroundColor": "#060603",
-              "paddingAll": "15px",
-              "paddingTop": "5px"
-            }
-          ],
-          "paddingAll": "0px"
-        }
-      },
-      {
-        "type": "bubble",
-        "body": {
-          "type": "box",
-          "layout": "vertical",
-          "contents": [
-            {
-              "type": "image",
-              "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case1_%E5%B0%8F%E5%A6%82%E5%A6%82/v1_5.png?raw=true",
-              "size": "full",
-              "aspectMode": "cover",
-              "aspectRatio": "2:3",
-              "gravity": "top"
-            },
-            {
-              "type": "box",
-              "layout": "vertical",
-              "contents": [
-                {
-                  "type": "box",
-                  "layout": "vertical",
-                  "contents": [
-                    {
-                      "type": "filler"
-                    },
-                    {
-                      "type": "box",
-                      "layout": "baseline",
-                      "contents": [
-                        {
-                          "type": "filler"
-                        },
-                        {
-                          "type": "text",
-                          "text": "電子名片｜預約",
-                          "color": "#ffffff",
-                          "flex": 0,
-                          "offsetTop": "-2px"
-                        },
-                        {
-                          "type": "filler"
-                        }
-                      ],
-                      "spacing": "sm"
-                    },
-                    {
-                      "type": "filler"
-                    }
-                  ],
-                  "borderWidth": "none",
-                  "cornerRadius": "4px",
-                  "spacing": "sm",
-                  "borderColor": "#6d513e",
-                  "margin": "md",
-                  "height": "50px",
-                  "backgroundColor": "#6d513e",
-                  "action": {
-                    "type": "uri",
-                    "label": "action",
-                    "uri": "https://lin.ee/erAsi6c"
-                  }
-                },
-                {
-                  "type": "box",
-                  "layout": "vertical",
-                  "contents": [
-                    {
-                      "type": "filler"
-                    },
-                    {
-                      "type": "box",
-                      "layout": "baseline",
-                      "contents": [
-                        {
-                          "type": "filler"
-                        },
-                        {
-                          "type": "text",
-                          "text": "商務男士形象｜IG",
-                          "color": "#6d513e",
-                          "flex": 0,
-                          "offsetTop": "-2px"
-                        },
-                        {
-                          "type": "filler"
-                        }
-                      ],
-                      "spacing": "sm"
-                    },
-                    {
-                      "type": "filler"
-                    }
-                  ],
-                  "borderWidth": "light",
-                  "cornerRadius": "4px",
-                  "spacing": "sm",
-                  "borderColor": "#6d513e",
-                  "margin": "md",
-                  "height": "50px",
-                  "backgroundColor": "#f3ebe0",
-                  "action": {
-                    "type": "uri",
-                    "label": "action",
-                    "uri": "https://www.instagram.com/mr.business.lab/"
-                  }
-                }
-              ],
-              "position": "relative",
-              "offsetBottom": "0px",
-              "offsetStart": "0px",
-              "offsetEnd": "0px",
-              "backgroundColor": "#060603",
-              "paddingAll": "15px",
-              "paddingTop": "5px"
-            }
-          ],
-          "paddingAll": "0px"
-        }
-      }
-    ]
-  };
+  <p class="status" id="status"><strong>正在開啟分享名片</strong>請稍候…</p>
+  <script>
+    const LIFF_ID = "2009755863-mNfBQrRM";
+    const CARD_JSON_URL = "./card_小如如.json";
+    const status = document.querySelector("#status");
 
-  liff.init({ liffId: "2009755863-mNfBQrRM" })
-    .then(() => {
-      return liff.shareTargetPicker([
+    async function loadLatestCard() {
+      const response = await fetch(CARD_JSON_URL, { cache: "no-store" });
+      if (!response.ok) {
+        throw new Error(`名片資料讀取失敗（HTTP ${response.status}）`);
+      }
+      const card = await response.json();
+      if (card?.type !== "carousel" || !Array.isArray(card?.contents) || !card.contents.length) {
+        throw new Error("名片資料格式不正確");
+      }
+      return card;
+    }
+
+    async function shareCard() {
+      const [card] = await Promise.all([
+        loadLatestCard(),
+        liff.init({ liffId: LIFF_ID })
+      ]);
+
+      if (!liff.isApiAvailable("shareTargetPicker")) {
+        throw new Error("目前的 LINE 版本不支援好友分享功能");
+      }
+
+      const result = await liff.shareTargetPicker([
         {
           type: "flex",
           altText: "小如如｜MR.主理人",
-          contents: flexContent
+          contents: card
         }
       ]);
-    })
-    .then((res) => {
-      if (res) {
+
+      if (result) {
+        status.innerHTML = "<strong>分享完成</strong>視窗即將關閉";
         liff.closeWindow();
+      } else {
+        status.innerHTML = "<strong>已取消分享</strong>你可以關閉此視窗";
       }
-    })
-    .catch((err) => {
-      console.error("分享失敗", err);
+    }
+
+    shareCard().catch((error) => {
+      console.error("分享失敗", error);
+      status.innerHTML = `<strong>目前無法分享名片</strong>${error.message || "請稍後再試"}`;
     });
-</script>
+  </script>
 </body>
 </html>

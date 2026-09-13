@@ -15,18 +15,13 @@
 
 * { box-sizing: border-box; }
 
-html { background: var(--theme-secondary); }
+html { background: #ffffff; }
 
 body {
   margin: 0;
   min-width: 320px;
   color: var(--ink);
-  background:
-    radial-gradient(circle at 18% 14%, color-mix(in srgb, var(--theme-primary) 14%, transparent), transparent 30rem),
-    linear-gradient(135deg,
-      color-mix(in srgb, var(--theme-secondary) 82%, white) 0%,
-      color-mix(in srgb, var(--theme-secondary) 58%, white) 56%,
-      color-mix(in srgb, var(--theme-surface) 72%, white) 100%);
+  background: #ffffff;
 }
 
 button, a { -webkit-tap-highlight-color: transparent; }

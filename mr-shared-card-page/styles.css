@@ -26,6 +26,16 @@ body {
 
 button, a { -webkit-tap-highlight-color: transparent; }
 
+p, small, b, strong {
+  line-break: strict;
+  overflow-wrap: break-word;
+  text-wrap: pretty;
+}
+h1, h2 { text-wrap: balance; }
+.mobile-break { display: none; }
+.keep-together { white-space: nowrap; }
+
+
 .page-shell {
   width: min(1180px, calc(100% - 64px));
   min-height: 100vh;
@@ -278,6 +288,7 @@ h1 {
 }
 
 @media (max-width: 560px) {
+  .mobile-break { display: initial; }
   .page-shell { width: min(100% - 24px, 430px); }
   .site-header { align-items: flex-start; }
   .brand-copy strong { font-size: 14px; }

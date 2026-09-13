@@ -247,6 +247,33 @@ def track_click():
     return redirect(target, code=302)
 
 
+@app.route("/card/ruru")
+def card_preview_ruru():
+    target_url = "https://mrbusinesslab.github.io/MR_card/mr-shared-card-page/?case=case1_%E5%B0%8F%E5%A6%82%E5%A6%82"
+    html = f"""<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>小如如的電子名片｜MR BUSINESS LAB</title>
+  <meta name="description" content="小如如的專屬電子名片｜MR BUSINESS LAB">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="小如如的電子名片｜MR BUSINESS LAB">
+  <meta property="og:description" content="小如如的專屬電子名片｜MR BUSINESS LAB">
+  <meta property="og:url" content="https://mr-6c1r.onrender.com/card/ruru">
+  <meta name="robots" content="noindex">
+  <script>window.location.replace({json.dumps(target_url)});</script>
+</head>
+<body>
+  <p><a href="{target_url}">開啟小如如的電子名片</a></p>
+</body>
+</html>"""
+    return html, 200, {
+        "Content-Type": "text/html; charset=utf-8",
+        "Cache-Control": "public, max-age=300",
+    }
+
+
 @app.route("/cases")
 def cases(): return "MR Bot",200
 @app.route("/callback",methods=["POST"])

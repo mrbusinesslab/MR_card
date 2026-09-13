@@ -256,6 +256,22 @@ def callback():
     except InvalidSignatureError:abort(400)
     return 'OK'
 
+@app.route("/liff/<case_num>/card_<name>.json")
+def liff_card_json(case_num, name):
+    case_key = f"{case_num}_{name}"
+    case_item = next((c for c in CASE_LIST if c["case"] == case_key), None)
+    if not case_item:
+        abort(404)
+    filepath = f"{case_key}/card_{name}.json"
+    flex_data = load_flex(filepath, case_item)
+    if not flex_data:
+        abort(404)
+    return app.response_class(
+        json.dumps(flex_data, ensure_ascii=False),
+        content_type="application/json; charset=utf-8",
+    )
+
+
 @app.route("/liff/case1/小如如")
 def liff_小如如():return load_liff("case1_小如如/liff_小如如.html"),200,{"Content-Type":"text/html; charset=utf-8"}
 @app.route("/liff/case2/鍾師富")

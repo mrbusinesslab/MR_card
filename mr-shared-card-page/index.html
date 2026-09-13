@@ -7,7 +7,7 @@
   <meta name="description" content="MR BUSINESS LAB 專屬電子名片">
   <title>專屬電子名片｜MR BUSINESS LAB</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%231b1917'/%3E%3Ctext x='32' y='40' font-size='26' text-anchor='middle' fill='%23d6ad73' font-family='serif'%3EMR%3C/text%3E%3C/svg%3E">
-  <link rel="stylesheet" href="./styles.css?v=3">
+  <link rel="stylesheet" href="./styles.css?v=4">
 </head>
 <body>
   <main class="page-shell">
@@ -21,7 +21,7 @@
       </a>
       <div class="version-badge" aria-label="目前版本與更新日期">
         <span class="status-dot" aria-hidden="true"></span>
-        <span>目前版本 <strong id="versionLabel">最新版</strong></span>
+        <span>目前版本</span>
         <time id="versionDate">讀取中</time>
       </div>
     </header>
@@ -55,9 +55,61 @@
           <button class="primary-action" id="shareButton" type="button">分享我的名片</button>
         </div>
         <p class="action-status" id="actionStatus" role="status" aria-live="polite"></p>
-        <p class="tip">建議將這個頁面加入手機主畫面或瀏覽器收藏，日後不必再回到 LINE 對話中尋找名片。</p>
+        <p class="tip">建議將這個頁面加入手機主畫面，日後不必再回到 LINE 對話中尋找名片。</p>
       </div>
     </section>
+    <section class="save-guide" id="saveGuide" aria-labelledby="saveGuideTitle">
+      <div class="guide-heading">
+        <p class="eyebrow">隨時快速開啟</p>
+        <h2 id="saveGuideTitle">將電子名片加入手機主畫面</h2>
+        <p>加入後會像 App 圖示一樣留在手機上，不必記住網址。</p>
+      </div>
+
+      <div class="guide-platforms">
+        <article class="guide-card">
+          <div class="platform-title">
+            <span class="platform-icon" aria-hidden="true"></span>
+            <div><strong>iPhone／iPad</strong><small>使用 Safari 瀏覽器</small></div>
+          </div>
+          <ol class="guide-steps">
+            <li>
+              <span class="step-visual" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="17"/><path d="m28 18-4 10-4 2 4-10 4-2Z"/><circle cx="24" cy="24" r="2"/></svg></span>
+              <span><b>使用 Safari 開啟</b><small>確認目前已進入自己的名片頁。</small></span>
+            </li>
+            <li>
+              <span class="step-visual" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M14 23v14h20V23"/><path d="M24 29V10m-7 7 7-7 7 7"/></svg></span>
+              <span><b>點選「分享」</b><small>按下方工具列的方框向上箭頭。</small></span>
+            </li>
+            <li>
+              <span class="step-visual" aria-hidden="true"><svg viewBox="0 0 48 48"><rect x="11" y="11" width="26" height="26" rx="5"/><path d="M24 17v14m-7-7h14"/></svg></span>
+              <span><b>選擇「加入主畫面」</b><small>確認名稱後，點右上角「新增」。</small></span>
+            </li>
+          </ol>
+        </article>
+
+        <article class="guide-card">
+          <div class="platform-title">
+            <span class="platform-icon android-icon" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M15 20h18v14a4 4 0 0 1-4 4H19a4 4 0 0 1-4-4V20Z"/><path d="m17 14-3-4m17 4 3-4M16 20a8 8 0 0 1 16 0"/><circle cx="20" cy="17" r="1"/><circle cx="28" cy="17" r="1"/></svg></span>
+            <div><strong>Android</strong><small>使用 Chrome 瀏覽器</small></div>
+          </div>
+          <ol class="guide-steps">
+            <li>
+              <span class="step-visual chrome-mark" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="17"/><circle cx="24" cy="24" r="7"/><path d="M24 7h15M9 17l8 14m22-7H24"/></svg></span>
+              <span><b>使用 Chrome 開啟</b><small>確認目前已進入自己的名片頁。</small></span>
+            </li>
+            <li>
+              <span class="step-visual menu-mark" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="24" cy="13" r="2"/><circle cx="24" cy="24" r="2"/><circle cx="24" cy="35" r="2"/></svg></span>
+              <span><b>點選右上角「⋮」</b><small>開啟 Chrome 瀏覽器選單。</small></span>
+            </li>
+            <li>
+              <span class="step-visual" aria-hidden="true"><svg viewBox="0 0 48 48"><rect x="11" y="11" width="26" height="26" rx="5"/><path d="M24 17v14m-7-7h14"/></svg></span>
+              <span><b>選擇「加到主畫面」</b><small>部分手機會顯示「安裝應用程式」。</small></span>
+            </li>
+          </ol>
+        </article>
+      </div>
+    </section>
+
   </main>
   <script src="./app.js?v=5"></script>
 </body>

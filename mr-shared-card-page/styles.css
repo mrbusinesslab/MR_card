@@ -70,6 +70,13 @@ h1, h2 { text-wrap: balance; }
   font-size: 16px;
 }
 
+.brand-logo {
+  display: block;
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+}
+
 .brand-copy { display: grid; }
 .brand-copy strong { font-family: Georgia, "Times New Roman", serif; font-size: 18px; letter-spacing: .07em; }
 .brand-copy small { margin-top: 2px; color: var(--muted); font-family: Georgia, serif; font-size: 11px; letter-spacing: .13em; }
@@ -80,10 +87,10 @@ h1, h2 { text-wrap: balance; }
   gap: 7px;
   min-height: 38px;
   padding: 8px 13px;
-  border: 1px solid color-mix(in srgb, var(--theme-primary) 24%, white);
+  border: 1px solid #cfe0d5;
   border-radius: 999px;
-  color: var(--ink);
-  background: color-mix(in srgb, var(--theme-secondary) 76%, white);
+  color: #56675c;
+  background: rgba(250, 255, 251, .82);
   font-size: 13px;
   box-shadow: 0 8px 28px rgba(64, 88, 70, .05);
 }
@@ -98,8 +105,8 @@ h1, h2 { text-wrap: balance; }
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--theme-primary);
-  box-shadow: 0 0 0 5px color-mix(in srgb, var(--theme-primary) 14%, transparent);
+  background: var(--green);
+  box-shadow: 0 0 0 5px rgba(79, 157, 115, .11);
 }
 
 .hero {
@@ -205,10 +212,10 @@ h1, h2 { text-wrap: balance; }
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: #5d5955;
+  background: color-mix(in srgb, var(--theme-primary) 32%, #77736f);
 }
 
-.page-dot.is-active { width: 18px; border-radius: 999px; background: #d6ad73; }
+.page-dot.is-active { width: 18px; border-radius: 999px; background: var(--theme-primary); }
 
 .swipe-hint { margin: 10px 0 0; color: var(--muted); font-size: 13px; }
 
@@ -319,6 +326,7 @@ h1 {
   box-shadow: 0 24px 70px rgba(55, 42, 30, .08);
 }
 
+.guide-heading .eyebrow { color: #6f4e39; }
 .guide-heading { max-width: 680px; margin: 0 auto 36px; text-align: center; }
 .guide-heading h2 {
   margin: 0;
@@ -362,9 +370,9 @@ h1 {
   width: 48px;
   height: 48px;
   place-items: center;
-  border: 1px solid color-mix(in srgb, var(--theme-primary) 24%, white);
+  border: 1px solid #d9d0c5;
   border-radius: 14px;
-  color: var(--theme-primary);
+  color: #9a7354;
   background: #ffffff;
 }
 .step-visual::after {
@@ -376,8 +384,8 @@ h1 {
   height: 20px;
   place-items: center;
   border-radius: 50%;
-  color: var(--theme-on-primary);
-  background: var(--theme-primary);
+  color: #ffffff;
+  background: #1d1a18;
   content: counter(guide-step);
   font-size: 10px;
   font-weight: 800;

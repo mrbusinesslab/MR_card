@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#f4efe8">
+  <meta name="theme-color" content="#f4efe8" id="themeColor">
   <meta name="description" content="小如如的專屬電子名片｜MR BUSINESS LAB">
   <title>小如如的電子名片｜MR BUSINESS LAB</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%231b1917'/%3E%3Ctext x='32' y='40' font-size='26' text-anchor='middle' fill='%23d6ad73' font-family='serif'%3EMR%3C/text%3E%3C/svg%3E">
-  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./styles.css?v=2">
 </head>
 <body>
   <main class="page-shell">
@@ -44,10 +44,10 @@
         <p class="intro">這個網址專屬於你。MR 更新名片內容後，網址不需要更換，下次打開就能查看最新版本。</p>
 
         <div class="identity-card">
-          <span class="avatar" aria-hidden="true">如</span>
+          <span class="avatar" id="avatar" aria-hidden="true">如</span>
           <span>
             <strong><span id="personName">小如如</span>的電子名片</strong>
-            <small>專屬代碼：<span id="caseCode">CASE1</span>・最新版本</small>
+            <small>個人專屬・最新版本</small>
           </span>
         </div>
 
@@ -60,6 +60,6 @@
       </div>
     </section>
   </main>
-  <script src="./app.js"></script>
+  <script src="./app.js?v=2"></script>
 </body>
 </html>

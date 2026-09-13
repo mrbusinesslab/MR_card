@@ -9,6 +9,8 @@ const CARD_JSON_URL = `../ai-MRbot/templates/${encodeURIComponent(caseId)}/card_
 const viewport = document.querySelector("#cardViewport");
 const dots = document.querySelector("#pageDots");
 const status = document.querySelector("#actionStatus");
+const shareButton = document.querySelector("#shareButton");
+let cardShareUrl = "";
 
 const versionDate = document.querySelector("#versionDate");
 document.querySelector("#personName").textContent = personName;
@@ -106,6 +108,13 @@ function renderCard(flex) {
   if (!pages.length) throw new Error("名片內容為空");
 
   applyTheme(pages[0]);
+  const allButtons = pages.flatMap((page) => getCardData(page).buttons);
+  const shareAction = allButtons.find((button) => /^https:\/\/liff\.line\.me\//i.test(button.href))
+    || allButtons.find((button) => /分享.*名片|名片.*分享/.test(button.label));
+  cardShareUrl = shareAction?.href || "";
+  shareButton.disabled = !cardShareUrl;
+  shareButton.textContent = cardShareUrl ? "分享我的名片" : "暫無分享連結";
+
   viewport.replaceChildren();
   dots.replaceChildren();
 
@@ -172,32 +181,13 @@ function showStatus(message, isError = false) {
   status.style.color = isError ? "#a7463d" : "#397251";
 }
 
-document.querySelector("#shareButton").addEventListener("click", async () => {
-  const shareData = {
-    title: `${personName}的電子名片`,
-    text: `這是${personName}的專屬電子名片`,
-    url: window.location.href
-  };
-  try {
-    if (navigator.share) {
-      await navigator.share(shareData);
-      showStatus("已開啟分享選單");
-    } else {
-      await navigator.clipboard.writeText(window.location.href);
-      showStatus("瀏覽器不支援分享選單，已複製專屬網址");
-    }
-  } catch (error) {
-    if (error?.name !== "AbortError") showStatus("目前無法開啟分享功能，請改用複製網址", true);
+shareButton.addEventListener("click", () => {
+  if (!cardShareUrl) {
+    showStatus("這張名片尚未設定 LINE 分享連結", true);
+    return;
   }
-});
-
-document.querySelector("#copyButton").addEventListener("click", async () => {
-  try {
-    await navigator.clipboard.writeText(window.location.href);
-    showStatus("專屬網址已複製");
-  } catch {
-    showStatus("無法自動複製，請從瀏覽器網址列複製", true);
-  }
+  showStatus("正在開啟 LINE 分享名片");
+  window.location.assign(cardShareUrl);
 });
 
 loadCard().catch(() => {

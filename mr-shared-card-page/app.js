@@ -2,7 +2,7 @@ const DEFAULT_CASE = "case1_小如如";
 const CASE_PATTERN = /^case\d+_[A-Za-z0-9\u3400-\u9fff-]+$/u;
 const requestedCase = new URLSearchParams(window.location.search).get("case") || DEFAULT_CASE;
 const caseId = CASE_PATTERN.test(requestedCase) ? requestedCase : DEFAULT_CASE;
-const [caseCode, ...nameParts] = caseId.split("_");
+const [, ...nameParts] = caseId.split("_");
 const personName = nameParts.join("_");
 const CARD_JSON_URL = `../ai-MRbot/templates/${encodeURIComponent(caseId)}/card_${encodeURIComponent(personName)}.json`;
 
@@ -12,7 +12,7 @@ const status = document.querySelector("#actionStatus");
 
 const versionDate = document.querySelector("#versionDate");
 document.querySelector("#personName").textContent = personName;
-document.querySelector("#caseCode").textContent = caseCode.toUpperCase();
+document.querySelector("#avatar").textContent = [...personName.replace(/\s+/g, "")].at(-1) || "名";
 document.title = `${personName}的電子名片｜MR BUSINESS LAB`;
 document.querySelector('meta[name="description"]').content = `${personName}的專屬電子名片｜MR BUSINESS LAB`;
 
@@ -26,6 +26,48 @@ function setVersionDate(lastModified) {
     month: "2-digit",
     day: "2-digit"
   }).format(safeDate);
+}
+
+function normalizeColor(value, fallback) {
+  return /^#[0-9a-f]{6}$/i.test(value || "") ? value : fallback;
+}
+
+function readableText(hex) {
+  const [r, g, b] = hex.slice(1).match(/.{2}/g).map((part) => parseInt(part, 16) / 255);
+  const linear = [r, g, b].map((value) => value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4);
+  return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2] > 0.48 ? "#1d1a18" : "#ffffff";
+}
+
+function applyTheme(page) {
+  const nodes = allNodes(page);
+  const actionNodes = nodes.filter((node) => node.action?.type === "uri" && node.action.uri);
+  const surfaceNode = nodes.find((node) =>
+    node.backgroundColor &&
+    Array.isArray(node.contents) &&
+    allNodes(node.contents).some((child) => child.action?.type === "uri")
+  );
+  const primary = normalizeColor(actionNodes[0]?.backgroundColor, "#1d1a18");
+  const secondary = normalizeColor(actionNodes[1]?.backgroundColor, "#f7f3ed");
+  const surface = normalizeColor(surfaceNode?.backgroundColor, secondary);
+  const root = document.documentElement;
+  root.style.setProperty("--theme-primary", primary);
+  root.style.setProperty("--theme-secondary", secondary);
+  root.style.setProperty("--theme-surface", surface);
+  root.style.setProperty("--theme-on-primary", readableText(primary));
+  document.querySelector("#themeColor").content = secondary;
+}
+
+async function getCardUpdatedAt(fallback) {
+  const filePath = `ai-MRbot/templates/${caseId}/card_${personName}.json`;
+  const apiUrl = `https://api.github.com/repos/mrbusinesslab/MR_card/commits?path=${encodeURIComponent(filePath)}&per_page=1`;
+  try {
+    const response = await fetch(apiUrl, { headers: { Accept: "application/vnd.github+json" } });
+    if (!response.ok) throw new Error(`GitHub HTTP ${response.status}`);
+    const commits = await response.json();
+    return commits[0]?.commit?.committer?.date || commits[0]?.commit?.author?.date || fallback;
+  } catch {
+    return fallback;
+  }
 }
 
 function allNodes(value) {
@@ -57,6 +99,7 @@ function renderCard(flex) {
   const pages = Array.isArray(flex?.contents) ? flex.contents : [];
   if (!pages.length) throw new Error("名片內容為空");
 
+  applyTheme(pages[0]);
   viewport.replaceChildren();
   dots.replaceChildren();
 
@@ -107,8 +150,13 @@ function renderCard(flex) {
 async function loadCard() {
   const response = await fetch(CARD_JSON_URL, { cache: "no-store" });
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  setVersionDate(response.headers.get("last-modified"));
-  renderCard(await response.json());
+  const fallbackDate = response.headers.get("last-modified");
+  const [card, updatedAt] = await Promise.all([
+    response.json(),
+    getCardUpdatedAt(fallbackDate)
+  ]);
+  setVersionDate(updatedAt);
+  renderCard(card);
 }
 
 function showStatus(message, isError = false) {

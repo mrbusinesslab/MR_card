@@ -1,7 +1,21 @@
 const DEFAULT_CASE = "case1_小如如";
 const CASE_PATTERN = /^case\d+_[A-Za-z0-9\u3400-\u9fff-]+$/u;
+
+function repairHexEncodedName(value) {
+  if (!/^(?:[0-9a-f]{2}){3,}$/i.test(value)) return value;
+  try {
+    const bytes = Uint8Array.from(value.match(/.{2}/g), (pair) => parseInt(pair, 16));
+    const decoded = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+    return decoded || value;
+  } catch {
+    return value;
+  }
+}
+
 const requestedCase = new URLSearchParams(window.location.search).get("case") || DEFAULT_CASE;
-const caseId = CASE_PATTERN.test(requestedCase) ? requestedCase : DEFAULT_CASE;
+const [requestedCode, ...requestedNameParts] = requestedCase.split("_");
+const repairedCase = `${requestedCode}_${repairHexEncodedName(requestedNameParts.join("_"))}`;
+const caseId = CASE_PATTERN.test(repairedCase) ? repairedCase : DEFAULT_CASE;
 const [, ...nameParts] = caseId.split("_");
 const personName = nameParts.join("_");
 const CARD_JSON_URL = `../ai-MRbot/templates/${encodeURIComponent(caseId)}/card_${encodeURIComponent(personName)}.json`;

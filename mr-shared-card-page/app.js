@@ -54,7 +54,7 @@ function applyTheme(page) {
   root.style.setProperty("--theme-secondary", secondary);
   root.style.setProperty("--theme-surface", surface);
   root.style.setProperty("--theme-on-primary", readableText(primary));
-  document.querySelector("#themeColor").content = secondary;
+  document.querySelector("#themeColor").content = "#ffffff";
 }
 
 async function getCardUpdatedAt(fallback) {

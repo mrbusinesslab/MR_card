@@ -48,7 +48,7 @@
         throw new Error("目前的 LINE 版本不支援好友分享功能");
       }
 
-      const result = await liff.shareTargetPicker([
+      const res = await liff.shareTargetPicker([
         {
           type: "flex",
           altText: "小如如｜MR.主理人",
@@ -56,7 +56,7 @@
         }
       ]);
 
-      if (result) {
+      if (res) {
         status.innerHTML = "<strong>分享完成</strong>視窗即將關閉";
         liff.closeWindow();
       } else {

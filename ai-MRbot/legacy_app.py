@@ -1,7 +1,9 @@
 import os
 import json
+import hashlib
 from difflib import SequenceMatcher
 from datetime import date
+from html import escape
 from urllib.parse import quote, unquote
 from urllib.request import Request, urlopen
 from flask import Flask, request, abort, redirect
@@ -247,31 +249,59 @@ def track_click():
     return redirect(target, code=302)
 
 
-@app.route("/card/ruru")
-def card_preview_ruru():
-    target_url = "https://mrbusinesslab.github.io/MR_card/mr-shared-card-page/?case=case1_%E5%B0%8F%E5%A6%82%E5%A6%82"
-    html = f"""<!doctype html>
+def card_short_code(case_id):
+    return hashlib.sha256(f"mr-card:{case_id}".encode("utf-8")).hexdigest()[:10]
+
+
+def render_card_preview(case_item, canonical_url):
+    case_id = case_item["case"]
+    person_name = case_person_name(case_item)
+    target_url = (
+        "https://mrbusinesslab.github.io/MR_card/mr-shared-card-page/"
+        f"?case={quote(case_id, safe='')}"
+    )
+    title = f"{person_name}的電子名片｜MR BUSINESS LAB"
+    description = f"{person_name}的專屬電子名片｜MR BUSINESS LAB"
+    page = f"""<!doctype html>
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>小如如的電子名片｜MR BUSINESS LAB</title>
-  <meta name="description" content="小如如的專屬電子名片｜MR BUSINESS LAB">
+  <title>{escape(title)}</title>
+  <meta name="description" content="{escape(description)}">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="小如如的電子名片｜MR BUSINESS LAB">
-  <meta property="og:description" content="小如如的專屬電子名片｜MR BUSINESS LAB">
-  <meta property="og:url" content="https://mr-6c1r.onrender.com/card/ruru">
+  <meta property="og:title" content="{escape(title)}">
+  <meta property="og:description" content="{escape(description)}">
+  <meta property="og:url" content="{escape(canonical_url)}">
   <meta name="robots" content="noindex">
   <script>window.location.replace({json.dumps(target_url)});</script>
 </head>
 <body>
-  <p><a href="{target_url}">開啟小如如的電子名片</a></p>
+  <p><a href="{escape(target_url)}">開啟{escape(person_name)}的電子名片</a></p>
 </body>
 </html>"""
-    return html, 200, {
+    return page, 200, {
         "Content-Type": "text/html; charset=utf-8",
         "Cache-Control": "public, max-age=300",
     }
+
+
+@app.route("/card/<short_code>")
+def card_preview(short_code):
+    case_item = next(
+        (item for item in CASE_LIST if card_short_code(item["case"]) == short_code.lower()),
+        None,
+    )
+    if not case_item:
+        abort(404)
+    canonical_url = f"{TRACKING_BASE_URL}/card/{short_code.lower()}"
+    return render_card_preview(case_item, canonical_url)
+
+
+@app.route("/card/ruru")
+def card_preview_ruru():
+    case_item = next(c for c in CASE_LIST if c["case"] == "case1_小如如")
+    return render_card_preview(case_item, f"{TRACKING_BASE_URL}/card/ruru")
 
 
 @app.route("/cases")

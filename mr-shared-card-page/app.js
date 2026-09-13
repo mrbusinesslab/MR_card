@@ -80,8 +80,14 @@ function getCardData(page) {
   const nodes = allNodes(page);
   const image = nodes.find((node) => node.type === "image" && node.url);
   const actions = nodes.filter((node) => node.action?.type === "uri" && node.action.uri);
+  const actionArea = nodes.find((node) =>
+    node.backgroundColor &&
+    Array.isArray(node.contents) &&
+    allNodes(node.contents).some((child) => child.action?.type === "uri")
+  );
   return {
     imageUrl: image?.url || "",
+    actionBackground: actionArea?.backgroundColor || "#ffffff",
     buttons: actions.map((node) => {
       const label = allNodes(node).filter((item) => item.type === "text" && item.text).at(-1)?.text || "開啟連結";
       return {
@@ -107,6 +113,7 @@ function renderCard(flex) {
     const data = getCardData(page);
     const section = document.createElement("section");
     section.className = "card-page";
+    section.style.backgroundColor = data.actionBackground;
     section.setAttribute("aria-label", `電子名片第 ${index + 1} 頁，共 ${pages.length} 頁`);
 
     const image = document.createElement("img");
@@ -117,6 +124,7 @@ function renderCard(flex) {
 
     const buttonGroup = document.createElement("div");
     buttonGroup.className = "card-buttons";
+    buttonGroup.style.backgroundColor = data.actionBackground;
     data.buttons.forEach((button) => {
       const link = document.createElement("a");
       link.className = "card-button";

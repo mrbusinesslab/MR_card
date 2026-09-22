@@ -117,6 +117,17 @@ function getCardData(page) {
   };
 }
 
+function preloadImage(url) {
+  if (!url) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = resolve;
+    image.onerror = () => reject(new Error("首張名片圖片載入失敗"));
+    image.src = url;
+    if (image.complete && image.naturalWidth) resolve();
+  });
+}
+
 function renderCard(flex) {
   const pages = Array.isArray(flex?.contents) ? flex.contents : [];
   if (!pages.length) throw new Error("名片內容為空");
@@ -143,6 +154,7 @@ function renderCard(flex) {
     image.src = data.imageUrl;
     image.alt = `${personName}電子名片第 ${index + 1} 頁`;
     image.loading = index === 0 ? "eager" : "lazy";
+    image.fetchPriority = index === 0 ? "high" : "auto";
     section.append(image);
 
     const buttonGroup = document.createElement("div");
@@ -187,6 +199,8 @@ async function loadCard() {
     getCardUpdatedAt(fallbackDate)
   ]);
   setVersionDate(updatedAt);
+  const firstPage = Array.isArray(card?.contents) ? card.contents[0] : null;
+  await preloadImage(getCardData(firstPage).imageUrl);
   renderCard(card);
 }
 

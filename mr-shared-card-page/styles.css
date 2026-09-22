@@ -191,13 +191,31 @@ h1, h2 { text-wrap: balance; }
 }
 
 .loading-state {
-  display: grid;
+  display: flex;
   flex: 0 0 100%;
   min-height: 570px;
-  place-items: center;
-  color: #b9b2aa;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 9px;
+  color: #f3eee8;
+  background: linear-gradient(145deg, #171513, #080706);
   font-size: 14px;
+  text-align: center;
 }
+.loading-state strong { font-size: 16px; letter-spacing: .06em; }
+.loading-state small { color: #a9a19a; font-size: 12px; }
+.loading-spinner {
+  width: 30px;
+  height: 30px;
+  margin-bottom: 4px;
+  border: 3px solid rgba(255, 255, 255, .18);
+  border-top-color: #d6ad73;
+  border-radius: 50%;
+  animation: card-loading-spin .8s linear infinite;
+}
+@keyframes card-loading-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .loading-spinner { animation-duration: 1.8s; } }
 
 .page-dots {
   display: flex;

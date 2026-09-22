@@ -128,17 +128,22 @@ function preloadImage(url) {
   });
 }
 
-function renderCard(flex) {
+function updateShareAction(flex) {
   const pages = Array.isArray(flex?.contents) ? flex.contents : [];
-  if (!pages.length) throw new Error("名片內容為空");
-
-  applyTheme(pages[0]);
   const allButtons = pages.flatMap((page) => getCardData(page).buttons);
   const shareAction = allButtons.find((button) => /^https:\/\/liff\.line\.me\//i.test(button.href))
     || allButtons.find((button) => /分享.*名片|名片.*分享/.test(button.label));
   cardShareUrl = shareAction?.href || "";
   shareButton.disabled = !cardShareUrl;
   shareButton.textContent = cardShareUrl ? "分享我的名片" : "暫無分享連結";
+}
+
+function renderCard(flex) {
+  const pages = Array.isArray(flex?.contents) ? flex.contents : [];
+  if (!pages.length) throw new Error("名片內容為空");
+
+  applyTheme(pages[0]);
+  updateShareAction(flex);
 
   viewport.replaceChildren();
   dots.replaceChildren();
@@ -199,6 +204,7 @@ async function loadCard() {
     getCardUpdatedAt(fallbackDate)
   ]);
   setVersionDate(updatedAt);
+  updateShareAction(card);
   const firstPage = Array.isArray(card?.contents) ? card.contents[0] : null;
   await preloadImage(getCardData(firstPage).imageUrl);
   renderCard(card);

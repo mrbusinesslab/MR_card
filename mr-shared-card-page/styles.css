@@ -299,6 +299,14 @@ h1 {
 .secondary-action { color: var(--ink); background: color-mix(in srgb, var(--theme-secondary) 58%, white); border-color: color-mix(in srgb, var(--theme-primary) 25%, white) !important; }
 .actions button:focus-visible, .card-button:focus-visible, .page-dot:focus-visible { outline: 3px solid rgba(154, 115, 84, .35); outline-offset: 3px; }
 .actions button:hover { transform: translateY(-1px); }
+.actions button:disabled {
+  color: #8d8781;
+  background: #e8e3dd;
+  border-color: #d5cec6 !important;
+  cursor: wait;
+  transform: none;
+  box-shadow: none;
+}
 
 .action-status { min-height: 22px; margin: 9px 0 0; color: #397251; font-size: 13px; font-weight: 700; }
 .tip { margin: 3px 0 0; color: #948b83; font-size: 13px; line-height: 1.7; }

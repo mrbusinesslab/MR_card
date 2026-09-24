@@ -97,6 +97,19 @@ def find_card_for_person(name):
     return None
 
 
+def card_independent_url(case_item):
+    if not case_item:
+        return ""
+    short_code = legacy.card_short_code(case_item["case"])
+    base_url = str(getattr(legacy, "TRACKING_BASE_URL", "https://mr-6c1r.onrender.com")).rstrip("/")
+    return f"{base_url}/card/{short_code}"
+
+
+def card_url_message(case_item):
+    url = card_independent_url(case_item)
+    return TextMessage(text=f"這是他們的名片獨立網址：\n{url}") if url else None
+
+
 def resolve_people(query):
     direct = find_people(query)
     if direct:
@@ -336,7 +349,9 @@ def person_category_reply(name, category):
         return TextMessage(text=f"找不到「{name}」的最新資料，請重新搜尋。")
     if category == "card":
         c = find_card_for_person(name)
-        return legacy.build_card_message(c) if c else TextMessage(text=f"{name} 目前尚未建立電子名片。")
+        if not c:
+            return TextMessage(text=f"{name} 目前尚未建立電子名片。")
+        return [legacy.build_card_message(c), card_url_message(c)]
     if category in ("diagnosis", "blind"):
         return build_insight_card(person, category)
     if category in ("basic", "service", "links", "contact"):
@@ -354,7 +369,9 @@ def full_category_reply(name, category):
 
 
 def reply(api, event, message):
-    api.reply_message(ReplyMessageRequest(reply_token=event.reply_token, messages=[message]))
+    messages = message if isinstance(message, list) else [message]
+    messages = [item for item in messages if item is not None]
+    api.reply_message(ReplyMessageRequest(reply_token=event.reply_token, messages=messages))
 
 
 @app.route("/people-data-health")
@@ -430,7 +447,7 @@ def handle_message(event):
                 message = legacy.build_suggestion_flex(user_msg, suggestions) if suggestions else TextMessage(text=f"找不到與「{user_msg}」相關的名片，請換個關鍵字再試一次。")
             elif len(matched) == 1:
                 legacy.record_view(user_id, matched[0])
-                message = legacy.build_card_message(matched[0])
+                message = [legacy.build_card_message(matched[0]), card_url_message(matched[0])]
             else:
                 message = legacy.build_search_result_flex(user_msg, matched)
             reply(line_bot_api, event, message)

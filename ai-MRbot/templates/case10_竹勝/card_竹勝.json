@@ -9,7 +9,7 @@
         "contents": [
           {
             "type": "image",
-            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case10_%E7%AB%B9%E5%8B%9D/1.png?raw=true",
+            "url": "https://mrbusinesslab.github.io/MR_card/ai-MRbot/templates/case10_%E7%AB%B9%E5%8B%9D/1.jpg?v=34999d7b22c2",
             "size": "full",
             "aspectMode": "cover",
             "aspectRatio": "2:3",
@@ -23,12 +23,16 @@
                 "type": "box",
                 "layout": "vertical",
                 "contents": [
-                  { "type": "filler" },
+                  {
+                    "type": "filler"
+                  },
                   {
                     "type": "box",
                     "layout": "baseline",
                     "contents": [
-                      { "type": "filler" },
+                      {
+                        "type": "filler"
+                      },
                       {
                         "type": "text",
                         "text": "主廚的日常",
@@ -36,11 +40,15 @@
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
-                      { "type": "filler" }
+                      {
+                        "type": "filler"
+                      }
                     ],
                     "spacing": "sm"
                   },
-                  { "type": "filler" }
+                  {
+                    "type": "filler"
+                  }
                 ],
                 "borderWidth": "none",
                 "cornerRadius": "4px",
@@ -59,12 +67,16 @@
                 "type": "box",
                 "layout": "vertical",
                 "contents": [
-                  { "type": "filler" },
+                  {
+                    "type": "filler"
+                  },
                   {
                     "type": "box",
                     "layout": "baseline",
                     "contents": [
-                      { "type": "filler" },
+                      {
+                        "type": "filler"
+                      },
                       {
                         "type": "text",
                         "text": "分享名片",
@@ -72,11 +84,15 @@
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
-                      { "type": "filler" }
+                      {
+                        "type": "filler"
+                      }
                     ],
                     "spacing": "sm"
                   },
-                  { "type": "filler" }
+                  {
+                    "type": "filler"
+                  }
                 ],
                 "borderWidth": "none",
                 "cornerRadius": "4px",
@@ -112,7 +128,7 @@
         "contents": [
           {
             "type": "image",
-            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case10_%E7%AB%B9%E5%8B%9D/2.png?raw=true",
+            "url": "https://mrbusinesslab.github.io/MR_card/ai-MRbot/templates/case10_%E7%AB%B9%E5%8B%9D/2.jpg?v=3be0de4ed39d",
             "size": "full",
             "aspectMode": "cover",
             "aspectRatio": "2:3",
@@ -126,12 +142,16 @@
                 "type": "box",
                 "layout": "vertical",
                 "contents": [
-                  { "type": "filler" },
+                  {
+                    "type": "filler"
+                  },
                   {
                     "type": "box",
                     "layout": "baseline",
                     "contents": [
-                      { "type": "filler" },
+                      {
+                        "type": "filler"
+                      },
                       {
                         "type": "text",
                         "text": "線上訂位",
@@ -139,11 +159,15 @@
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
-                      { "type": "filler" }
+                      {
+                        "type": "filler"
+                      }
                     ],
                     "spacing": "sm"
                   },
-                  { "type": "filler" }
+                  {
+                    "type": "filler"
+                  }
                 ],
                 "borderWidth": "none",
                 "cornerRadius": "4px",
@@ -162,12 +186,16 @@
                 "type": "box",
                 "layout": "vertical",
                 "contents": [
-                  { "type": "filler" },
+                  {
+                    "type": "filler"
+                  },
                   {
                     "type": "box",
                     "layout": "baseline",
                     "contents": [
-                      { "type": "filler" },
+                      {
+                        "type": "filler"
+                      },
                       {
                         "type": "text",
                         "text": "美食搶先看",
@@ -175,11 +203,15 @@
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
-                      { "type": "filler" }
+                      {
+                        "type": "filler"
+                      }
                     ],
                     "spacing": "sm"
                   },
-                  { "type": "filler" }
+                  {
+                    "type": "filler"
+                  }
                 ],
                 "borderWidth": "none",
                 "cornerRadius": "4px",
@@ -215,7 +247,7 @@
         "contents": [
           {
             "type": "image",
-            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case10_%E7%AB%B9%E5%8B%9D/3.png?raw=true",
+            "url": "https://mrbusinesslab.github.io/MR_card/ai-MRbot/templates/case10_%E7%AB%B9%E5%8B%9D/3.jpg?v=fdfba337b696",
             "size": "full",
             "aspectMode": "cover",
             "aspectRatio": "2:3",
@@ -229,12 +261,16 @@
                 "type": "box",
                 "layout": "vertical",
                 "contents": [
-                  { "type": "filler" },
+                  {
+                    "type": "filler"
+                  },
                   {
                     "type": "box",
                     "layout": "baseline",
                     "contents": [
-                      { "type": "filler" },
+                      {
+                        "type": "filler"
+                      },
                       {
                         "type": "text",
                         "text": "看看大家怎麼說",
@@ -242,11 +278,15 @@
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
-                      { "type": "filler" }
+                      {
+                        "type": "filler"
+                      }
                     ],
                     "spacing": "sm"
                   },
-                  { "type": "filler" }
+                  {
+                    "type": "filler"
+                  }
                 ],
                 "borderWidth": "none",
                 "cornerRadius": "4px",
@@ -265,12 +305,16 @@
                 "type": "box",
                 "layout": "vertical",
                 "contents": [
-                  { "type": "filler" },
+                  {
+                    "type": "filler"
+                  },
                   {
                     "type": "box",
                     "layout": "baseline",
                     "contents": [
-                      { "type": "filler" },
+                      {
+                        "type": "filler"
+                      },
                       {
                         "type": "text",
                         "text": "餐廳位置",
@@ -278,11 +322,15 @@
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
-                      { "type": "filler" }
+                      {
+                        "type": "filler"
+                      }
                     ],
                     "spacing": "sm"
                   },
-                  { "type": "filler" }
+                  {
+                    "type": "filler"
+                  }
                 ],
                 "borderWidth": "none",
                 "cornerRadius": "4px",
@@ -318,7 +366,7 @@
         "contents": [
           {
             "type": "image",
-            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case10_%E7%AB%B9%E5%8B%9D/4.png?raw=true",
+            "url": "https://mrbusinesslab.github.io/MR_card/ai-MRbot/templates/case10_%E7%AB%B9%E5%8B%9D/4.jpg?v=a9b1b4440e83",
             "size": "full",
             "aspectMode": "cover",
             "aspectRatio": "2:3",
@@ -332,12 +380,16 @@
                 "type": "box",
                 "layout": "vertical",
                 "contents": [
-                  { "type": "filler" },
+                  {
+                    "type": "filler"
+                  },
                   {
                     "type": "box",
                     "layout": "baseline",
                     "contents": [
-                      { "type": "filler" },
+                      {
+                        "type": "filler"
+                      },
                       {
                         "type": "text",
                         "text": "BNI 五表",
@@ -345,11 +397,15 @@
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
-                      { "type": "filler" }
+                      {
+                        "type": "filler"
+                      }
                     ],
                     "spacing": "sm"
                   },
-                  { "type": "filler" }
+                  {
+                    "type": "filler"
+                  }
                 ],
                 "borderWidth": "none",
                 "cornerRadius": "4px",
@@ -363,12 +419,16 @@
                 "type": "box",
                 "layout": "vertical",
                 "contents": [
-                  { "type": "filler" },
+                  {
+                    "type": "filler"
+                  },
                   {
                     "type": "box",
                     "layout": "baseline",
                     "contents": [
-                      { "type": "filler" },
+                      {
+                        "type": "filler"
+                      },
                       {
                         "type": "text",
                         "text": "合作洽詢",
@@ -376,11 +436,15 @@
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
-                      { "type": "filler" }
+                      {
+                        "type": "filler"
+                      }
                     ],
                     "spacing": "sm"
                   },
-                  { "type": "filler" }
+                  {
+                    "type": "filler"
+                  }
                 ],
                 "borderWidth": "none",
                 "cornerRadius": "4px",
@@ -411,7 +475,7 @@
         "contents": [
           {
             "type": "image",
-            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/namecard/mr_1.png?raw=true",
+            "url": "https://mrbusinesslab.github.io/MR_card/namecard/mr_1.jpg?v=3b6f8f3f6722",
             "size": "full",
             "aspectMode": "cover",
             "aspectRatio": "2:3",
@@ -425,12 +489,16 @@
                 "type": "box",
                 "layout": "vertical",
                 "contents": [
-                  { "type": "filler" },
+                  {
+                    "type": "filler"
+                  },
                   {
                     "type": "box",
                     "layout": "baseline",
                     "contents": [
-                      { "type": "filler" },
+                      {
+                        "type": "filler"
+                      },
                       {
                         "type": "text",
                         "text": "電子名片｜預約",
@@ -438,11 +506,15 @@
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
-                      { "type": "filler" }
+                      {
+                        "type": "filler"
+                      }
                     ],
                     "spacing": "sm"
                   },
-                  { "type": "filler" }
+                  {
+                    "type": "filler"
+                  }
                 ],
                 "borderWidth": "none",
                 "cornerRadius": "4px",
@@ -461,12 +533,16 @@
                 "type": "box",
                 "layout": "vertical",
                 "contents": [
-                  { "type": "filler" },
+                  {
+                    "type": "filler"
+                  },
                   {
                     "type": "box",
                     "layout": "baseline",
                     "contents": [
-                      { "type": "filler" },
+                      {
+                        "type": "filler"
+                      },
                       {
                         "type": "text",
                         "text": "商務男士形象｜IG",
@@ -474,11 +550,15 @@
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
-                      { "type": "filler" }
+                      {
+                        "type": "filler"
+                      }
                     ],
                     "spacing": "sm"
                   },
-                  { "type": "filler" }
+                  {
+                    "type": "filler"
+                  }
                 ],
                 "borderWidth": "none",
                 "cornerRadius": "4px",

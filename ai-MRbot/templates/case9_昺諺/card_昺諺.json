@@ -9,7 +9,7 @@
         "contents": [
           {
             "type": "image",
-            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case9_%E6%98%BA%E8%AB%BA/1.png?raw=true",
+            "url": "https://mrbusinesslab.github.io/MR_card/ai-MRbot/templates/case9_%E6%98%BA%E8%AB%BA/1.jpg?v=75891725e967",
             "size": "full",
             "aspectMode": "cover",
             "aspectRatio": "2:3",
@@ -23,12 +23,16 @@
                 "type": "box",
                 "layout": "vertical",
                 "contents": [
-                  { "type": "filler" },
+                  {
+                    "type": "filler"
+                  },
                   {
                     "type": "box",
                     "layout": "baseline",
                     "contents": [
-                      { "type": "filler" },
+                      {
+                        "type": "filler"
+                      },
                       {
                         "type": "text",
                         "text": "電話聯繫",
@@ -36,11 +40,15 @@
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
-                      { "type": "filler" }
+                      {
+                        "type": "filler"
+                      }
                     ],
                     "spacing": "sm"
                   },
-                  { "type": "filler" }
+                  {
+                    "type": "filler"
+                  }
                 ],
                 "borderWidth": "none",
                 "cornerRadius": "4px",
@@ -59,12 +67,16 @@
                 "type": "box",
                 "layout": "vertical",
                 "contents": [
-                  { "type": "filler" },
+                  {
+                    "type": "filler"
+                  },
                   {
                     "type": "box",
                     "layout": "baseline",
                     "contents": [
-                      { "type": "filler" },
+                      {
+                        "type": "filler"
+                      },
                       {
                         "type": "text",
                         "text": "分享我的名片",
@@ -72,11 +84,15 @@
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
-                      { "type": "filler" }
+                      {
+                        "type": "filler"
+                      }
                     ],
                     "spacing": "sm"
                   },
-                  { "type": "filler" }
+                  {
+                    "type": "filler"
+                  }
                 ],
                 "borderWidth": "light",
                 "cornerRadius": "4px",
@@ -112,7 +128,7 @@
         "contents": [
           {
             "type": "image",
-            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case9_%E6%98%BA%E8%AB%BA/2.png?raw=true",
+            "url": "https://mrbusinesslab.github.io/MR_card/ai-MRbot/templates/case9_%E6%98%BA%E8%AB%BA/2.jpg?v=eeb58aba2964",
             "size": "full",
             "aspectMode": "cover",
             "aspectRatio": "2:3",
@@ -126,12 +142,16 @@
                 "type": "box",
                 "layout": "vertical",
                 "contents": [
-                  { "type": "filler" },
+                  {
+                    "type": "filler"
+                  },
                   {
                     "type": "box",
                     "layout": "baseline",
                     "contents": [
-                      { "type": "filler" },
+                      {
+                        "type": "filler"
+                      },
                       {
                         "type": "text",
                         "text": "預約拆除工程",
@@ -139,11 +159,15 @@
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
-                      { "type": "filler" }
+                      {
+                        "type": "filler"
+                      }
                     ],
                     "spacing": "sm"
                   },
-                  { "type": "filler" }
+                  {
+                    "type": "filler"
+                  }
                 ],
                 "borderWidth": "none",
                 "cornerRadius": "4px",
@@ -162,12 +186,16 @@
                 "type": "box",
                 "layout": "vertical",
                 "contents": [
-                  { "type": "filler" },
+                  {
+                    "type": "filler"
+                  },
                   {
                     "type": "box",
                     "layout": "baseline",
                     "contents": [
-                      { "type": "filler" },
+                      {
+                        "type": "filler"
+                      },
                       {
                         "type": "text",
                         "text": "FB粉絲專頁",
@@ -175,11 +203,15 @@
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
-                      { "type": "filler" }
+                      {
+                        "type": "filler"
+                      }
                     ],
                     "spacing": "sm"
                   },
-                  { "type": "filler" }
+                  {
+                    "type": "filler"
+                  }
                 ],
                 "borderWidth": "light",
                 "cornerRadius": "4px",
@@ -215,7 +247,7 @@
         "contents": [
           {
             "type": "image",
-            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case9_%E6%98%BA%E8%AB%BA/3.png?raw=true",
+            "url": "https://mrbusinesslab.github.io/MR_card/ai-MRbot/templates/case9_%E6%98%BA%E8%AB%BA/3.jpg?v=926c7fb51b94",
             "size": "full",
             "aspectMode": "cover",
             "aspectRatio": "2:3",
@@ -229,12 +261,16 @@
                 "type": "box",
                 "layout": "vertical",
                 "contents": [
-                  { "type": "filler" },
+                  {
+                    "type": "filler"
+                  },
                   {
                     "type": "box",
                     "layout": "baseline",
                     "contents": [
-                      { "type": "filler" },
+                      {
+                        "type": "filler"
+                      },
                       {
                         "type": "text",
                         "text": "公司地點",
@@ -242,11 +278,15 @@
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
-                      { "type": "filler" }
+                      {
+                        "type": "filler"
+                      }
                     ],
                     "spacing": "sm"
                   },
-                  { "type": "filler" }
+                  {
+                    "type": "filler"
+                  }
                 ],
                 "borderWidth": "none",
                 "cornerRadius": "4px",
@@ -265,12 +305,16 @@
                 "type": "box",
                 "layout": "vertical",
                 "contents": [
-                  { "type": "filler" },
+                  {
+                    "type": "filler"
+                  },
                   {
                     "type": "box",
                     "layout": "baseline",
                     "contents": [
-                      { "type": "filler" },
+                      {
+                        "type": "filler"
+                      },
                       {
                         "type": "text",
                         "text": "拆除清運大隊日常",
@@ -278,11 +322,15 @@
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
-                      { "type": "filler" }
+                      {
+                        "type": "filler"
+                      }
                     ],
                     "spacing": "sm"
                   },
-                  { "type": "filler" }
+                  {
+                    "type": "filler"
+                  }
                 ],
                 "borderWidth": "light",
                 "cornerRadius": "4px",
@@ -318,7 +366,7 @@
         "contents": [
           {
             "type": "image",
-            "url": "https://github.com/mrbusinesslab/MR_card/blob/main/namecard/mr_1.png?raw=true",
+            "url": "https://mrbusinesslab.github.io/MR_card/namecard/mr_1.jpg?v=3b6f8f3f6722",
             "size": "full",
             "aspectMode": "cover",
             "aspectRatio": "2:3",
@@ -332,12 +380,16 @@
                 "type": "box",
                 "layout": "vertical",
                 "contents": [
-                  { "type": "filler" },
+                  {
+                    "type": "filler"
+                  },
                   {
                     "type": "box",
                     "layout": "baseline",
                     "contents": [
-                      { "type": "filler" },
+                      {
+                        "type": "filler"
+                      },
                       {
                         "type": "text",
                         "text": "電子名片｜預約",
@@ -345,11 +397,15 @@
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
-                      { "type": "filler" }
+                      {
+                        "type": "filler"
+                      }
                     ],
                     "spacing": "sm"
                   },
-                  { "type": "filler" }
+                  {
+                    "type": "filler"
+                  }
                 ],
                 "borderWidth": "none",
                 "cornerRadius": "4px",
@@ -368,12 +424,16 @@
                 "type": "box",
                 "layout": "vertical",
                 "contents": [
-                  { "type": "filler" },
+                  {
+                    "type": "filler"
+                  },
                   {
                     "type": "box",
                     "layout": "baseline",
                     "contents": [
-                      { "type": "filler" },
+                      {
+                        "type": "filler"
+                      },
                       {
                         "type": "text",
                         "text": "商務男士形象｜IG",
@@ -381,11 +441,15 @@
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
-                      { "type": "filler" }
+                      {
+                        "type": "filler"
+                      }
                     ],
                     "spacing": "sm"
                   },
-                  { "type": "filler" }
+                  {
+                    "type": "filler"
+                  }
                 ],
                 "borderWidth": "light",
                 "cornerRadius": "4px",

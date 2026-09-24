@@ -116,7 +116,8 @@ def add_tracking_to_flex(flex_data, case_item):
                     labels = [t.strip() for t in node_text(node) if t.strip()]
                     label = labels[-1] if labels else f"按鈕{button_index}"
                     target = str(action["uri"])
-                    if "分享我的名片" not in label and "/track/click" not in target:
+                    is_share_button = "分享" in label and "名片" in label
+                    if not is_share_button and "/track/click" not in target:
                         wrapped = (
                             f"{TRACKING_BASE_URL}/track/click?case_id={quote(case_item['case'], safe='')}"
                             f"&page={page_index}&button={button_index}&label={quote(label, safe='')}"

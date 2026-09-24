@@ -250,6 +250,7 @@ def track_click():
     return redirect(target, code=302)
 
 
+# Short URLs are generated here; card image optimization is handled by the GitHub Actions workflow.
 def card_short_code(case_id):
     return hashlib.sha256(f"mr-card:{case_id}".encode("utf-8")).hexdigest()[:10]
 

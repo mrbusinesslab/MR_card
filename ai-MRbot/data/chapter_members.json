@@ -1,0 +1,1348 @@
+{
+  "schema_version": 1,
+  "source": "ai-MRbot/分會-職位-報告.pdf",
+  "source_sha256": "3272f954de8eb8bc656f8ecdbbe9474b62174c25f70c282bbb009f334ab64814",
+  "report_generated_at": "2026年8月14日 下午 6:16",
+  "extracted_on": "2026-09-24",
+  "chapter": "磐石 - Pan Shi",
+  "privacy_note": "僅保留建立人物資料所需欄位；電話與績效統計未匯出。",
+  "member_count": 69,
+  "leadership": [
+    {
+      "role": "主席",
+      "name": "鍾任林"
+    },
+    {
+      "role": "副主席",
+      "name": "許清皓"
+    },
+    {
+      "role": "秘書/財務",
+      "name": "許妍菲"
+    },
+    {
+      "role": "來賓接待人",
+      "name": "林晁儀"
+    },
+    {
+      "role": "來賓接待人",
+      "name": "潘昱如"
+    },
+    {
+      "role": "教育協調人",
+      "name": "羅聿哲"
+    },
+    {
+      "role": "活動協調人",
+      "name": "游宛齊"
+    },
+    {
+      "role": "導師協調人",
+      "name": "高品雙"
+    },
+    {
+      "role": "發展協調人",
+      "name": "王重凱"
+    }
+  ],
+  "members": [
+    {
+      "name": "蔡一昌",
+      "display_name": "蔡 一昌",
+      "company": "富屋實業有限公司",
+      "occupation_path": [
+        "房地產服務",
+        "房地產投資"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "蔡一昌",
+        "蔡 一昌",
+        "富屋實業有限公司",
+        "房地產服務",
+        "房地產投資"
+      ],
+      "source_page": 1
+    },
+    {
+      "name": "邱一晉",
+      "display_name": "邱 一晉",
+      "company": "尚晉通科技企業社",
+      "occupation_path": [
+        "建築",
+        "電工-商業"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "邱一晉",
+        "邱 一晉",
+        "尚晉通科技企業社",
+        "建築",
+        "電工-商業"
+      ],
+      "source_page": 1
+    },
+    {
+      "name": "鍾一德",
+      "display_name": "鍾 一德",
+      "company": "詠順工程行",
+      "occupation_path": [
+        "建築",
+        "防水-防風雨"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "鍾一德",
+        "鍾 一德",
+        "詠順工程行",
+        "建築",
+        "防水-防風雨"
+      ],
+      "source_page": 1
+    },
+    {
+      "name": "姚偉婷",
+      "display_name": "姚 偉婷",
+      "company": "利盈有限公司",
+      "occupation_path": [
+        "製造業",
+        "家具製造"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "姚偉婷",
+        "姚 偉婷",
+        "利盈有限公司",
+        "製造業",
+        "家具製造"
+      ],
+      "source_page": 2
+    },
+    {
+      "name": "尤亮智",
+      "display_name": "尤 亮智",
+      "company": "尤亮智律師事務所",
+      "occupation_path": [
+        "法律&會計",
+        "律師"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "尤亮智",
+        "尤 亮智",
+        "尤亮智律師事務所",
+        "法律&會計",
+        "律師"
+      ],
+      "source_page": 2
+    },
+    {
+      "name": "廖嘉暉",
+      "display_name": "廖 嘉暉",
+      "company": "時光商行",
+      "occupation_path": [
+        "零售",
+        "燈具零售商"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "廖嘉暉",
+        "廖 嘉暉",
+        "時光商行",
+        "零售",
+        "燈具零售商"
+      ],
+      "source_page": 2
+    },
+    {
+      "name": "張世佳",
+      "display_name": "張 世佳",
+      "company": "參角點影像工作室",
+      "occupation_path": [
+        "廣告&行銷",
+        "攝影師-商業"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "張世佳",
+        "張 世佳",
+        "參角點影像工作室",
+        "廣告&行銷",
+        "攝影師-商業"
+      ],
+      "source_page": 2
+    },
+    {
+      "name": "林佑丞",
+      "display_name": "林 佑丞",
+      "company": "年輕人有限公司",
+      "occupation_path": [
+        "建築",
+        "電工"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "林佑丞",
+        "林 佑丞",
+        "年輕人有限公司",
+        "建築",
+        "電工"
+      ],
+      "source_page": 2
+    },
+    {
+      "name": "歐世洋",
+      "display_name": "歐 世洋",
+      "company": "群益期貸股份有限公司",
+      "occupation_path": [
+        "金融&保險",
+        "財富管理"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "歐世洋",
+        "歐 世洋",
+        "群益期貸股份有限公司",
+        "金融&保險",
+        "財富管理"
+      ],
+      "source_page": 2
+    },
+    {
+      "name": "王吉豐",
+      "display_name": "王 吉豐",
+      "company": "穩納工程有限公司",
+      "occupation_path": [
+        "建築",
+        "泥水匠"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "王吉豐",
+        "王 吉豐",
+        "穩納工程有限公司",
+        "建築",
+        "泥水匠"
+      ],
+      "source_page": 2
+    },
+    {
+      "name": "石俊謙",
+      "display_name": "石 俊謙",
+      "company": "橫流視覺工作室",
+      "occupation_path": [
+        "廣告&行銷",
+        "攝影師"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "石俊謙",
+        "石 俊謙",
+        "橫流視覺工作室",
+        "廣告&行銷",
+        "攝影師"
+      ],
+      "source_page": 2
+    },
+    {
+      "name": "賴信綜",
+      "display_name": "賴 信綜",
+      "company": "悠始嚴選有限公司",
+      "occupation_path": [
+        "零售",
+        "零售（其他）",
+        "OA辨公家俱、網路電商傢俱"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "賴信綜",
+        "賴 信綜",
+        "悠始嚴選有限公司",
+        "零售",
+        "零售（其他）",
+        "OA辨公家俱、網路電商傢俱"
+      ],
+      "source_page": 2
+    },
+    {
+      "name": "邵信銘",
+      "display_name": "邵 信銘",
+      "company": "禾農豐食料理坊",
+      "occupation_path": [
+        "食品&飲料",
+        "餐飲業者"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "邵信銘",
+        "邵 信銘",
+        "禾農豐食料理坊",
+        "食品&飲料",
+        "餐飲業者"
+      ],
+      "source_page": 2
+    },
+    {
+      "name": "鍾任林",
+      "display_name": "鍾 任林",
+      "company": "大誠保險經紀人",
+      "occupation_path": [
+        "金融&保險",
+        "團體福利"
+      ],
+      "chapter_roles": [
+        "主席"
+      ],
+      "search_terms": [
+        "鍾任林",
+        "鍾 任林",
+        "大誠保險經紀人",
+        "金融&保險",
+        "團體福利"
+      ],
+      "source_page": 2
+    },
+    {
+      "name": "阮凱程",
+      "display_name": "阮 凱程",
+      "company": "耕家實業有限公司",
+      "occupation_path": [
+        "建築",
+        "裝修/改造"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "阮凱程",
+        "阮 凱程",
+        "耕家實業有限公司",
+        "建築",
+        "裝修/改造"
+      ],
+      "source_page": 2
+    },
+    {
+      "name": "高品雙",
+      "display_name": "高 品雙",
+      "company": "葡眾企業股份有限公司",
+      "occupation_path": [
+        "健康&保健",
+        "保健品"
+      ],
+      "chapter_roles": [
+        "導師協調人"
+      ],
+      "search_terms": [
+        "高品雙",
+        "高 品雙",
+        "葡眾企業股份有限公司",
+        "健康&保健",
+        "保健品"
+      ],
+      "source_page": 2
+    },
+    {
+      "name": "林士庭",
+      "display_name": "林 士庭",
+      "company": "堅果創意工作室",
+      "occupation_path": [
+        "廣告&行銷",
+        "網路行銷"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "林士庭",
+        "林 士庭",
+        "堅果創意工作室",
+        "廣告&行銷",
+        "網路行銷"
+      ],
+      "source_page": 3
+    },
+    {
+      "name": "游宛齊",
+      "display_name": "游 宛齊",
+      "company": "馬鹿整合廣告股份有限公司",
+      "occupation_path": [
+        "廣告&行銷",
+        "廣告&營銷（其他）",
+        "廣告招牌輸出"
+      ],
+      "chapter_roles": [
+        "活動協調人"
+      ],
+      "search_terms": [
+        "游宛齊",
+        "游 宛齊",
+        "馬鹿整合廣告股份有限公司",
+        "廣告&行銷",
+        "廣告&營銷（其他）",
+        "廣告招牌輸出"
+      ],
+      "source_page": 3
+    },
+    {
+      "name": "蔡宗龍",
+      "display_name": "蔡 宗龍",
+      "company": "帝潤空間美學室內裝修有限公司",
+      "occupation_path": [
+        "建築&工程",
+        "建築&工程（其他）",
+        "室內設計、住宅、商空、木工、水電"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "蔡宗龍",
+        "蔡 宗龍",
+        "帝潤空間美學室內裝修有限公司",
+        "建築&工程",
+        "建築&工程（其他）",
+        "室內設計、住宅、商空、木工、水電"
+      ],
+      "source_page": 3
+    },
+    {
+      "name": "許妍菲",
+      "display_name": "許 妍菲",
+      "company": "騰斯國際股份有限公司",
+      "occupation_path": [
+        "培訓&輔導",
+        "商務培訓/教練"
+      ],
+      "chapter_roles": [
+        "秘書/財務"
+      ],
+      "search_terms": [
+        "許妍菲",
+        "許 妍菲",
+        "騰斯國際股份有限公司",
+        "培訓&輔導",
+        "商務培訓/教練"
+      ],
+      "source_page": 3
+    },
+    {
+      "name": "陳奕訢",
+      "display_name": "陳 奕訢",
+      "company": "傑詩設計室內裝修有限公司",
+      "occupation_path": [
+        "建築",
+        "櫥櫃製造商"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "陳奕訢",
+        "陳 奕訢",
+        "傑詩設計室內裝修有限公司",
+        "建築",
+        "櫥櫃製造商"
+      ],
+      "source_page": 3
+    },
+    {
+      "name": "陳家豪",
+      "display_name": "陳 家豪",
+      "company": "保德信國際人壽",
+      "occupation_path": [
+        "金融&保險",
+        "人壽和傷殘保險"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "陳家豪",
+        "陳 家豪",
+        "保德信國際人壽",
+        "金融&保險",
+        "人壽和傷殘保險"
+      ],
+      "source_page": 3
+    },
+    {
+      "name": "陳富晟",
+      "display_name": "陳 富晟",
+      "company": "躺中間設計製造所有限公司",
+      "occupation_path": [
+        "廣告&行銷",
+        "網頁設計"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "陳富晟",
+        "陳 富晟",
+        "躺中間設計製造所有限公司",
+        "廣告&行銷",
+        "網頁設計"
+      ],
+      "source_page": 3
+    },
+    {
+      "name": "吳念誠",
+      "display_name": "吳 念誠",
+      "company": "羚煜科技股份有限公司",
+      "occupation_path": [
+        "電腦&程式設計",
+        "電腦軟體"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "吳念誠",
+        "吳 念誠",
+        "羚煜科技股份有限公司",
+        "電腦&程式設計",
+        "電腦軟體"
+      ],
+      "source_page": 4
+    },
+    {
+      "name": "廖庭煥",
+      "display_name": "廖 庭煥",
+      "company": "大誠保險經紀人",
+      "occupation_path": [
+        "金融&保險",
+        "金融保險（其他）",
+        "財產與災害保險"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "廖庭煥",
+        "廖 庭煥",
+        "大誠保險經紀人",
+        "金融&保險",
+        "金融保險（其他）",
+        "財產與災害保險"
+      ],
+      "source_page": 4
+    },
+    {
+      "name": "徐德耀",
+      "display_name": "徐 德耀",
+      "company": "築創租賃資產管理有限公司",
+      "occupation_path": [
+        "房地產服務",
+        "房地產租賃"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "徐德耀",
+        "徐 德耀",
+        "築創租賃資產管理有限公司",
+        "房地產服務",
+        "房地產租賃"
+      ],
+      "source_page": 4
+    },
+    {
+      "name": "李崇緯",
+      "display_name": "李 崇緯",
+      "company": "美商美樂家台灣分公司",
+      "occupation_path": [
+        "個人服務",
+        "個人服務（其他）",
+        "國際環保超市會員顧問、會員制超市，六大系列產品，營養保健、體重管理、美妝保養、身體洗沐防護、精油，服務內容：協助申辦會員、及會員產品顧問"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "李崇緯",
+        "李 崇緯",
+        "美商美樂家台灣分公司",
+        "個人服務",
+        "個人服務（其他）",
+        "國際環保超市會員顧問、會員制超市，六大系列產品，營養保健、體重管理、美妝保養、身體洗沐防護、精油，服務內容：協助申辦會員、及會員產品顧問"
+      ],
+      "source_page": 4
+    },
+    {
+      "name": "林建銘",
+      "display_name": "林 建銘",
+      "company": "柏沅記帳士事務所",
+      "occupation_path": [
+        "法律&會計",
+        "法律&會計（其他）",
+        "稅務/會計"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "林建銘",
+        "林 建銘",
+        "柏沅記帳士事務所",
+        "法律&會計",
+        "法律&會計（其他）",
+        "稅務/會計"
+      ],
+      "source_page": 4
+    },
+    {
+      "name": "楊庭瑞",
+      "display_name": "楊 庭瑞",
+      "company": "重光科研有限公司",
+      "occupation_path": [
+        "建築",
+        "防水-防風雨"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "楊庭瑞",
+        "楊 庭瑞",
+        "重光科研有限公司",
+        "建築",
+        "防水-防風雨"
+      ],
+      "source_page": 4
+    },
+    {
+      "name": "蔡志瑄",
+      "display_name": "蔡 志瑄",
+      "company": "沐本室內裝修設計有限公司",
+      "occupation_path": [
+        "建築",
+        "木匠"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "蔡志瑄",
+        "蔡 志瑄",
+        "沐本室內裝修設計有限公司",
+        "建築",
+        "木匠"
+      ],
+      "source_page": 4
+    },
+    {
+      "name": "蔣庚達",
+      "display_name": "蔣 庚達",
+      "company": "達仁地產有限公司",
+      "occupation_path": [
+        "房地產服務",
+        "住宅地產代理"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "蔣庚達",
+        "蔣 庚達",
+        "達仁地產有限公司",
+        "房地產服務",
+        "住宅地產代理"
+      ],
+      "source_page": 4
+    },
+    {
+      "name": "黃建豪",
+      "display_name": "黃 建豪",
+      "company": "田寮農莊餐廳",
+      "occupation_path": [
+        "食品&飲料",
+        "餐廳"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "黃建豪",
+        "黃 建豪",
+        "田寮農莊餐廳",
+        "食品&飲料",
+        "餐廳"
+      ],
+      "source_page": 4
+    },
+    {
+      "name": "林怡屏",
+      "display_name": "林 怡屏",
+      "company": "和潤企業股份有限公司",
+      "occupation_path": [
+        "金融&保險",
+        "貸款服務"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "林怡屏",
+        "林 怡屏",
+        "和潤企業股份有限公司",
+        "金融&保險",
+        "貸款服務"
+      ],
+      "source_page": 5
+    },
+    {
+      "name": "林晁儀",
+      "display_name": "林 晁儀",
+      "company": "謦暉音響有限公司",
+      "occupation_path": [
+        "活動&商務服務",
+        "技術人員-音訊、影片"
+      ],
+      "chapter_roles": [
+        "來賓接待人"
+      ],
+      "search_terms": [
+        "林晁儀",
+        "林 晁儀",
+        "謦暉音響有限公司",
+        "活動&商務服務",
+        "技術人員-音訊、影片"
+      ],
+      "source_page": 5
+    },
+    {
+      "name": "楊正綱",
+      "display_name": "楊 正綱",
+      "company": "楊境設計裝潢工程行",
+      "occupation_path": [
+        "建築",
+        "廚房建設",
+        "廚房設計/居家鍍膜"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "楊正綱",
+        "楊 正綱",
+        "楊境設計裝潢工程行",
+        "建築",
+        "廚房建設",
+        "廚房設計/居家鍍膜"
+      ],
+      "source_page": 5
+    },
+    {
+      "name": "潘昱如",
+      "display_name": "潘 昱如",
+      "company": "如妍美學國際有限公司(MN13beauty)",
+      "occupation_path": [
+        "個人服務",
+        "沙龍/水療中心"
+      ],
+      "chapter_roles": [
+        "來賓接待人"
+      ],
+      "search_terms": [
+        "潘昱如",
+        "潘 昱如",
+        "如妍美學國際有限公司(MN13beauty)",
+        "個人服務",
+        "沙龍/水療中心"
+      ],
+      "source_page": 5
+    },
+    {
+      "name": "蔡榮德",
+      "display_name": "蔡 榮德",
+      "company": "亞士特科技有限公司",
+      "occupation_path": [
+        "建築&工程",
+        "建築&工程（其他）",
+        "室內燈具、照明設計、智能環控、控制燈光、窗簾、冷氣、音響"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "蔡榮德",
+        "蔡 榮德",
+        "亞士特科技有限公司",
+        "建築&工程",
+        "建築&工程（其他）",
+        "室內燈具、照明設計、智能環控、控制燈光、窗簾、冷氣、音響"
+      ],
+      "source_page": 5
+    },
+    {
+      "name": "賴怡帆",
+      "display_name": "賴 怡帆",
+      "company": "煦映藝術創意企業社",
+      "occupation_path": [
+        "活動&商務服務",
+        "活動&商務服務（其他）",
+        "音樂經紀、音樂活動規劃"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "賴怡帆",
+        "賴 怡帆",
+        "煦映藝術創意企業社",
+        "活動&商務服務",
+        "活動&商務服務（其他）",
+        "音樂經紀、音樂活動規劃"
+      ],
+      "source_page": 5
+    },
+    {
+      "name": "賴昺諺",
+      "display_name": "賴 昺諺",
+      "company": "兆朋工程股份有限公司",
+      "occupation_path": [
+        "建築",
+        "裝修/改造"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "賴昺諺",
+        "賴 昺諺",
+        "兆朋工程股份有限公司",
+        "建築",
+        "裝修/改造"
+      ],
+      "source_page": 5
+    },
+    {
+      "name": "陳思儒",
+      "display_name": "陳 思儒",
+      "company": "花柏納國際有限公司",
+      "occupation_path": [
+        "製造業",
+        "包裝"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "陳思儒",
+        "陳 思儒",
+        "花柏納國際有限公司",
+        "製造業",
+        "包裝"
+      ],
+      "source_page": 5
+    },
+    {
+      "name": "黃承豔",
+      "display_name": "黃 承豔",
+      "company": "金豐集團",
+      "occupation_path": [
+        "顧問",
+        "諮詢（其他）",
+        "勞資顧問"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "黃承豔",
+        "黃 承豔",
+        "金豐集團",
+        "顧問",
+        "諮詢（其他）",
+        "勞資顧問"
+      ],
+      "source_page": 5
+    },
+    {
+      "name": "黃敬祐",
+      "display_name": "黃 敬祐",
+      "company": "鍾子柔建築師事務所",
+      "occupation_path": [
+        "建築",
+        "商業建築商"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "黃敬祐",
+        "黃 敬祐",
+        "鍾子柔建築師事務所",
+        "建築",
+        "商業建築商"
+      ],
+      "source_page": 5
+    },
+    {
+      "name": "何立山",
+      "display_name": "何 立山",
+      "company": "夏爾國際餐飲有限公司",
+      "occupation_path": [
+        "食品&飲料",
+        "餐飲服務"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "何立山",
+        "何 立山",
+        "夏爾國際餐飲有限公司",
+        "食品&飲料",
+        "餐飲服務"
+      ],
+      "source_page": 6
+    },
+    {
+      "name": "吳玫勳",
+      "display_name": "吳 玫勳",
+      "company": "廣德地板企業有限公司",
+      "occupation_path": [
+        "建築",
+        "地板"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "吳玫勳",
+        "吳 玫勳",
+        "廣德地板企業有限公司",
+        "建築",
+        "地板"
+      ],
+      "source_page": 6
+    },
+    {
+      "name": "巫灃益",
+      "display_name": "巫 灃益",
+      "company": "安美潔有限公司",
+      "occupation_path": [
+        "零售",
+        "衛生/清潔用品"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "巫灃益",
+        "巫 灃益",
+        "安美潔有限公司",
+        "零售",
+        "衛生/清潔用品"
+      ],
+      "source_page": 6
+    },
+    {
+      "name": "林煒儒",
+      "display_name": "林 煒儒",
+      "company": "永旭旅行社有限公司",
+      "occupation_path": [
+        "旅行",
+        "旅遊/導遊"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "林煒儒",
+        "林 煒儒",
+        "永旭旅行社有限公司",
+        "旅行",
+        "旅遊/導遊"
+      ],
+      "source_page": 6
+    },
+    {
+      "name": "王瑋詩",
+      "display_name": "王 瑋詩",
+      "company": "魔法潔麗星企業社",
+      "occupation_path": [
+        "房地產服務",
+        "住宅清潔"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "王瑋詩",
+        "王 瑋詩",
+        "魔法潔麗星企業社",
+        "房地產服務",
+        "住宅清潔"
+      ],
+      "source_page": 6
+    },
+    {
+      "name": "蕭涵霙",
+      "display_name": "蕭 涵霙",
+      "company": "祐吉有限公司",
+      "occupation_path": [
+        "零售",
+        "零售（其他）",
+        "智能販賣機研發與廣告販售"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "蕭涵霙",
+        "蕭 涵霙",
+        "祐吉有限公司",
+        "零售",
+        "零售（其他）",
+        "智能販賣機研發與廣告販售"
+      ],
+      "source_page": 6
+    },
+    {
+      "name": "蘇祺傑",
+      "display_name": "蘇 祺傑",
+      "company": "傑出油漆工程行",
+      "occupation_path": [
+        "建築",
+        "粉刷師&裝飾師"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "蘇祺傑",
+        "蘇 祺傑",
+        "傑出油漆工程行",
+        "建築",
+        "粉刷師&裝飾師"
+      ],
+      "source_page": 6
+    },
+    {
+      "name": "許清皓",
+      "display_name": "許 清皓",
+      "company": "富興工廠文化有限公司",
+      "occupation_path": [
+        "活動&商務服務",
+        "活動&商務服務（其他）",
+        "文創產業經營/活動策劃"
+      ],
+      "chapter_roles": [
+        "副主席"
+      ],
+      "search_terms": [
+        "許清皓",
+        "許 清皓",
+        "富興工廠文化有限公司",
+        "活動&商務服務",
+        "活動&商務服務（其他）",
+        "文創產業經營/活動策劃"
+      ],
+      "source_page": 6
+    },
+    {
+      "name": "謝秉泓",
+      "display_name": "謝 秉泓",
+      "company": "旺鉅科技有限公司",
+      "occupation_path": [
+        "電腦&程式設計",
+        "應用程式開發者"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "謝秉泓",
+        "謝 秉泓",
+        "旺鉅科技有限公司",
+        "電腦&程式設計",
+        "應用程式開發者"
+      ],
+      "source_page": 6
+    },
+    {
+      "name": "黃濬廷",
+      "display_name": "黃 濬廷",
+      "company": "邁素德股份有限公司",
+      "occupation_path": [
+        "食品&飲料",
+        "餐飲業者"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "黃濬廷",
+        "黃 濬廷",
+        "邁素德股份有限公司",
+        "食品&飲料",
+        "餐飲業者"
+      ],
+      "source_page": 6
+    },
+    {
+      "name": "黃睿峯",
+      "display_name": "黃 睿峯",
+      "company": "順億化工原料有限公司",
+      "occupation_path": [
+        "製造業",
+        "製造業（其他）",
+        "化工原料、清潔用品"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "黃睿峯",
+        "黃 睿峯",
+        "順億化工原料有限公司",
+        "製造業",
+        "製造業（其他）",
+        "化工原料、清潔用品"
+      ],
+      "source_page": 6
+    },
+    {
+      "name": "何美儀",
+      "display_name": "何 美儀",
+      "company": "可堤那窗藝設計有限公司",
+      "occupation_path": [
+        "零售",
+        "窗簾/百葉窗"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "何美儀",
+        "何 美儀",
+        "可堤那窗藝設計有限公司",
+        "零售",
+        "窗簾/百葉窗"
+      ],
+      "source_page": 7
+    },
+    {
+      "name": "周竹勝",
+      "display_name": "周 竹勝",
+      "company": "必昇有限公司",
+      "occupation_path": [
+        "食品&飲料",
+        "餐飲服務"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "周竹勝",
+        "周 竹勝",
+        "必昇有限公司",
+        "食品&飲料",
+        "餐飲服務"
+      ],
+      "source_page": 7
+    },
+    {
+      "name": "姚羿汝",
+      "display_name": "姚 羿汝",
+      "company": "快訊機電工程有限公司",
+      "occupation_path": [
+        "建築",
+        "建築（其他）",
+        "消防機電、儀控、環控、溫控、消防電設備安裝"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "姚羿汝",
+        "姚 羿汝",
+        "快訊機電工程有限公司",
+        "建築",
+        "建築（其他）",
+        "消防機電、儀控、環控、溫控、消防電設備安裝"
+      ],
+      "source_page": 7
+    },
+    {
+      "name": "廖美雯",
+      "display_name": "廖 美雯",
+      "company": "晴天花藝設計有限公司",
+      "occupation_path": [
+        "零售",
+        "花店"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "廖美雯",
+        "廖 美雯",
+        "晴天花藝設計有限公司",
+        "零售",
+        "花店"
+      ],
+      "source_page": 7
+    },
+    {
+      "name": "廖翎雅",
+      "display_name": "廖 翎雅",
+      "company": "甲如精誠192",
+      "occupation_path": [
+        "個人服務",
+        "個人服務（其他）",
+        "美甲、手足保養、嵌甲"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "廖翎雅",
+        "廖 翎雅",
+        "甲如精誠192",
+        "個人服務",
+        "個人服務（其他）",
+        "美甲、手足保養、嵌甲"
+      ],
+      "source_page": 7
+    },
+    {
+      "name": "廖育豐",
+      "display_name": "廖 育豐",
+      "company": "唯君股份有限公司",
+      "occupation_path": [
+        "食品&飲料",
+        "食品和飲料（其他）",
+        "飲料買賣"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "廖育豐",
+        "廖 育豐",
+        "唯君股份有限公司",
+        "食品&飲料",
+        "食品和飲料（其他）",
+        "飲料買賣"
+      ],
+      "source_page": 7
+    },
+    {
+      "name": "王耀宗",
+      "display_name": "王 耀宗",
+      "company": "永久產品公司",
+      "occupation_path": [
+        "健康&保健",
+        "保健品"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "王耀宗",
+        "王 耀宗",
+        "永久產品公司",
+        "健康&保健",
+        "保健品"
+      ],
+      "source_page": 7
+    },
+    {
+      "name": "羅聿哲",
+      "display_name": "羅 聿哲",
+      "company": "拉法葉有限公司",
+      "occupation_path": [
+        "零售",
+        "零售（其他）",
+        "企業咖啡文化顧問"
+      ],
+      "chapter_roles": [
+        "教育協調人"
+      ],
+      "search_terms": [
+        "羅聿哲",
+        "羅 聿哲",
+        "拉法葉有限公司",
+        "零售",
+        "零售（其他）",
+        "企業咖啡文化顧問"
+      ],
+      "source_page": 7
+    },
+    {
+      "name": "袁綦馡",
+      "display_name": "袁 綦馡",
+      "company": "世環有限公司",
+      "occupation_path": [
+        "個人服務",
+        "占卜師"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "袁綦馡",
+        "袁 綦馡",
+        "世環有限公司",
+        "個人服務",
+        "占卜師"
+      ],
+      "source_page": 7
+    },
+    {
+      "name": "陳緯達",
+      "display_name": "陳 緯達",
+      "company": "禾亞綠電工程有限公司",
+      "occupation_path": [
+        "建築",
+        "太陽能"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "陳緯達",
+        "陳 緯達",
+        "禾亞綠電工程有限公司",
+        "建築",
+        "太陽能"
+      ],
+      "source_page": 7
+    },
+    {
+      "name": "黃致為",
+      "display_name": "黃 致為",
+      "company": "蒔旭有限公司",
+      "occupation_path": [
+        "電腦&程式設計",
+        "資訊科技顧問"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "黃致為",
+        "黃 致為",
+        "蒔旭有限公司",
+        "電腦&程式設計",
+        "資訊科技顧問"
+      ],
+      "source_page": 7
+    },
+    {
+      "name": "吳芷寧",
+      "display_name": "吳 芷寧",
+      "company": "森莫生技有限公司",
+      "occupation_path": [
+        "個人服務",
+        "個人服務（其他）",
+        "頭皮理療SPA"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "吳芷寧",
+        "吳 芷寧",
+        "森莫生技有限公司",
+        "個人服務",
+        "個人服務（其他）",
+        "頭皮理療SPA"
+      ],
+      "source_page": 8
+    },
+    {
+      "name": "廖銘賢",
+      "display_name": "廖 銘賢",
+      "company": "鉑鈕Brandnew二手車庫",
+      "occupation_path": [
+        "汽車&摩托車",
+        "汽車/汽車銷售"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "廖銘賢",
+        "廖 銘賢",
+        "鉑鈕Brandnew二手車庫",
+        "汽車&摩托車",
+        "汽車/汽車銷售"
+      ],
+      "source_page": 8
+    },
+    {
+      "name": "曾軍叡",
+      "display_name": "曾 軍叡",
+      "company": "東昕彩藝包裝股份有限公司",
+      "occupation_path": [
+        "廣告&行銷",
+        "印刷業-膠印"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "曾軍叡",
+        "曾 軍叡",
+        "東昕彩藝包裝股份有限公司",
+        "廣告&行銷",
+        "印刷業-膠印"
+      ],
+      "source_page": 8
+    },
+    {
+      "name": "王重凱",
+      "display_name": "王 重凱",
+      "company": "鉅沅管理顧問有限公司",
+      "occupation_path": [
+        "金融&保險",
+        "金融投資"
+      ],
+      "chapter_roles": [
+        "發展協調人"
+      ],
+      "search_terms": [
+        "王重凱",
+        "王 重凱",
+        "鉅沅管理顧問有限公司",
+        "金融&保險",
+        "金融投資"
+      ],
+      "source_page": 8
+    },
+    {
+      "name": "繆馨葳",
+      "display_name": "繆 馨葳",
+      "company": "繆斯藝術美學",
+      "occupation_path": [
+        "個人服務",
+        "個人服務（其他）",
+        "霧眉師"
+      ],
+      "chapter_roles": [],
+      "search_terms": [
+        "繆馨葳",
+        "繆 馨葳",
+        "繆斯藝術美學",
+        "個人服務",
+        "個人服務（其他）",
+        "霧眉師"
+      ],
+      "source_page": 8
+    }
+  ]
+}

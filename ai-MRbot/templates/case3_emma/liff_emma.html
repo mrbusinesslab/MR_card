@@ -1,394 +1,73 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>分享電子名片 - Emma</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      color: #5f554d;
+      background: #ffffff;
+      font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    }
+    .status { padding: 24px; text-align: center; line-height: 1.7; }
+    .status strong { display: block; margin-bottom: 6px; color: #2c2723; }
+  </style>
 </head>
 <body>
-<script>
-  const flexContent = {
-    "type": "carousel",
-    "contents": [
-      {
-        "type": "bubble",
-        "body": {
-          "type": "box",
-          "layout": "vertical",
-          "contents": [
-            {
-              "type": "image",
-              "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case3_emma/1.png?raw=true",
-              "size": "full",
-              "aspectMode": "cover",
-              "aspectRatio": "2:3",
-              "gravity": "top"
-            },
-            {
-              "type": "box",
-              "layout": "vertical",
-              "contents": [
-                {
-                  "type": "box",
-                  "layout": "vertical",
-                  "contents": [
-                    {
-                      "type": "filler"
-                    },
-                    {
-                      "type": "box",
-                      "layout": "baseline",
-                      "contents": [
-                        {
-                          "type": "filler"
-                        },
-                        {
-                          "type": "text",
-                          "text": "立即致電",
-                          "color": "#ffffff",
-                          "flex": 0,
-                          "offsetTop": "-2px"
-                        },
-                        {
-                          "type": "filler"
-                        }
-                      ],
-                      "spacing": "sm"
-                    },
-                    {
-                      "type": "filler"
-                    }
-                  ],
-                  "borderWidth": "none",
-                  "cornerRadius": "4px",
-                  "spacing": "sm",
-                  "borderColor": "#e0be60",
-                  "margin": "md",
-                  "height": "50px",
-                  "backgroundColor": "#023f42",
-                  "action": {
-                    "type": "uri",
-                    "label": "電話",
-                    "uri": "tel:0988556917"
-                  }
-                },
-                {
-                  "type": "box",
-                  "layout": "vertical",
-                  "contents": [
-                    {
-                      "type": "filler"
-                    },
-                    {
-                      "type": "box",
-                      "layout": "baseline",
-                      "contents": [
-                        {
-                          "type": "filler"
-                        },
-                        {
-                          "type": "text",
-                          "text": "分享名片",
-                          "color": "#023f42",
-                          "flex": 0,
-                          "offsetTop": "-2px"
-                        },
-                        {
-                          "type": "filler"
-                        }
-                      ],
-                      "spacing": "sm"
-                    },
-                    {
-                      "type": "filler"
-                    }
-                  ],
-                  "borderWidth": "light",
-                  "cornerRadius": "4px",
-                  "spacing": "sm",
-                  "borderColor": "#023f42",
-                  "margin": "md",
-                  "height": "50px",
-                  "backgroundColor": "#ffffff",
-                  "action": {
-                    "type": "uri",
-                    "label": "分享",
-                    "uri": "https://liff.line.me/2009755863-tnzZrPeb"
-                  }
-                }
-              ],
-              "position": "relative",
-              "offsetBottom": "0px",
-              "offsetStart": "0px",
-              "offsetEnd": "0px",
-              "backgroundColor": "#faf7f3",
-              "paddingAll": "15px",
-              "paddingTop": "5px"
-            }
-          ],
-          "paddingAll": "0px"
-        }
-      },
-      {
-        "type": "bubble",
-        "body": {
-          "type": "box",
-          "layout": "vertical",
-          "contents": [
-            {
-              "type": "image",
-              "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case3_emma/2.png?raw=true",
-              "size": "full",
-              "aspectMode": "cover",
-              "aspectRatio": "2:3",
-              "gravity": "top"
-            },
-            {
-              "type": "box",
-              "layout": "vertical",
-              "contents": [
-                {
-                  "type": "box",
-                  "layout": "vertical",
-                  "contents": [
-                    {
-                      "type": "filler"
-                    },
-                    {
-                      "type": "box",
-                      "layout": "baseline",
-                      "contents": [
-                        {
-                          "type": "filler"
-                        },
-                        {
-                          "type": "text",
-                          "text": "官方網站",
-                          "color": "#ffffff",
-                          "flex": 0,
-                          "offsetTop": "-2px"
-                        },
-                        {
-                          "type": "filler"
-                        }
-                      ],
-                      "spacing": "sm"
-                    },
-                    {
-                      "type": "filler"
-                    }
-                  ],
-                  "borderWidth": "none",
-                  "cornerRadius": "4px",
-                  "spacing": "sm",
-                  "borderColor": "#e0be60",
-                  "margin": "md",
-                  "height": "50px",
-                  "backgroundColor": "#023f42",
-                  "action": {
-                    "type": "uri",
-                    "label": "官網",
-                    "uri": "https://gdwood.com.tw/"
-                  }
-                },
-                {
-                  "type": "box",
-                  "layout": "vertical",
-                  "contents": [
-                    {
-                      "type": "filler"
-                    },
-                    {
-                      "type": "box",
-                      "layout": "baseline",
-                      "contents": [
-                        {
-                          "type": "filler"
-                        },
-                        {
-                          "type": "text",
-                          "text": "預約免費丈量",
-                          "color": "#023f42",
-                          "flex": 0,
-                          "offsetTop": "-2px"
-                        },
-                        {
-                          "type": "filler"
-                        }
-                      ],
-                      "spacing": "sm"
-                    },
-                    {
-                      "type": "filler"
-                    }
-                  ],
-                  "borderWidth": "light",
-                  "cornerRadius": "4px",
-                  "spacing": "sm",
-                  "borderColor": "#023f42",
-                  "margin": "md",
-                  "height": "50px",
-                  "backgroundColor": "#ffffff",
-                  "action": {
-                    "type": "uri",
-                    "label": "官方LINE",
-                    "uri": "https://line.me/R/ti/p/@335xpueu"
-                  }
-                }
-              ],
-              "position": "relative",
-              "offsetBottom": "0px",
-              "offsetStart": "0px",
-              "offsetEnd": "0px",
-              "backgroundColor": "#faf7f3",
-              "paddingAll": "15px",
-              "paddingTop": "5px"
-            }
-          ],
-          "paddingAll": "0px"
-        }
-      },
-      {
-        "type": "bubble",
-        "body": {
-          "type": "box",
-          "layout": "vertical",
-          "contents": [
-            {
-              "type": "image",
-              "url": "https://github.com/mrbusinesslab/MR_card/blob/main/ai-MRbot/templates/case3_emma/3.png?raw=true",
-              "size": "full",
-              "aspectMode": "cover",
-              "aspectRatio": "2:3",
-              "gravity": "top"
-            },
-            {
-              "type": "box",
-              "layout": "vertical",
-              "contents": [
-                {
-                  "type": "box",
-                  "layout": "vertical",
-                  "contents": [
-                    {
-                      "type": "filler"
-                    },
-                    {
-                      "type": "box",
-                      "layout": "baseline",
-                      "contents": [
-                        {
-                          "type": "filler"
-                        },
-                        {
-                          "type": "text",
-                          "text": "門市據點",
-                          "color": "#ffffff",
-                          "flex": 0,
-                          "offsetTop": "-2px"
-                        },
-                        {
-                          "type": "filler"
-                        }
-                      ],
-                      "spacing": "sm"
-                    },
-                    {
-                      "type": "filler"
-                    }
-                  ],
-                  "borderWidth": "none",
-                  "cornerRadius": "4px",
-                  "spacing": "sm",
-                  "borderColor": "#e0be60",
-                  "margin": "md",
-                  "height": "50px",
-                  "backgroundColor": "#023f42",
-                  "action": {
-                    "type": "uri",
-                    "label": "官網地址",
-                    "uri": "https://gdwood.com.tw/about/"
-                  }
-                },
-                {
-                  "type": "box",
-                  "layout": "vertical",
-                  "contents": [
-                    {
-                      "type": "filler"
-                    },
-                    {
-                      "type": "box",
-                      "layout": "baseline",
-                      "contents": [
-                        {
-                          "type": "filler"
-                        },
-                        {
-                          "type": "text",
-                          "text": "IG 追蹤",
-                          "color": "#023f42",
-                          "flex": 0,
-                          "offsetTop": "-2px"
-                        },
-                        {
-                          "type": "filler"
-                        }
-                      ],
-                      "spacing": "sm"
-                    },
-                    {
-                      "type": "filler"
-                    }
-                  ],
-                  "borderWidth": "light",
-                  "cornerRadius": "4px",
-                  "spacing": "sm",
-                  "borderColor": "#023f42",
-                  "margin": "md",
-                  "height": "50px",
-                  "backgroundColor": "#ffffff",
-                  "action": {
-                    "type": "uri",
-                    "label": "IG",
-                    "uri": "https://www.instagram.com/wood__elephant?igsh=MTRjMm0zbnNuaTJrOQ%3D%3D"
-                  }
-                }
-              ],
-              "position": "relative",
-              "offsetBottom": "0px",
-              "offsetStart": "0px",
-              "offsetEnd": "0px",
-              "backgroundColor": "#faf7f3",
-              "paddingAll": "15px",
-              "paddingTop": "5px"
-            }
-          ],
-          "paddingAll": "0px"
-        }
-      }
-    ]
-  };
+  <p class="status" id="status"><strong>正在開啟分享名片</strong>請稍候…</p>
+  <script>
+    const LIFF_ID = "2009755863-tnzZrPeb";
+    const CARD_JSON_URL = "./card_emma.json";
+    const status = document.querySelector("#status");
 
-  liff.init({ liffId: "2009755863-tnzZrPeb" })
-    .then(() => {
-      return liff.shareTargetPicker([
+    async function loadLatestCard() {
+      const response = await fetch(CARD_JSON_URL, { cache: "no-store" });
+      if (!response.ok) {
+        throw new Error(`名片資料讀取失敗（HTTP ${response.status}）`);
+      }
+      const card = await response.json();
+      if (card?.type !== "carousel" || !Array.isArray(card?.contents) || !card.contents.length) {
+        throw new Error("名片資料格式不正確");
+      }
+      return card;
+    }
+
+    async function shareCard() {
+      const [card] = await Promise.all([
+        loadLatestCard(),
+        liff.init({ liffId: LIFF_ID })
+      ]);
+
+      if (!liff.isApiAvailable("shareTargetPicker")) {
+        throw new Error("目前的 LINE 版本不支援好友分享功能");
+      }
+
+      const res = await liff.shareTargetPicker([
         {
           type: "flex",
-          altText: "emma｜大象木地板",
-          contents: flexContent
+          altText: "Emma｜大象木地板",
+          contents: card
         }
       ]);
-    })
-    .then((res) => {
+
       if (res) {
+        status.innerHTML = "<strong>分享完成</strong>視窗即將關閉";
         liff.closeWindow();
+      } else {
+        status.innerHTML = "<strong>已取消分享</strong>你可以關閉此視窗";
       }
-    })
-    .catch((err) => {
-      console.error("分享失敗", err);
+    }
+
+    shareCard().catch((error) => {
+      console.error("分享失敗", error);
+      status.innerHTML = `<strong>目前無法分享名片</strong>${error.message || "請稍後再試"}`;
     });
-</script>
+  </script>
 </body>
 </html>

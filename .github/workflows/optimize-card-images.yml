@@ -70,6 +70,12 @@ jobs:
           fi
           python scripts/prepare_card_assets.py "${args[@]}"
 
+      - name: Refresh lightweight LIFF launchers
+        run: python scripts/generate_liff_loaders.py
+
+      - name: Validate card data before commit
+        run: python scripts/validate_card_data.py
+
       - name: Commit optimized assets
         shell: bash
         run: |

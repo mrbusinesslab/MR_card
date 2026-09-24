@@ -1,0 +1,34 @@
+name: Validate card data
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "ai-MRbot/legacy_app.py"
+      - "ai-MRbot/data/chapter_members.json"
+      - "ai-MRbot/templates/**"
+      - "scripts/generate_liff_loaders.py"
+      - "scripts/prepare_card_assets.py"
+      - "scripts/validate_card_data.py"
+      - ".github/workflows/validate-card-data.yml"
+  pull_request:
+    paths:
+      - "ai-MRbot/legacy_app.py"
+      - "ai-MRbot/data/chapter_members.json"
+      - "ai-MRbot/templates/**"
+      - "scripts/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate CASE_LIST, JSON, images, and LIFF
+        run: python scripts/validate_card_data.py

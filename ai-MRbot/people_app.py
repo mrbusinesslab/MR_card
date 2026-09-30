@@ -1,8 +1,7 @@
 import os
 import re
-import base64
 from urllib.parse import urlparse
-from flask import request, abort, Response
+from flask import request, abort
 
 import legacy_app as legacy
 from people_lookup import find_people, get_person, available_categories, category_text, extract_urls
@@ -127,15 +126,16 @@ def card_delivery_text(case_item):
 
 
 def card_guide_messages():
-    base_url = str(getattr(legacy, "TRACKING_BASE_URL", "https://mr-6c1r.onrender.com")).rstrip("/")
+    iphone_url = "https://raw.githubusercontent.com/mrbusinesslab/MR_card/main/ai-MRbot/guide_iphone.png"
+    android_url = "https://raw.githubusercontent.com/mrbusinesslab/MR_card/main/ai-MRbot/guide_android.png"
     return [
         ImageMessage(
-            original_content_url=f"{base_url}/card-guide/iphone.jpg",
-            preview_image_url=f"{base_url}/card-guide/iphone.jpg",
+            original_content_url=iphone_url,
+            preview_image_url=iphone_url,
         ),
         ImageMessage(
-            original_content_url=f"{base_url}/card-guide/android.jpg",
-            preview_image_url=f"{base_url}/card-guide/android.jpg",
+            original_content_url=android_url,
+            preview_image_url=android_url,
         ),
     ]
 
@@ -144,29 +144,6 @@ def card_delivery_messages(case_item):
     messages = [legacy.build_card_message(case_item), card_delivery_text(case_item)]
     messages.extend(card_guide_messages())
     return [m for m in messages if m is not None]
-
-
-def _guide_image_response(filename):
-    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", filename)
-    if not os.path.exists(path):
-        abort(404)
-    with open(path, "r", encoding="utf-8") as f:
-        payload = f.read().strip()
-    try:
-        image_bytes = base64.b64decode(payload)
-    except Exception:
-        abort(500)
-    return Response(image_bytes, mimetype="image/jpeg", headers={"Cache-Control": "public, max-age=86400"})
-
-
-@app.route("/card-guide/iphone.jpg")
-def card_guide_iphone():
-    return _guide_image_response("guide_iphone.b64")
-
-
-@app.route("/card-guide/android.jpg")
-def card_guide_android():
-    return _guide_image_response("guide_android.b64")
 
 
 def resolve_people(query):

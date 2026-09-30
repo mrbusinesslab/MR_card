@@ -112,15 +112,18 @@ def card_delivery_text(case_item):
         return None
     name = legacy.case_person_name(case_item)
     text = (
-        f"【{name}】您好，您的專屬電子名片已完成！\n"
+        f"【{name}】您好，您的專屬電子名片已完成！\n\n"
         "🔗 個人專屬網址\n"
-        f"{url}\n"
-        "點開後可以左右滑動查看名片，並使用頁面上的按鈕開啟 LINE、社群、網站、地圖等資訊。\n"
+        f"{url}\n\n"
+        "點開後可以左右滑動查看名片，\n"
+        "並使用頁面上的按鈕開啟 LINE、社群、網站、地圖等資訊。\n\n"
         "📤 分享名片\n"
-        "請點擊電子名片內的「分享我的名片」，即可選擇 LINE 好友或聊天室傳送。\n"
+        "請點擊電子名片內的「分享我的名片」，\n"
+        "即可選擇 LINE 好友或聊天室傳送。\n\n"
         "📱 加入手機主畫面\n"
-        "操作方式請參考隨附的 iPhone／Android 教學圖。\n"
-        "電子名片內容更新後，專屬網址不需要更換，重新開啟即可看到最新版本。"
+        "操作方式請參考隨附的 iPhone／Android 教學圖。\n\n"
+        "電子名片內容更新後，專屬網址不需要更換，\n"
+        "重新開啟即可看到最新版本。"
     )
     return TextMessage(text=text)
 

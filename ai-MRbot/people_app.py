@@ -1,7 +1,8 @@
 import os
 import re
+import base64
 from urllib.parse import urlparse
-from flask import request, abort
+from flask import request, abort, Response
 
 import legacy_app as legacy
 from people_lookup import find_people, get_person, available_categories, category_text, extract_urls
@@ -13,6 +14,7 @@ from linebot.v3.messaging import (
     MessagingApi,
     ReplyMessageRequest,
     TextMessage,
+    ImageMessage,
     FlexMessage,
     FlexContainer,
     QuickReply,
@@ -105,9 +107,66 @@ def card_independent_url(case_item):
     return f"{base_url}/card/{short_code}"
 
 
-def card_url_message(case_item):
+def card_delivery_text(case_item):
     url = card_independent_url(case_item)
-    return TextMessage(text=f"這是他們的名片獨立網址：\n{url}") if url else None
+    if not url:
+        return None
+    name = legacy.case_person_name(case_item)
+    text = (
+        f"【{name}】您好，您的專屬電子名片已完成！\n"
+        "🔗 個人專屬網址\n"
+        f"{url}\n"
+        "點開後可以左右滑動查看名片，並使用頁面上的按鈕開啟 LINE、社群、網站、地圖等資訊。\n"
+        "📤 分享名片\n"
+        "請點擊電子名片內的「分享我的名片」，即可選擇 LINE 好友或聊天室傳送。\n"
+        "📱 加入手機主畫面\n"
+        "操作方式請參考隨附的 iPhone／Android 教學圖。\n"
+        "電子名片內容更新後，專屬網址不需要更換，重新開啟即可看到最新版本。"
+    )
+    return TextMessage(text=text)
+
+
+def card_guide_messages():
+    base_url = str(getattr(legacy, "TRACKING_BASE_URL", "https://mr-6c1r.onrender.com")).rstrip("/")
+    return [
+        ImageMessage(
+            original_content_url=f"{base_url}/card-guide/iphone.jpg",
+            preview_image_url=f"{base_url}/card-guide/iphone.jpg",
+        ),
+        ImageMessage(
+            original_content_url=f"{base_url}/card-guide/android.jpg",
+            preview_image_url=f"{base_url}/card-guide/android.jpg",
+        ),
+    ]
+
+
+def card_delivery_messages(case_item):
+    messages = [legacy.build_card_message(case_item), card_delivery_text(case_item)]
+    messages.extend(card_guide_messages())
+    return [m for m in messages if m is not None]
+
+
+def _guide_image_response(filename):
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", filename)
+    if not os.path.exists(path):
+        abort(404)
+    with open(path, "r", encoding="utf-8") as f:
+        payload = f.read().strip()
+    try:
+        image_bytes = base64.b64decode(payload)
+    except Exception:
+        abort(500)
+    return Response(image_bytes, mimetype="image/jpeg", headers={"Cache-Control": "public, max-age=86400"})
+
+
+@app.route("/card-guide/iphone.jpg")
+def card_guide_iphone():
+    return _guide_image_response("guide_iphone.b64")
+
+
+@app.route("/card-guide/android.jpg")
+def card_guide_android():
+    return _guide_image_response("guide_android.b64")
 
 
 def resolve_people(query):
@@ -351,7 +410,7 @@ def person_category_reply(name, category):
         c = find_card_for_person(name)
         if not c:
             return TextMessage(text=f"{name} 目前尚未建立電子名片。")
-        return [legacy.build_card_message(c), card_url_message(c)]
+        return card_delivery_messages(c)
     if category in ("diagnosis", "blind"):
         return build_insight_card(person, category)
     if category in ("basic", "service", "links", "contact"):
@@ -447,7 +506,7 @@ def handle_message(event):
                 message = legacy.build_suggestion_flex(user_msg, suggestions) if suggestions else TextMessage(text=f"找不到與「{user_msg}」相關的名片，請換個關鍵字再試一次。")
             elif len(matched) == 1:
                 legacy.record_view(user_id, matched[0])
-                message = [legacy.build_card_message(matched[0]), card_url_message(matched[0])]
+                message = card_delivery_messages(matched[0])
             else:
                 message = legacy.build_search_result_flex(user_msg, matched)
             reply(line_bot_api, event, message)

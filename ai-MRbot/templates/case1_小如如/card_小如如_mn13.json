@@ -1,0 +1,600 @@
+{
+  "type": "carousel",
+  "contents": [
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://mrbusinesslab.github.io/MR_card/ai-MRbot/templates/case1_%E5%B0%8F%E5%A6%82%E5%A6%82/mn13/1.jpg?v=5f9654c5234a",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "2:3",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "filler"
+                  },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      {
+                        "type": "filler"
+                      },
+                      {
+                        "type": "text",
+                        "text": "看看小如如的日常",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      {
+                        "type": "filler"
+                      }
+                    ],
+                    "spacing": "sm"
+                  },
+                  {
+                    "type": "filler"
+                  }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#8b715f",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#8b715f",
+                "action": {
+                  "type": "uri",
+                  "label": "看看小如如的日常",
+                  "uri": "https://www.instagram.com/0421_luru/"
+                }
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "filler"
+                  },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      {
+                        "type": "filler"
+                      },
+                      {
+                        "type": "text",
+                        "text": "分享我的名片",
+                        "color": "#6b5545",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      {
+                        "type": "filler"
+                      }
+                    ],
+                    "spacing": "sm"
+                  },
+                  {
+                    "type": "filler"
+                  }
+                ],
+                "borderWidth": "light",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#8b715f",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#fbf7f2",
+                "action": {
+                  "type": "uri",
+                  "label": "分享我的名片",
+                  "uri": "https://liff.line.me/2009755863-yS10ww1E"
+                }
+              }
+            ],
+            "position": "relative",
+            "offsetBottom": "0px",
+            "offsetStart": "0px",
+            "offsetEnd": "0px",
+            "backgroundColor": "#f2ebe4",
+            "paddingAll": "15px",
+            "paddingTop": "5px"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://mrbusinesslab.github.io/MR_card/ai-MRbot/templates/case1_%E5%B0%8F%E5%A6%82%E5%A6%82/mn13/2.jpg?v=915244450bf9",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "2:3",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "filler"
+                  },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      {
+                        "type": "filler"
+                      },
+                      {
+                        "type": "text",
+                        "text": "看看肌膚保養",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      {
+                        "type": "filler"
+                      }
+                    ],
+                    "spacing": "sm"
+                  },
+                  {
+                    "type": "filler"
+                  }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#8b715f",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#8b715f",
+                "action": {
+                  "type": "uri",
+                  "label": "看看肌膚保養",
+                  "uri": "https://www.instagram.com/mn13_beauty/"
+                }
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "filler"
+                  },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      {
+                        "type": "filler"
+                      },
+                      {
+                        "type": "text",
+                        "text": "找回輕盈狀態",
+                        "color": "#6b5545",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      {
+                        "type": "filler"
+                      }
+                    ],
+                    "spacing": "sm"
+                  },
+                  {
+                    "type": "filler"
+                  }
+                ],
+                "borderWidth": "light",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#8b715f",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#fbf7f2",
+                "action": {
+                  "type": "uri",
+                  "label": "找回輕盈狀態",
+                  "uri": "https://www.instagram.com/_moon_spa_/"
+                }
+              }
+            ],
+            "position": "relative",
+            "offsetBottom": "0px",
+            "offsetStart": "0px",
+            "offsetEnd": "0px",
+            "backgroundColor": "#f2ebe4",
+            "paddingAll": "15px",
+            "paddingTop": "5px"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://mrbusinesslab.github.io/MR_card/ai-MRbot/templates/case1_%E5%B0%8F%E5%A6%82%E5%A6%82/mn13/3.jpg?v=672043a0aa50",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "2:3",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "filler"
+                  },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      {
+                        "type": "filler"
+                      },
+                      {
+                        "type": "text",
+                        "text": "聊聊妳現在的狀態",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      {
+                        "type": "filler"
+                      }
+                    ],
+                    "spacing": "sm"
+                  },
+                  {
+                    "type": "filler"
+                  }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#8b715f",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#8b715f",
+                "action": {
+                  "type": "uri",
+                  "label": "聊聊妳現在的狀態",
+                  "uri": "https://lin.ee/8NyVW9j"
+                }
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "filler"
+                  },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      {
+                        "type": "filler"
+                      },
+                      {
+                        "type": "text",
+                        "text": "直接找小如如",
+                        "color": "#6b5545",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      {
+                        "type": "filler"
+                      }
+                    ],
+                    "spacing": "sm"
+                  },
+                  {
+                    "type": "filler"
+                  }
+                ],
+                "borderWidth": "light",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#8b715f",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#fbf7f2",
+                "action": {
+                  "type": "uri",
+                  "label": "直接找小如如",
+                  "uri": "https://line.me/ti/p/FGAd3F8Asx"
+                }
+              }
+            ],
+            "position": "relative",
+            "offsetBottom": "0px",
+            "offsetStart": "0px",
+            "offsetEnd": "0px",
+            "backgroundColor": "#f2ebe4",
+            "paddingAll": "15px",
+            "paddingTop": "5px"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://mrbusinesslab.github.io/MR_card/ai-MRbot/templates/case1_%E5%B0%8F%E5%A6%82%E5%A6%82/mn13/4.jpg?v=c0b026ee7f4b",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "2:3",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "filler"
+                  },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      {
+                        "type": "filler"
+                      },
+                      {
+                        "type": "text",
+                        "text": "找到適合妳的保養",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      {
+                        "type": "filler"
+                      }
+                    ],
+                    "spacing": "sm"
+                  },
+                  {
+                    "type": "filler"
+                  }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#8b715f",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#8b715f",
+                "action": {
+                  "type": "uri",
+                  "label": "找到適合妳的保養",
+                  "uri": "https://www.instagram.com/mn13_beauty/"
+                }
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "filler"
+                  },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      {
+                        "type": "filler"
+                      },
+                      {
+                        "type": "text",
+                        "text": "感受剛剛好的放鬆",
+                        "color": "#6b5545",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      {
+                        "type": "filler"
+                      }
+                    ],
+                    "spacing": "sm"
+                  },
+                  {
+                    "type": "filler"
+                  }
+                ],
+                "borderWidth": "light",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#8b715f",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#fbf7f2",
+                "action": {
+                  "type": "uri",
+                  "label": "感受剛剛好的放鬆",
+                  "uri": "https://www.instagram.com/_moon_spa_/"
+                }
+              }
+            ],
+            "position": "relative",
+            "offsetBottom": "0px",
+            "offsetStart": "0px",
+            "offsetEnd": "0px",
+            "backgroundColor": "#f2ebe4",
+            "paddingAll": "15px",
+            "paddingTop": "5px"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://mrbusinesslab.github.io/MR_card/ai-MRbot/templates/case1_%E5%B0%8F%E5%A6%82%E5%A6%82/mn13/5.jpg?v=28a731fefe9a",
+            "size": "full",
+            "aspectMode": "cover",
+            "aspectRatio": "2:3",
+            "gravity": "top"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "filler"
+                  },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      {
+                        "type": "filler"
+                      },
+                      {
+                        "type": "text",
+                        "text": "預約妳的專屬時光",
+                        "color": "#ffffff",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      {
+                        "type": "filler"
+                      }
+                    ],
+                    "spacing": "sm"
+                  },
+                  {
+                    "type": "filler"
+                  }
+                ],
+                "borderWidth": "none",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#8b715f",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#8b715f",
+                "action": {
+                  "type": "uri",
+                  "label": "預約妳的專屬時光",
+                  "uri": "https://lin.ee/8NyVW9j"
+                }
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "filler"
+                  },
+                  {
+                    "type": "box",
+                    "layout": "baseline",
+                    "contents": [
+                      {
+                        "type": "filler"
+                      },
+                      {
+                        "type": "text",
+                        "text": "收藏更多變美日常",
+                        "color": "#6b5545",
+                        "flex": 0,
+                        "offsetTop": "-2px"
+                      },
+                      {
+                        "type": "filler"
+                      }
+                    ],
+                    "spacing": "sm"
+                  },
+                  {
+                    "type": "filler"
+                  }
+                ],
+                "borderWidth": "light",
+                "cornerRadius": "4px",
+                "spacing": "sm",
+                "borderColor": "#8b715f",
+                "margin": "md",
+                "height": "50px",
+                "backgroundColor": "#fbf7f2",
+                "action": {
+                  "type": "uri",
+                  "label": "收藏更多變美日常",
+                  "uri": "https://www.instagram.com/mn13_beauty/"
+                }
+              }
+            ],
+            "position": "relative",
+            "offsetBottom": "0px",
+            "offsetStart": "0px",
+            "offsetEnd": "0px",
+            "backgroundColor": "#f2ebe4",
+            "paddingAll": "15px",
+            "paddingTop": "5px"
+          }
+        ],
+        "paddingAll": "0px"
+      }
+    }
+  ]
+}

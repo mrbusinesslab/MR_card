@@ -18,7 +18,11 @@ const repairedCase = `${requestedCode}_${repairHexEncodedName(requestedNameParts
 const caseId = CASE_PATTERN.test(repairedCase) ? repairedCase : DEFAULT_CASE;
 const [, ...nameParts] = caseId.split("_");
 const personName = nameParts.join("_");
-const CARD_JSON_URL = `../ai-MRbot/templates/${encodeURIComponent(caseId)}/card_${encodeURIComponent(personName)}.json`;
+const requestedVariant = new URLSearchParams(window.location.search).get("variant");
+const variant = caseId === "case1_小如如" && requestedVariant === "mn13" ? "mn13" : "";
+const cardFileName = variant ? `card_${personName}_${variant}.json` : `card_${personName}.json`;
+const displayName = variant === "mn13" ? "小如如｜MN13 Beauty" : personName;
+const CARD_JSON_URL = `../ai-MRbot/templates/${encodeURIComponent(caseId)}/${encodeURIComponent(cardFileName)}`;
 
 const viewport = document.querySelector("#cardViewport");
 const dots = document.querySelector("#pageDots");
@@ -28,10 +32,10 @@ const swipeHint = document.querySelector("#swipeHint");
 let cardShareUrl = "";
 
 const versionDate = document.querySelector("#versionDate");
-document.querySelector("#personName").textContent = personName;
+document.querySelector("#personName").textContent = displayName;
 document.querySelector("#avatar").textContent = [...personName.replace(/\s+/g, "")].at(-1) || "名";
-document.title = `${personName}的電子名片｜MR BUSINESS LAB`;
-document.querySelector('meta[name="description"]').content = `${personName}的專屬電子名片｜MR BUSINESS LAB`;
+document.title = `${displayName} 電子名片`;
+document.querySelector('meta[name="description"]').content = `${displayName} 專屬電子名片`;
 
 function setVersionDate(lastModified) {
   const parsed = lastModified ? new Date(lastModified) : new Date();
@@ -75,7 +79,7 @@ function applyTheme(page) {
 }
 
 async function getCardUpdatedAt(fallback) {
-  const filePath = `ai-MRbot/templates/${caseId}/card_${personName}.json`;
+  const filePath = `ai-MRbot/templates/${caseId}/${cardFileName}`;
   const apiUrl = `https://api.github.com/repos/mrbusinesslab/MR_card/commits?path=${encodeURIComponent(filePath)}&per_page=1`;
   try {
     const response = await fetch(apiUrl, { headers: { Accept: "application/vnd.github+json" } });

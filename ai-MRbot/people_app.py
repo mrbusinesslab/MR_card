@@ -98,16 +98,17 @@ def find_card_for_person(name):
     return None
 
 
-def card_independent_url(case_item):
+def card_independent_url(case_item, variant=""):
     if not case_item:
         return ""
     short_code = legacy.card_short_code(case_item["case"])
     base_url = str(getattr(legacy, "TRACKING_BASE_URL", "https://mr-6c1r.onrender.com")).rstrip("/")
-    return f"{base_url}/card/{short_code}"
+    suffix = "/mn13" if variant == "mn13" and case_item.get("case") == "case1_小如如" else ""
+    return f"{base_url}/card/{short_code}{suffix}"
 
 
-def card_delivery_text(case_item):
-    url = card_independent_url(case_item)
+def card_delivery_text(case_item, variant=""):
+    url = card_independent_url(case_item, variant)
     if not url:
         return None
     name = legacy.case_person_name(case_item)
@@ -143,10 +144,38 @@ def card_guide_messages():
     ]
 
 
-def card_delivery_messages(case_item):
-    messages = [legacy.build_card_message(case_item), card_delivery_text(case_item)]
+def build_card_variant_message(case_item, variant=""):
+    if variant == "mn13" and case_item.get("case") == "case1_小如如":
+        flex_data = legacy.load_flex("case1_小如如/card_小如如_mn13.json", case_item)
+        if flex_data:
+            legacy.send_analytics(case_item, "card_view")
+            return FlexMessage(alt_text="小如如｜MN13 Beauty", contents=FlexContainer.from_dict(flex_data))
+    return legacy.build_card_message(case_item)
+
+
+def card_delivery_messages(case_item, variant=""):
+    messages = [build_card_variant_message(case_item, variant), card_delivery_text(case_item, variant)]
     messages.extend(card_guide_messages())
     return [m for m in messages if m is not None]
+
+
+def build_ruru_card_choice(name="潘昱如"):
+    bubble = {
+        "type": "bubble", "size": "mega",
+        "body": {"type": "box", "layout": "vertical", "paddingAll": "18px", "spacing": "md", "contents": [
+            {"type": "text", "text": "小如如｜電子名片", "size": "xl", "weight": "bold", "color": "#473C38"},
+            {"type": "text", "text": "請選擇要查看的版本", "size": "sm", "color": "#888888"},
+            {"type": "box", "layout": "horizontal", "paddingAll": "14px", "cornerRadius": "8px", "backgroundColor": "#F8F4EA",
+             "action": {"type": "message", "label": "電子名片｜MR", "text": f"人物資料|{name}|card_mr"},
+             "contents": [{"type": "text", "text": "MR BUSINESS LAB", "size": "sm", "weight": "bold", "color": "#473C38", "flex": 1},
+                          {"type": "text", "text": "›", "size": "md", "color": "#9A7B4F", "flex": 0}]},
+            {"type": "box", "layout": "horizontal", "paddingAll": "14px", "cornerRadius": "8px", "backgroundColor": "#F8F4EA",
+             "action": {"type": "message", "label": "電子名片｜MN13", "text": f"人物資料|{name}|card_mn13"},
+             "contents": [{"type": "text", "text": "MN13 Beauty", "size": "sm", "weight": "bold", "color": "#473C38", "flex": 1},
+                          {"type": "text", "text": "›", "size": "md", "color": "#9A7B4F", "flex": 0}]}
+        ]}
+    }
+    return FlexMessage(alt_text="小如如｜電子名片版本選擇", contents=FlexContainer.from_dict(bubble))
 
 
 def resolve_people(query):
@@ -174,7 +203,15 @@ def build_person_menu(person):
     collected = person.get("資料蒐集", {})
     company = collected.get("公司") or person.get("顧問快診", {}).get("公司") or person.get("盲蒐", {}).get("公司") or ""
     categories = available_categories(person, has_card=bool(find_card_for_person(name)))
-    number_map = {"basic": 1, "service": 2, "links": 3, "contact": 4, "diagnosis": 5, "blind": 6, "card": 7}
+    if normalize(name) in (normalize("潘昱如"), normalize("小如如")):
+        expanded = []
+        for key, label in categories:
+            if key == "card":
+                expanded.extend([("card_mr", "電子名片｜MR"), ("card_mn13", "電子名片｜MN13")])
+            else:
+                expanded.append((key, label))
+        categories = expanded
+    number_map = {"basic": 1, "service": 2, "links": 3, "contact": 4, "diagnosis": 5, "blind": 6, "card": 7, "card_mr": 7, "card_mn13": 8}
     rows = []
     for key, label in categories:
         rows.append({
@@ -386,11 +423,14 @@ def person_category_reply(name, category):
     person = get_person(name)
     if not person:
         return TextMessage(text=f"找不到「{name}」的最新資料，請重新搜尋。")
-    if category == "card":
+    if category in ("card", "card_mr", "card_mn13"):
         c = find_card_for_person(name)
         if not c:
             return TextMessage(text=f"{name} 目前尚未建立電子名片。")
-        return card_delivery_messages(c)
+        if c.get("case") == "case1_小如如" and category == "card":
+            return build_ruru_card_choice(name)
+        variant = "mn13" if category == "card_mn13" else ""
+        return card_delivery_messages(c, variant)
     if category in ("diagnosis", "blind"):
         return build_insight_card(person, category)
     if category in ("basic", "service", "links", "contact"):
@@ -486,7 +526,7 @@ def handle_message(event):
                 message = legacy.build_suggestion_flex(user_msg, suggestions) if suggestions else TextMessage(text=f"找不到與「{user_msg}」相關的名片，請換個關鍵字再試一次。")
             elif len(matched) == 1:
                 legacy.record_view(user_id, matched[0])
-                message = card_delivery_messages(matched[0])
+                message = build_ruru_card_choice("潘昱如") if matched[0].get("case") == "case1_小如如" else card_delivery_messages(matched[0])
             else:
                 message = legacy.build_search_result_flex(user_msg, matched)
             reply(line_bot_api, event, message)

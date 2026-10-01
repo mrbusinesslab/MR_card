@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>分享電子名片 - 小如如｜MN13 Beauty</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      color: #6b5545;
+      background: #fbf7f2;
+      font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    }
+    .status { padding: 24px; text-align: center; line-height: 1.7; }
+    .status strong { display: block; margin-bottom: 6px; color: #40352e; }
+  </style>
+</head>
+<body>
+  <p class="status" id="status"><strong>正在開啟分享名片</strong>請稍候…</p>
+  <script>
+    const LIFF_ID = "2009755863-yS10ww1E";
+    const CARD_JSON_URL = "./card_小如如_mn13.json";
+    const status = document.querySelector("#status");
+
+    async function loadLatestCard() {
+      const response = await fetch(CARD_JSON_URL, { cache: "no-store" });
+      if (!response.ok) {
+        throw new Error(`名片資料讀取失敗（HTTP ${response.status}）`);
+      }
+      const card = await response.json();
+      if (card?.type !== "carousel" || !Array.isArray(card?.contents) || !card.contents.length) {
+        throw new Error("名片資料格式不正確");
+      }
+      return card;
+    }
+
+    async function shareCard() {
+      const [card] = await Promise.all([
+        loadLatestCard(),
+        liff.init({ liffId: LIFF_ID })
+      ]);
+
+      if (!liff.isApiAvailable("shareTargetPicker")) {
+        throw new Error("目前的 LINE 版本不支援好友分享功能");
+      }
+
+      const res = await liff.shareTargetPicker([
+        {
+          type: "flex",
+          altText: "小如如｜MN13 Beauty",
+          contents: card
+        }
+      ]);
+
+      if (res) {
+        status.innerHTML = "<strong>分享完成</strong>視窗即將關閉";
+        liff.closeWindow();
+      } else {
+        status.innerHTML = "<strong>已取消分享</strong>你可以關閉此視窗";
+      }
+    }
+
+    shareCard().catch((error) => {
+      console.error("分享失敗", error);
+      status.innerHTML = `<strong>目前無法分享名片</strong>${error.message || "請稍後再試"}`;
+    });
+  </script>
+</body>
+</html>

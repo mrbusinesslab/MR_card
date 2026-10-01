@@ -53,10 +53,10 @@
                 "borderWidth": "none",
                 "cornerRadius": "4px",
                 "spacing": "sm",
-                "borderColor": "#8b715f",
+                "borderColor": "#6d513e",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#8b715f",
+                "backgroundColor": "#6d513e",
                 "action": {
                   "type": "uri",
                   "label": "看看小如如的日常",
@@ -80,7 +80,7 @@
                       {
                         "type": "text",
                         "text": "分享我的名片",
-                        "color": "#6b5545",
+                        "color": "#6d513e",
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
@@ -97,10 +97,10 @@
                 "borderWidth": "light",
                 "cornerRadius": "4px",
                 "spacing": "sm",
-                "borderColor": "#8b715f",
+                "borderColor": "#6d513e",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#fbf7f2",
+                "backgroundColor": "#ffffff",
                 "action": {
                   "type": "uri",
                   "label": "分享我的名片",
@@ -112,7 +112,7 @@
             "offsetBottom": "0px",
             "offsetStart": "0px",
             "offsetEnd": "0px",
-            "backgroundColor": "#f2ebe4",
+            "backgroundColor": "#fdefe2",
             "paddingAll": "15px",
             "paddingTop": "5px"
           }
@@ -172,10 +172,10 @@
                 "borderWidth": "none",
                 "cornerRadius": "4px",
                 "spacing": "sm",
-                "borderColor": "#8b715f",
+                "borderColor": "#6d513e",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#8b715f",
+                "backgroundColor": "#6d513e",
                 "action": {
                   "type": "uri",
                   "label": "看看肌膚保養",
@@ -199,7 +199,7 @@
                       {
                         "type": "text",
                         "text": "找回輕盈狀態",
-                        "color": "#6b5545",
+                        "color": "#6d513e",
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
@@ -216,10 +216,10 @@
                 "borderWidth": "light",
                 "cornerRadius": "4px",
                 "spacing": "sm",
-                "borderColor": "#8b715f",
+                "borderColor": "#6d513e",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#fbf7f2",
+                "backgroundColor": "#ffffff",
                 "action": {
                   "type": "uri",
                   "label": "找回輕盈狀態",
@@ -231,7 +231,7 @@
             "offsetBottom": "0px",
             "offsetStart": "0px",
             "offsetEnd": "0px",
-            "backgroundColor": "#f2ebe4",
+            "backgroundColor": "#fdefe2",
             "paddingAll": "15px",
             "paddingTop": "5px"
           }
@@ -291,10 +291,10 @@
                 "borderWidth": "none",
                 "cornerRadius": "4px",
                 "spacing": "sm",
-                "borderColor": "#8b715f",
+                "borderColor": "#6d513e",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#8b715f",
+                "backgroundColor": "#6d513e",
                 "action": {
                   "type": "uri",
                   "label": "聊聊妳現在的狀態",
@@ -318,7 +318,7 @@
                       {
                         "type": "text",
                         "text": "直接找小如如",
-                        "color": "#6b5545",
+                        "color": "#6d513e",
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
@@ -335,10 +335,10 @@
                 "borderWidth": "light",
                 "cornerRadius": "4px",
                 "spacing": "sm",
-                "borderColor": "#8b715f",
+                "borderColor": "#6d513e",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#fbf7f2",
+                "backgroundColor": "#ffffff",
                 "action": {
                   "type": "uri",
                   "label": "直接找小如如",
@@ -350,7 +350,7 @@
             "offsetBottom": "0px",
             "offsetStart": "0px",
             "offsetEnd": "0px",
-            "backgroundColor": "#f2ebe4",
+            "backgroundColor": "#fdefe2",
             "paddingAll": "15px",
             "paddingTop": "5px"
           }
@@ -410,10 +410,10 @@
                 "borderWidth": "none",
                 "cornerRadius": "4px",
                 "spacing": "sm",
-                "borderColor": "#8b715f",
+                "borderColor": "#6d513e",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#8b715f",
+                "backgroundColor": "#6d513e",
                 "action": {
                   "type": "uri",
                   "label": "找到適合妳的保養",
@@ -437,7 +437,7 @@
                       {
                         "type": "text",
                         "text": "感受剛剛好的放鬆",
-                        "color": "#6b5545",
+                        "color": "#6d513e",
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
@@ -454,10 +454,10 @@
                 "borderWidth": "light",
                 "cornerRadius": "4px",
                 "spacing": "sm",
-                "borderColor": "#8b715f",
+                "borderColor": "#6d513e",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#fbf7f2",
+                "backgroundColor": "#ffffff",
                 "action": {
                   "type": "uri",
                   "label": "感受剛剛好的放鬆",
@@ -469,7 +469,7 @@
             "offsetBottom": "0px",
             "offsetStart": "0px",
             "offsetEnd": "0px",
-            "backgroundColor": "#f2ebe4",
+            "backgroundColor": "#fdefe2",
             "paddingAll": "15px",
             "paddingTop": "5px"
           }
@@ -529,10 +529,10 @@
                 "borderWidth": "none",
                 "cornerRadius": "4px",
                 "spacing": "sm",
-                "borderColor": "#8b715f",
+                "borderColor": "#6d513e",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#8b715f",
+                "backgroundColor": "#6d513e",
                 "action": {
                   "type": "uri",
                   "label": "預約妳的專屬時光",
@@ -556,7 +556,7 @@
                       {
                         "type": "text",
                         "text": "收藏更多變美日常",
-                        "color": "#6b5545",
+                        "color": "#6d513e",
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
@@ -573,10 +573,10 @@
                 "borderWidth": "light",
                 "cornerRadius": "4px",
                 "spacing": "sm",
-                "borderColor": "#8b715f",
+                "borderColor": "#6d513e",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#fbf7f2",
+                "backgroundColor": "#ffffff",
                 "action": {
                   "type": "uri",
                   "label": "收藏更多變美日常",
@@ -588,7 +588,7 @@
             "offsetBottom": "0px",
             "offsetStart": "0px",
             "offsetEnd": "0px",
-            "backgroundColor": "#f2ebe4",
+            "backgroundColor": "#fdefe2",
             "paddingAll": "15px",
             "paddingTop": "5px"
           }

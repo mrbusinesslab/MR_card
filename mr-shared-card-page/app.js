@@ -24,6 +24,7 @@ const viewport = document.querySelector("#cardViewport");
 const dots = document.querySelector("#pageDots");
 const status = document.querySelector("#actionStatus");
 const shareButton = document.querySelector("#shareButton");
+const swipeHint = document.querySelector("#swipeHint");
 let cardShareUrl = "";
 
 const versionDate = document.querySelector("#versionDate");
@@ -141,6 +142,8 @@ function updateShareAction(flex) {
 function renderCard(flex) {
   const pages = Array.isArray(flex?.contents) ? flex.contents : [];
   if (!pages.length) throw new Error("名片內容為空");
+
+  swipeHint.textContent = `左右滑動查看${pages.length}頁名片`;
 
   applyTheme(pages[0]);
   updateShareAction(flex);

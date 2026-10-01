@@ -288,6 +288,37 @@ def render_card_preview(case_item, canonical_url):
     }
 
 
+def render_mn13_preview(canonical_url):
+    target_url = (
+        "https://mrbusinesslab.github.io/MR_card/mr-shared-card-page/"
+        "?case=case1_%E5%B0%8F%E5%A6%82%E5%A6%82&variant=mn13"
+    )
+    title = "小如如｜MN13 Beauty 電子名片"
+    description = "小如如的 MN13 Beauty 專屬美容美體電子名片"
+    page = f"""<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{escape(title)}</title>
+  <meta name="description" content="{escape(description)}">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{escape(title)}">
+  <meta property="og:description" content="{escape(description)}">
+  <meta property="og:url" content="{escape(canonical_url)}">
+  <meta name="robots" content="noindex">
+  <script>window.location.replace({json.dumps(target_url)});</script>
+</head>
+<body>
+  <p><a href="{escape(target_url)}">開啟小如如的 MN13 Beauty 電子名片</a></p>
+</body>
+</html>"""
+    return page, 200, {
+        "Content-Type": "text/html; charset=utf-8",
+        "Cache-Control": "public, max-age=300",
+    }
+
+
 @app.route("/card/<short_code>")
 def card_preview(short_code):
     case_item = next(
@@ -304,6 +335,20 @@ def card_preview(short_code):
 def card_preview_ruru():
     case_item = next(c for c in CASE_LIST if c["case"] == "case1_小如如")
     return render_card_preview(case_item, f"{TRACKING_BASE_URL}/card/ruru")
+
+
+@app.route("/card/<short_code>/mn13")
+def card_preview_mn13(short_code):
+    ruru_code = card_short_code("case1_小如如")
+    if short_code.lower() != ruru_code:
+        abort(404)
+    canonical_url = f"{TRACKING_BASE_URL}/card/{ruru_code}/mn13"
+    return render_mn13_preview(canonical_url)
+
+
+@app.route("/card/mn13")
+def card_preview_mn13_alias():
+    return render_mn13_preview(f"{TRACKING_BASE_URL}/card/mn13")
 
 
 @app.route("/cases")
@@ -333,6 +378,15 @@ def liff_card_json(case_num, name):
 
 @app.route("/liff/case1/小如如")
 def liff_小如如():return load_liff("case1_小如如/liff_小如如.html"),200,{"Content-Type":"text/html; charset=utf-8"}
+@app.route("/liff/case1/mn13")
+def liff_小如如_mn13():return load_liff("case1_小如如/liff_小如如_mn13.html"),200,{"Content-Type":"text/html; charset=utf-8"}
+@app.route("/liff/case1/card_小如如_mn13.json")
+def liff_card_小如如_mn13():
+    case_item = next(c for c in CASE_LIST if c["case"] == "case1_小如如")
+    flex_data = load_flex("case1_小如如/card_小如如_mn13.json", case_item)
+    if not flex_data:
+        abort(404)
+    return app.response_class(json.dumps(flex_data, ensure_ascii=False), content_type="application/json; charset=utf-8")
 @app.route("/liff/case2/鍾師富")
 def liff_鍾師富():return load_liff("case2_鍾師富/liff_鍾師富.html"),200,{"Content-Type":"text/html; charset=utf-8"}
 @app.route("/liff/case3/emma")

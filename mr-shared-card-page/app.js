@@ -53,22 +53,31 @@ function normalizeColor(value, fallback) {
   return /^#[0-9a-f]{6}$/i.test(value || "") ? value : fallback;
 }
 
-function readableText(hex) {
+function colorLuminance(hex) {
   const [r, g, b] = hex.slice(1).match(/.{2}/g).map((part) => parseInt(part, 16) / 255);
   const linear = [r, g, b].map((value) => value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4);
-  return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2] > 0.48 ? "#1d1a18" : "#ffffff";
+  return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
 }
 
-function applyTheme(page) {
-  const nodes = allNodes(page);
+function readableText(hex) {
+  return colorLuminance(hex) > 0.48 ? "#1d1a18" : "#ffffff";
+}
+
+function applyTheme(pages) {
+  const pageList = Array.isArray(pages) ? pages : [pages];
+  const nodes = allNodes(pageList);
   const actionNodes = nodes.filter((node) => node.action?.type === "uri" && node.action.uri);
-  const surfaceNode = nodes.find((node) =>
+  const coloredAction = actionNodes.find((node) => {
+    const color = normalizeColor(node.backgroundColor, "");
+    return color && colorLuminance(color) < 0.82;
+  });
+  const surfaceNode = allNodes(pageList[0]).find((node) =>
     node.backgroundColor &&
     Array.isArray(node.contents) &&
-    allNodes(node.contents).some((child) => child.action?.type === "uri")
+    allNodes(node.contents).some((child) => child.height === "50px")
   );
-  const primary = normalizeColor(actionNodes[0]?.backgroundColor, "#1d1a18");
-  const secondary = normalizeColor(actionNodes[1]?.backgroundColor, "#f7f3ed");
+  const primary = normalizeColor(coloredAction?.backgroundColor, normalizeColor(actionNodes[0]?.backgroundColor, "#1d1a18"));
+  const secondary = normalizeColor(actionNodes.find((node) => node !== coloredAction)?.backgroundColor, "#f7f3ed");
   const surface = normalizeColor(surfaceNode?.backgroundColor, secondary);
   const root = document.documentElement;
   root.style.setProperty("--theme-primary", primary);
@@ -117,7 +126,7 @@ function getCardData(page) {
       const rawLabel = allNodes(node).find((item) => item.type === "text" && item.text)?.text || "開啟連結";
       const disabled = rawLabel.startsWith("⚠️ 待補連結｜") || !(node.action?.type === "uri" && node.action.uri);
       return {
-        label: rawLabel.replace(/^⚠️ 待補連結｜/, ""),
+        label: rawLabel,
         href: disabled ? "" : node.action.uri,
         disabled,
         background: node.backgroundColor || "#6d513e",
@@ -155,7 +164,7 @@ function renderCard(flex) {
 
   swipeHint.textContent = `左右滑動查看${pages.length}頁名片`;
 
-  applyTheme(pages[0]);
+  applyTheme(pages);
   updateShareAction(flex);
 
   viewport.replaceChildren();

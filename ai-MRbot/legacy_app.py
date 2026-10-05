@@ -49,6 +49,7 @@ CASE_LIST = [
     {"case":"case14_一晉","num":14,"keyword":"一晉","alt":"邱一晉｜尚晉通信","name_keywords":["一晉","邱一晉","邱 一晉"],"industry_keywords":["建築組","電工","電工-商業","尚晉通科技企業社"]},
     {"case":"case16_齊齊","num":16,"keyword":"齊齊","alt":"游宛齊｜馬鹿整合廣告","name_keywords":["齊齊","游宛齊","游 宛齊"],"industry_keywords":["廣告&行銷","廣告招牌輸出","馬鹿整合廣告股份有限公司"]},
     {"case":"case17_重凱","num":17,"keyword":"重凱","alt":"王重凱｜鉅沅管理顧問","name_keywords":["重凱","王重凱","王 重凱"],"industry_keywords":["金融&保險","金融投資","金融","鉅沅管理顧問有限公司"]},
+    {"case":"case18_煒達","num":18,"keyword":"煒達","alt":"劉煒達｜亞森統國際法律事務所 所長","name_keywords":["煒達","劉煒達","劉 煒達"],"industry_keywords":["律師","法律","企業法律顧問","企業法務","勞資","亞森統國際法律事務所","NL企基顧問"],"draft":True},
 ]
 
 DEMO_KEYWORDS=["小如如","寧寧","鍾師富","傑哥","林威","竹勝"]
@@ -417,3 +418,5 @@ def liff_一晉():return load_liff("case14_一晉/liff_一晉.html"),200,{"Conte
 def liff_齊齊():return load_liff("case16_齊齊/liff_齊齊.html"),200,{"Content-Type":"text/html; charset=utf-8"}
 @app.route("/liff/case17/重凱")
 def liff_重凱():return load_liff("case17_重凱/liff_重凱.html"),200,{"Content-Type":"text/html; charset=utf-8"}
+@app.route("/liff/case18/煒達")
+def liff_煒達():return load_liff("case18_煒達/liff_煒達.html"),200,{"Content-Type":"text/html; charset=utf-8"}

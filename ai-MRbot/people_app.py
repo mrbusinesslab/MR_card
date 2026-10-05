@@ -532,6 +532,12 @@ def handle_message(event):
             reply(line_bot_api, event, message)
             return
 
+        direct_card = find_card_for_person(user_msg)
+        if direct_card and direct_card.get("case") == "case18_煒達":
+            legacy.record_view(user_id, direct_card)
+            reply(line_bot_api, event, card_delivery_messages(direct_card))
+            return
+
         try:
             people = resolve_people(user_msg)
         except Exception:

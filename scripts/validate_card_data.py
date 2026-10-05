@@ -146,7 +146,10 @@ def main() -> int:
             continue
 
         if "⚠️ 待補連結" in json_path.read_text(encoding="utf-8"):
-            errors.append(f"{case_id}: 仍有 ⚠️ 待補連結")
+            if item.get("draft"):
+                warnings.append(f"{case_id}: 測試中，仍有 ⚠️ 待補連結")
+            else:
+                errors.append(f"{case_id}: 仍有 ⚠️ 待補連結")
 
         for page_no, page in enumerate(pages, start=1):
             images = [node for node in all_nodes(page) if node.get("type") == "image" and node.get("url")]

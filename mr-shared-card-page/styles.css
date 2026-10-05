@@ -190,6 +190,15 @@ h1, h2 { text-wrap: balance; }
   text-decoration: none;
 }
 
+.card-button.is-disabled {
+  border-color: #aaa6a1;
+  color: #6f6b67;
+  background: #d8d5d1;
+  cursor: not-allowed;
+  opacity: 1;
+  font-family: inherit;
+}
+
 .loading-state {
   display: flex;
   flex: 0 0 100%;

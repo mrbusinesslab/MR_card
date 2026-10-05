@@ -100,20 +100,26 @@ function allNodes(value) {
 function getCardData(page) {
   const nodes = allNodes(page);
   const image = nodes.find((node) => node.type === "image" && node.url);
-  const actions = nodes.filter((node) => node.action?.type === "uri" && node.action.uri);
+  const buttonNodes = nodes.filter((node) => {
+    if (node.type !== "box" || !Array.isArray(node.contents) || node.height !== "50px") return false;
+    const label = allNodes(node).find((item) => item.type === "text" && item.text)?.text || "";
+    return Boolean(node.action?.type === "uri" && node.action.uri) || label.startsWith("⚠️ 待補連結｜");
+  });
   const actionArea = nodes.find((node) =>
     node.backgroundColor &&
     Array.isArray(node.contents) &&
-    allNodes(node.contents).some((child) => child.action?.type === "uri")
+    allNodes(node.contents).some((child) => child.height === "50px")
   );
   return {
     imageUrl: image?.url || "",
     actionBackground: actionArea?.backgroundColor || "#ffffff",
-    buttons: actions.map((node) => {
-      const label = allNodes(node).filter((item) => item.type === "text" && item.text).at(-1)?.text || "開啟連結";
+    buttons: buttonNodes.map((node) => {
+      const rawLabel = allNodes(node).find((item) => item.type === "text" && item.text)?.text || "開啟連結";
+      const disabled = rawLabel.startsWith("⚠️ 待補連結｜") || !(node.action?.type === "uri" && node.action.uri);
       return {
-        label,
-        href: node.action.uri,
+        label: rawLabel.replace(/^⚠️ 待補連結｜/, ""),
+        href: disabled ? "" : node.action.uri,
+        disabled,
         background: node.backgroundColor || "#6d513e",
         color: allNodes(node).find((item) => item.type === "text" && item.color)?.color || "#ffffff",
         border: node.borderColor || node.backgroundColor || "#6d513e"
@@ -173,16 +179,22 @@ function renderCard(flex) {
     buttonGroup.className = "card-buttons";
     buttonGroup.style.backgroundColor = data.actionBackground;
     data.buttons.forEach((button) => {
-      const link = document.createElement("a");
-      link.className = "card-button";
-      link.href = button.href;
-      link.textContent = button.label;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.style.setProperty("--button-bg", button.background);
-      link.style.setProperty("--button-text", button.color);
-      link.style.setProperty("--button-color", button.border);
-      buttonGroup.append(link);
+      const control = document.createElement(button.disabled ? "button" : "a");
+      control.className = `card-button${button.disabled ? " is-disabled" : ""}`;
+      control.textContent = button.label;
+      if (button.disabled) {
+        control.type = "button";
+        control.disabled = true;
+        control.setAttribute("aria-label", `${button.label}（連結準備中）`);
+      } else {
+        control.href = button.href;
+        control.target = "_blank";
+        control.rel = "noopener noreferrer";
+        control.style.setProperty("--button-bg", button.background);
+        control.style.setProperty("--button-text", button.color);
+        control.style.setProperty("--button-color", button.border);
+      }
+      buttonGroup.append(control);
     });
     section.append(buttonGroup);
     viewport.append(section);

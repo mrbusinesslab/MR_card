@@ -393,12 +393,12 @@ def install_routes(app):
         return {"enabled":os.getenv("LIFEOS_ENABLED")=="1",
             "storage_configured":bool(os.getenv("LIFEOS_GATEWAY_KEY") and os.getenv("LIFEOS_GATEWAY_URL")),
             "audio_transcription":False,"paid_ai_api":False,"calendar_sync":False,
-            "version":"2026-10-08-buttons-mvp"}
+            "version":"2026-10-08-flex-mvp"}
 
 
 def button_message(body):
     """LINE quick replies use existing commands, preserving owner checks."""
-    from linebot.v3.messaging import TextMessage, QuickReply, QuickReplyItem, MessageAction
+    from linebot.v3.messaging import FlexMessage, FlexContainer, QuickReply, QuickReplyItem, MessageAction
     choices=[]
     if body.startswith("待辦操作\n"):
         match=re.search(r"#(\d+)",body)
@@ -417,4 +417,60 @@ def button_message(body):
         choices=[("開啟每日提醒","開啟每日提醒"),("關閉每日提醒","關閉每日提醒")]
     choices += [("新增待辦","新增待辦"),("今日摘要","今天有哪些事"),
         ("我的待辦","我的待辦"),("操作待辦","待辦按鈕 1"),("提醒設定","提醒設定")]
-    return TextMessage(text=body,quick_reply=QuickReply(items=[QuickReplyItem(action=MessageAction(label=label,text=command)) for label,command in choices[:13]]))
+    quick=QuickReply(items=[QuickReplyItem(action=MessageAction(label=label,text=command)) for label,command in choices[:13]])
+    def text(value,size="sm",color="#475569",weight="regular"):
+        return {"type":"text","text":value or " ","size":size,"color":color,"weight":weight,"wrap":True}
+    def button(label,command,primary=False):
+        result={"type":"button","height":"sm","style":"primary" if primary else "secondary",
+            "action":{"type":"message","label":label,"text":command}}
+        if primary: result["color"]="#345C58"
+        return result
+    first=body.split("\n",1)[0]
+    heading=("確認待辦" if body.startswith("請確認內容") else
+        "個人助理" if "你的私人待辦已啟用" in first else
+        "待辦清單" if first.startswith("選擇要操作") else first[:40])
+    draft=body.startswith("請確認內容")
+    content=[]
+    lines=body.splitlines()[1:]
+    i=0; rendered=0; omitted=0
+    while i<len(lines):
+        line=lines[i].strip()
+        if not line: i+=1;continue
+        # Existing task output is always a title followed by deadline/status.
+        is_task=i+1<len(lines) and lines[i+1].startswith("  ") and "｜" in lines[i+1]
+        if is_task:
+            meta=lines[i+1].strip();i+=2
+            if rendered >= (10 if draft else 8): omitted+=1;continue
+            rendered+=1
+            match=re.match(r"#(\d+) (.*)",line)
+            title=match.group(2) if match else line
+            date,state=meta.rsplit("｜",1)
+            badge_color="#166534" if state=="完成" else "#9A3412" if state=="等待對方" else "#345C58"
+            row=[text(title,"md","#172B2A","bold"),
+                {"type":"box","layout":"horizontal","margin":"md","contents":[
+                  {**text(date,"sm"),"flex":3}, {**text(state,"xs",badge_color,"bold"),"flex":2,"align":"end"}]}]
+            if match and state not in CLOSED and not body.startswith("待辦操作\n"):
+                tid=match.group(1)
+                row.append({"type":"box","layout":"horizontal","spacing":"sm","margin":"md","contents":[
+                    button("完成",f"完成 {tid}",True),button("更多操作",f"待辦操作 {tid}")]})
+            content.append({"type":"box","layout":"vertical","paddingAll":"16px","cornerRadius":"12px",
+                "backgroundColor":"#F4F7F6","contents":row,"margin":"md"})
+        else:
+            if line.startswith("下一頁："):
+                content.append(button("下一頁","待辦按鈕 "+line.split("：",1)[1]))
+            else:
+                section=line in ("已逾期","今天到期","近期三天","等待對方","待安排")
+                content.append({**text(line,"sm","#9A3412" if line=="已逾期" else "#345C58" if section else "#64748B","bold" if section else "regular"),"margin":"md"})
+            i+=1
+    if omitted: content.append(text(f"這張卡片另有{omitted}項未展開，請點「操作待辦」逐頁查看。","xs"))
+    if not content: content=[text(first)]
+    if draft: footer=[button("確認存檔","確認存檔",True),button("放棄草稿","放棄草稿")]
+    elif body.startswith("待辦操作\n"): footer=[button(label,command,index==0) for index,(label,command) in enumerate(choices[:6])]
+    elif body.startswith("每日提醒目前"): footer=[button("開啟每日提醒","開啟每日提醒",True),button("關閉每日提醒","關閉每日提醒")]
+    else: footer=[button("新增待辦","新增待辦",True),
+        {"type":"box","layout":"horizontal","spacing":"sm","contents":[button("今日摘要","今天有哪些事"),button("操作待辦","待辦按鈕 1")]},button("提醒設定","提醒設定")]
+    bubble={"type":"bubble","size":"mega","header":{"type":"box","layout":"vertical","paddingAll":"20px","backgroundColor":"#345C58",
+        "contents":[text("MR 個人助理","xs","#D5E6E0"),text(heading,"xl","#FFFFFF","bold")]},
+        "body":{"type":"box","layout":"vertical","paddingAll":"16px","contents":content},
+        "footer":{"type":"box","layout":"vertical","spacing":"sm","paddingAll":"16px","contents":footer}}
+    return FlexMessage(alt_text=first[:400],contents=FlexContainer.from_dict(bubble),quick_reply=quick)

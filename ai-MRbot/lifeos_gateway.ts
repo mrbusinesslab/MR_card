@@ -2,7 +2,7 @@
 const url = Deno.env.get("SUPABASE_URL")!;
 const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const headers = { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" };
-const actions = new Set(["get_user","enroll","mode","notifications","draft","discard","confirm","list","update","notification_users","notification_claim","notification_finish"]);
+const actions = new Set(["get_user","enroll","mode","notifications","draft","discard","confirm","list","update","notification_users","notification_claim","notification_finish","test_schedule","test_users","test_claim","test_finish"]);
 
 Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return new Response("Method not allowed", {status:405});
@@ -18,7 +18,8 @@ Deno.serve(async (req: Request) => {
     if (raw.length > 20000) return new Response("Payload too large", {status:413});
     const data = JSON.parse(raw);
     if (!actions.has(data.action)) return new Response("Invalid action", {status:400});
-    const response = await fetch(`${url}/rest/v1/rpc/lifeos_dispatch`, {method:"POST",headers,body:JSON.stringify({p:data})});
+    const rpc = data.action.startsWith("test_") ? "lifeos_test_dispatch" : "lifeos_dispatch";
+    const response = await fetch(`${url}/rest/v1/rpc/${rpc}`, {method:"POST",headers,body:JSON.stringify({p:data})});
     if (!response.ok) throw new Error("database operation failed");
     return new Response(await response.text(), {headers:{"Content-Type":"application/json"}});
   } catch {

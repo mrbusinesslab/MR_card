@@ -229,7 +229,7 @@ def handle_text(user_id, text, event_id=None, source_type="user"):
     if os.getenv("LIFEOS_ENABLED") != "1":
         return None
     text = text.strip()
-    explicit = text.startswith(("啟用助理","待辦按鈕 ","待辦操作 ")) or text in ("個人助理","我的待辦","今天有哪些事","今天有什麼事","逾期待辦","新增待辦","提醒設定")
+    explicit = text.startswith(("啟用助理","待辦按鈕 ","待辦操作 ")) or text in ("個人助理","我的待辦","今天有哪些事","今天有什麼事","逾期待辦","新增待辦","提醒設定","測試提醒")
     if source_type != "user":
         return "私人待辦僅能在與MR小幫手的一對一聊天室使用。" if explicit else None
     try:
@@ -259,6 +259,12 @@ def handle_text(user_id, text, event_id=None, source_type="user"):
             return "請說明要做的事情與日期，例如「明天買耗材」。\n可按手機鍵盤的麥克風轉成文字，傳送後按「確認存檔」。"
         if text == "提醒設定":
             return "每日提醒目前" + ("開啟" if user.get("notifications") else "關閉") + "。\n開啟後上午9點發送未完成待辦摘要，受現有LINE額度限制。請點下方按鈕設定。"
+        if text == "測試提醒":
+            result=gateway("test_schedule",user_id,event_id)
+            if result.get("error"): raise StorageError("test schedule failed")
+            if result.get("already_scheduled"):
+                return "今天已安排過測試提醒。\n" + ("測試訊息已送出，請查看聊天室。" if result.get("state")=="sent" else "尚未確認送出；若超過3分鐘未收到，請告訴建置者檢查。每天最多測試一次，避免耗用額度。")
+            return "測試提醒已安排\n約1～2分鐘後，小幫手會主動傳送測試卡片。你可以先離開聊天室，不需要再傳訊息。\n使用現有LINE推播額度；額度不足時不發送。這次測試不會開啟每日提醒。"
         page = re.fullmatch(r"待辦按鈕 (\d+)",text)
         operation = re.fullmatch(r"待辦操作 (\d+)",text)
         if page:
@@ -375,6 +381,17 @@ def reminder_run(now=None):
 
 
 def install_routes(app):
+    @app.post("/lifeos/test-reminders")
+    def run_test_reminders():
+        from flask import request
+        secret=os.getenv("LIFEOS_CRON_KEY","")
+        if not secret or not hmac.compare_digest(request.headers.get("Authorization",""),"Bearer "+secret):
+            return {"error":"unauthorized"},401
+        try: return test_reminder_run()
+        except Exception:
+            app.logger.error("Life OS test reminder execution failed")
+            return {"error":"test_reminder_failed"},503
+
     @app.post("/lifeos/reminders")
     def run_reminders():
         from flask import request
@@ -393,7 +410,33 @@ def install_routes(app):
         return {"enabled":os.getenv("LIFEOS_ENABLED")=="1",
             "storage_configured":bool(os.getenv("LIFEOS_GATEWAY_KEY") and os.getenv("LIFEOS_GATEWAY_URL")),
             "audio_transcription":False,"paid_ai_api":False,"calendar_sync":False,
-            "version":"2026-10-08-flex-mvp"}
+            "version":"2026-10-08-test-reminder-mvp"}
+
+
+def test_reminder_run():
+    if os.getenv("LIFEOS_ENABLED")!="1": return {"sent":0,"skipped":"disabled"}
+    users=gateway("test_users")["users"]
+    if not users: return {"sent":0,"skipped":"no_test_scheduled"}
+    headers={"Authorization":"Bearer "+os.getenv("LINE_CHANNEL_ACCESS_TOKEN","")}
+    quota=requests.get("https://api.line.me/v2/bot/message/quota",headers=headers,timeout=10)
+    quota.raise_for_status()
+    usage=requests.get("https://api.line.me/v2/bot/message/quota/consumption",headers=headers,timeout=10)
+    usage.raise_for_status()
+    q=quota.json();used=usage.json().get("totalUsage",0)
+    if q.get("type")!="limited" or q.get("value",0)<=20:
+        return {"sent":0,"skipped":"quota_not_verified"}
+    cap=min(180,q['value']-20);sent=0
+    for user in users:
+        if used+sent>=cap: break
+        uid=user['user_id'];result=gateway('test_claim',uid)
+        if 'notification' not in result: continue
+        n=result['notification']
+        response=requests.post("https://api.line.me/v2/bot/message/push",headers={**headers,"X-Line-Retry-Key":n['retry_key']},
+            json={'to':uid,'messages':[button_message('測試提醒送達\n這是你剛才按下「測試提醒」後，小幫手主動傳送的卡片。\n你已確認這個帳號可以收到主動訊息。每日提醒仍依你的設定開啟或關閉。').to_dict()]},timeout=15)
+        ok=response.status_code in (200,409)
+        gateway('test_finish',uid,retry_key=n['retry_key'],sent=ok)
+        if ok: sent+=1
+    return {'sent':sent}
 
 
 def button_message(body):
@@ -414,7 +457,7 @@ def button_message(body):
     elif body.startswith("請確認內容"):
         choices=[("確認存檔","確認存檔"),("放棄草稿","放棄草稿")]
     elif body.startswith("每日提醒目前"):
-        choices=[("開啟每日提醒","開啟每日提醒"),("關閉每日提醒","關閉每日提醒")]
+        choices=[("測試提醒","測試提醒"),("開啟每日提醒","開啟每日提醒"),("關閉每日提醒","關閉每日提醒")]
     choices += [("新增待辦","新增待辦"),("今日摘要","今天有哪些事"),
         ("我的待辦","我的待辦"),("操作待辦","待辦按鈕 1"),("提醒設定","提醒設定")]
     quick=QuickReply(items=[QuickReplyItem(action=MessageAction(label=label,text=command)) for label,command in choices[:13]])
@@ -466,7 +509,7 @@ def button_message(body):
     if not content: content=[text(first)]
     if draft: footer=[button("確認存檔","確認存檔",True),button("放棄草稿","放棄草稿")]
     elif body.startswith("待辦操作\n"): footer=[button(label,command,index==0) for index,(label,command) in enumerate(choices[:6])]
-    elif body.startswith("每日提醒目前"): footer=[button("開啟每日提醒","開啟每日提醒",True),button("關閉每日提醒","關閉每日提醒")]
+    elif body.startswith("每日提醒目前"): footer=[button("測試提醒（1～2分鐘）","測試提醒",True),button("開啟每日提醒","開啟每日提醒"),button("關閉每日提醒","關閉每日提醒")]
     else: footer=[button("新增待辦","新增待辦",True),
         {"type":"box","layout":"horizontal","spacing":"sm","contents":[button("今日摘要","今天有哪些事"),button("操作待辦","待辦按鈕 1")]},button("提醒設定","提醒設定")]
     bubble={"type":"bubble","size":"mega","header":{"type":"box","layout":"vertical","paddingAll":"20px","backgroundColor":"#345C58",

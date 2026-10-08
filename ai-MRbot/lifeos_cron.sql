@@ -9,3 +9,13 @@ select cron.schedule('lifeos-daily-summary','0,15,30,45 1 * * *', $job$
     timeout_milliseconds := 20000
   );
 $job$);
+
+select cron.schedule('lifeos-test-reminder','* * * * *', $job$
+  select net.http_post(
+    url := 'https://mr-6c1r.onrender.com/lifeos/test-reminders',
+    headers := jsonb_build_object('Content-Type','application/json','Authorization',
+      'Bearer ' || (select decrypted_secret from vault.decrypted_secrets where name='lifeos_cron_key')),
+    body := '{}'::jsonb,
+    timeout_milliseconds := 20000
+  );
+$job$);

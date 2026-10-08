@@ -30,6 +30,17 @@ class CalendarTests(unittest.TestCase):
    db.return_value={'ok':True}
    self.assertIn('確認',c.handle(UID,'行程 明天下午2點到下午3點 美容','evt').alt_text)
    api.assert_not_called();self.assertEqual(db.call_args.args,('calendar_draft',UID,'evt'))
+ def test_automatic_range(self):
+  with patch.dict(os.environ,{'LIFEOS_GOOGLE_USER_ID':UID,'LIFEOS_GOOGLE_CALENDAR_ID':'cal'}),patch('lifeos.gateway',return_value={'ok':True}),patch('lifeos_calendar.call') as api:
+   self.assertIn('確認Google行程',c.handle(UID,'明天下午2點到下午3點 日曆串接測試','evt').alt_text)
+   api.assert_not_called()
+ def test_deadline_stays_task(self):
+  self.assertIsNone(c.handle(UID,'明天下午3點前傳資料'))
+ def test_digest_with_calendar(self):
+  event={'summary':'美容預約','start':{'dateTime':'2026-10-08T14:00:00+08:00'},'end':{'dateTime':'2026-10-08T15:00:00+08:00'}}
+  with patch('lifeos_calendar.today_events',return_value=([event],None)):
+   data=str(l.button_message(l.summary([],NOW,user_id=UID)).to_dict())
+   self.assertIn('今日預計行程',data);self.assertIn('美容預約',data)
  def test_missing_draft_no_write(self):
   with patch.dict(os.environ,{'LIFEOS_GOOGLE_USER_ID':UID,'LIFEOS_GOOGLE_CALENDAR_ID':'cal'}),patch('lifeos.gateway',return_value={'draft':None}),patch('lifeos_calendar.call') as api:
    self.assertIn('沒有行程草稿',c.handle(UID,'確認行程').alt_text);api.assert_not_called()

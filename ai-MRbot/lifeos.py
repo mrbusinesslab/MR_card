@@ -194,7 +194,7 @@ class Digest(str):
         return value
 
 
-def summary(tasks, now=None, mode="today"):
+def summary(tasks, now=None, mode="today", user_id=None):
     now = now or clock()
     active = [t for t in tasks if t.get("status") not in CLOSED]
     buckets = {"已逾期":[],"今天到期":[],"近期三天":[],"等待對方":[],"待安排":[]}
@@ -220,7 +220,9 @@ def summary(tasks, now=None, mode="today"):
     # LINE limit is 5000 characters; a truthful truncation notice is required.
     if len(body) > 4500:
         body = body[:4350] + "\n\n內容較多，這份摘要未列完。請先完成部分事項後再查詢。"
-    return Digest(body,active,now,mode)
+    digest=Digest(body,active,now,mode)
+    digest.user_id=user_id
+    return digest
 
 
 def choose_task(target, tasks):
@@ -302,7 +304,7 @@ def handle_text(user_id, text, event_id=None, source_type="user"):
             return "已放棄草稿，沒有新增待辦。"
         if text in ("我的待辦","全部待辦","今天有哪些事","今天有什麼事","逾期待辦"):
             result = gateway("list",user_id)
-            body = summary(result["tasks"],mode="all" if text in ("我的待辦","全部待辦") else "overdue" if text=="逾期待辦" else "today")
+            body = summary(result["tasks"],user_id=user_id,mode="all" if text in ("我的待辦","全部待辦") else "overdue" if text=="逾期待辦" else "today")
             if result.get("truncated"):
                 body=Digest(str(body)+"\n待辦超過200件，這次僅列前200件。",body.tasks,body.now,body.mode)
                 body.truncated=True
@@ -382,7 +384,7 @@ def reminder_run(now=None):
         n = claimed["notification"]
         response = requests.post("https://api.line.me/v2/bot/message/push",
             headers={**headers,"X-Line-Retry-Key":n["retry_key"]},
-            json={"to":user["user_id"],"messages":[button_message(summary(tasks,now)).to_dict()]},timeout=15)
+            json={"to":user["user_id"],"messages":[button_message(summary(tasks,now,user_id=user["user_id"])).to_dict()]},timeout=15)
         ok = response.status_code in (200,409)
         gateway("notification_finish",user["user_id"],notification_id=n["id"],sent=ok)
         if ok:
@@ -589,7 +591,18 @@ def digest_message(digest):
     if not tasks or (digest.mode=='overdue' and not overdue): content.append(tx('目前沒有未完成的逾期事項。' if digest.mode=='overdue' else '目前沒有未完成待辦。'))
     if total>shown: content.append({**tx(f'卡片尚有{total-shown}件未展開，請點「操作待辦」逐頁查看。','xs'),'margin':'md'})
     if getattr(digest,'truncated',False): content.append(tx('待辦超過200件，這份卡片僅整理前200件。','xs'))
-    content.append({**tx('目前整理的是已記錄待辦；尚未包含TimeTree行程及其他LINE聊天室。','xs','#64748B'),'margin':'lg'})
+    if digest.mode=='today':
+        import lifeos_calendar as calendar
+        events,note=calendar.today_events(getattr(digest,'user_id',None),now)
+        if events is not None:
+            content.append({'type':'separator','margin':'xl'})
+            content.append({**tx('今日預計行程','lg','#345C58',True),'margin':'lg'})
+            for event in events:
+                content.append({'type':'box','layout':'vertical','spacing':'sm','paddingAll':'12px','backgroundColor':'#F4F7F6','cornerRadius':'10px','margin':'md','contents':[
+                    tx(event.get('summary','未命名行程'),'md','#172B2A',True),tx(calendar.event_time(event),'sm','#345C58',True)]})
+            if not events and not note: content.append({**tx('今天沒有安排Google行程。'),'margin':'md'})
+            if note: content.append({**tx(note,'xs'),'margin':'md'})
+    content.append({**tx('行程來源：Life OS 測試；尚未包含TimeTree及其他LINE聊天室。','xs','#64748B'),'margin':'lg'})
     title='逾期追蹤' if digest.mode=='overdue' else '我的待辦' if digest.mode=='all' else '今日摘要'
     bubble={'type':'bubble','size':'mega','header':{'type':'box','layout':'vertical','paddingAll':'20px','spacing':'sm','contents':[
         tx('MR 個人助理','xs','#345C58',True),tx(title,'lg','#172B2A',True),tx(label(now),'xl','#172B2A',True),tx('摘要日期','xs','#64748B')]},

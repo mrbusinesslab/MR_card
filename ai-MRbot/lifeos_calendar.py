@@ -82,7 +82,10 @@ def card(title,lines,confirm=False,events=None):
 
 def handle(user_id,text,event_id=None,source_type='user'):
     text=text.strip()
-    if not text.startswith(COMMANDS): return None
+    automatic=bool(re.search(TIME_PATTERN+r'\s*(?:到|至|～|~|－|-)\s*'+TIME_PATTERN,text))
+    if not text.startswith(COMMANDS):
+        if not automatic or source_type!='user' or user_id!=config()[2]: return None
+        text='行程 '+text
     if source_type!='user': return card('私人日曆',['請在一對一聊天室使用。'])
     _,cal,approved=config()
     if not approved or user_id!=approved: return card('Google日曆尚未啟用',['目前只開放建置者的測試帳號。'])
@@ -140,6 +143,16 @@ def handle(user_id,text,event_id=None,source_type='user'):
         message='請確認測試日曆已共用給小幫手服務帳號，並開啟Google Calendar API。'
         if exc.reason in ('conditionNotMet','412'): message='這筆行程在確認前已被更改，這次沒有覆蓋。請重新交代改期。'
         return card('Google日曆尚未完成連接',[message,'狀態：'+exc.reason])
+
+def today_events(user_id,now):
+    if not user_id or user_id!=config()[2]: return None,None
+    try:
+        start=now.replace(hour=0,minute=0,second=0,microsecond=0)
+        result=call('GET',params={'timeMin':start.isoformat(),'timeMax':(start+timedelta(days=1)).isoformat(),'singleEvents':'true','orderBy':'startTime','maxResults':8})
+        events=[e for e in result.get('items',[]) if e.get('status')!='cancelled']
+        return events,('今日行程只列前8筆，完整內容請查Google日曆。' if result.get('nextPageToken') else None)
+    except CalendarError:
+        return [],'目前無法讀取Google行程，請稍後查詢；待辦仍正常顯示。'
 
 def install_routes(app):
     @app.post('/lifeos/calendar-status')

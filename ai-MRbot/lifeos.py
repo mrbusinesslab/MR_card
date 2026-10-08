@@ -501,7 +501,7 @@ def button_message(body):
             match=re.match(r"#(\d+) (.*)",line)
             title=match.group(2) if match else line
             date,state=meta.rsplit("｜",1)
-            badge_color="#166534" if state=="完成" else "#9A3412" if state=="等待對方" else "#345C58"
+            badge_color="#345C58"
             row=[text(title,"md","#172B2A","bold"),
                 {"type":"box","layout":"horizontal","margin":"md","contents":[
                   {**text(date,"sm"),"flex":3}, {**text(state,"xs",badge_color,"bold"),"flex":2,"align":"end"}]}]
@@ -516,7 +516,7 @@ def button_message(body):
                 content.append(button("下一頁","待辦按鈕 "+line.split("：",1)[1]))
             else:
                 section=line in ("已逾期","今天到期","近期三天","等待對方","待安排")
-                content.append({**text(line,"sm","#9A3412" if line=="已逾期" else "#345C58" if section else "#64748B","bold" if section else "regular"),"margin":"md"})
+                content.append({**text(line,"sm","#345C58" if section else "#64748B","bold" if section else "regular"),"margin":"md"})
             i+=1
     if omitted: content.append(text(f"這張卡片另有{omitted}項未展開，請點「操作待辦」逐頁查看。","xs"))
     if not content: content=[text(first)]
@@ -525,8 +525,8 @@ def button_message(body):
     elif body.startswith("每日提醒目前"): footer=[button("測試提醒（1～2分鐘）","測試提醒",True),button("開啟每日提醒","開啟每日提醒"),button("關閉每日提醒","關閉每日提醒")]
     else: footer=[button("新增待辦","新增待辦",True),
         {"type":"box","layout":"horizontal","spacing":"sm","contents":[button("今日摘要","今天有哪些事"),button("操作待辦","待辦按鈕 1")]},button("提醒設定","提醒設定")]
-    bubble={"type":"bubble","size":"mega","header":{"type":"box","layout":"vertical","paddingAll":"20px","backgroundColor":"#345C58",
-        "contents":[text("MR 個人助理","xs","#D5E6E0"),text(heading,"xl","#FFFFFF","bold")]},
+    bubble={"type":"bubble","size":"mega","header":{"type":"box","layout":"vertical","paddingAll":"20px","backgroundColor":"#FFFFFF",
+        "contents":[text("MR 個人助理","xs","#345C58"),text(heading,"xl","#172B2A","bold")]},
         "body":{"type":"box","layout":"vertical","paddingAll":"16px","contents":content},
         "footer":{"type":"box","layout":"vertical","spacing":"sm","paddingAll":"16px","contents":footer}}
     return FlexMessage(alt_text=first[:400],contents=FlexContainer.from_dict(bubble),quick_reply=quick)
@@ -550,7 +550,7 @@ def digest_message(digest):
         detail='到期日：'+label(d) if d else '到期日：待安排'
         if d and (d.hour,d.minute)!=(23,59): detail+=' '+d.strftime('%H:%M')
         elements=[tx(task['title'],'md','#172B2A',True),tx(detail,'sm','#475569',True),
-            tx('狀態：'+state,'sm','#9A3412' if state=='等待對方' else '#345C58')]
+            tx('狀態：'+state,'sm','#345C58')]
         if 'id' in task:
             tid=str(task['id'])
             elements.append({'type':'box','layout':'horizontal','spacing':'sm','margin':'md','contents':[btn('完成','完成 '+tid,True),btn('更多操作','待辦操作 '+tid)]})
@@ -570,8 +570,8 @@ def digest_message(digest):
         heading={'type':'box','layout':'horizontal','contents':[{**tx(title,'md',ink,True),'flex':2},{**tx(str(len(items))+'件','sm',ink,True),'align':'end','flex':1}]}
         content.append({'type':'box','layout':'vertical','spacing':'md','paddingAll':'12px','backgroundColor':bg,'cornerRadius':'12px','margin':'md',
             'contents':[heading]+[row(t) for t in visible]})
-    board('今天到期',today,'#FFF0CB','#7C4A12')
-    board('已逾期',overdue,'#FDE6E2','#9A3412')
+    board('今日待辦',today,'#F4F7F6','#345C58')
+    board('已逾期',overdue,'#F4F7F6','#345C58')
     if not today and digest.mode!='overdue': content.append({**tx('今天沒有到期事項','sm','#345C58',True),'margin':'md'})
     if future:
         content.append({**tx('接下來的到期時間軸','md','#345C58',True),'margin':'xl'})
@@ -587,7 +587,7 @@ def digest_message(digest):
                 {'type':'box','layout':'vertical','width':'14px','alignItems':'center','contents':[tx('●','sm','#345C58'),
                     {'type':'box','layout':'vertical','width':'2px','height':'120px','backgroundColor':'#C9DDD7','contents':[tx(' ','xxs')]}]},
                 {**node,'flex':1}]})
-    board('待安排日期',unscheduled,'#F1F5F9','#475569')
+    board('待安排日期',unscheduled,'#F4F7F6','#345C58')
     if not tasks or (digest.mode=='overdue' and not overdue): content.append(tx('目前沒有未完成的逾期事項。' if digest.mode=='overdue' else '目前沒有未完成待辦。'))
     if total>shown: content.append({**tx(f'卡片尚有{total-shown}件未展開，請點「操作待辦」逐頁查看。','xs'),'margin':'md'})
     if getattr(digest,'truncated',False): content.append(tx('待辦超過200件，這份卡片僅整理前200件。','xs'))

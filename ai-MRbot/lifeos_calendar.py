@@ -71,7 +71,7 @@ def card(title,lines,confirm=False,events=None):
     def btn(label,command): return {'type':'button','style':'secondary','height':'sm','action':{'type':'message','label':label,'text':command}}
     rows=[text(x) for x in lines]
     for e in events or []:
-        inner=[text(e.get('summary','未命名行程'),True),text(event_time(e))]
+        inner=[{**text(e.get('summary','未命名行程'),True),'color':l.category_ink(e.get('summary',''))},text(event_time(e))]
         if e.get('local_id'): inner.append(btn('改期這筆行程','改期行程 '+str(e['local_id'])))
         rows.append({'type':'box','layout':'vertical','spacing':'sm','paddingAll':'12px','backgroundColor':l.category_style(e.get('summary',''))[1],'cornerRadius':'10px','contents':inner})
     choices=[('確認行程','確認行程'),('放棄行程','放棄行程')] if confirm else [('今日總覽','今天有哪些事'),('生活助理','生活助理')]
@@ -126,6 +126,7 @@ def handle(user_id,text,event_id=None,source_type='user'):
         if text.startswith('行程 ') or update:
             value=text.removeprefix('行程 ') if not update else update.group(2)
             title,start,end=parse_range(value,title_required=not update)
+            if not update: title=l.beauty_title(title)
             key=hashlib.sha256((user_id+str(event_id or os.urandom(16).hex())).encode()).hexdigest()
             draft={'calendar_id':cal,'event_id':key,'operation':'create'}
             if update:

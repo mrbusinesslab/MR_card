@@ -41,9 +41,23 @@ def category_style(title,category=None):
     if category in ('美容','新客','商會'): group=category
     elif re.search(r'商會|BNI|商務引薦|一對一交流',title,re.I): group='商會'
     elif re.search(r'新客|首次美容|初次諮詢',title): group='新客'
-    elif re.search(r'美容|保養|護膚|美容耗材',title): group='美容'
+    elif re.search(r'美容|保養|護膚|美容耗材|做臉|做身體|(?<![A-Za-z])[FB](?:\s*\+\s*[FB])?(?![A-Za-z])',title): group='美容'
     else: group='其他'
-    return group,{'美容':'#EAF3FC','新客':'#F2ECFA','商會':'#F6EFE5','其他':'#F4F7F6'}[group]
+    return group,{'美容':'#EEF7FE','新客':'#F6F3FA','商會':'#F6EFE5','其他':'#F4F7F6'}[group]
+
+def category_ink(title,category=None):
+    return {'美容':'#6AAFE8','新客':'#AC93CC','商會':'#765C3F','其他':'#172B2A'}[category_style(title,category)[0]]
+
+def beauty_title(title):
+    if category_style(title)[0]=='商會': return title
+    face=bool(re.search(r'做臉|(?<![A-Za-z])F(?![A-Za-z])',title,re.I))
+    body=bool(re.search(r'做身體|做臉\s*[+＋和與]\s*身體|(?<![A-Za-z])B(?![A-Za-z])',title,re.I))
+    if not face and not body: return title
+    new='新客' in title
+    name=re.sub(r'做臉\s*[+＋和與]\s*(?:做)?身體|做臉|做身體|(?<![A-Za-z])[FB](?:\s*[+＋]\s*[FB])?(?![A-Za-z])','',title,flags=re.I)
+    name=re.sub(r'新客|美容預約|美容|預約|客人|做的部位','',name).strip(' ，,。:：+＋和與（）()')
+    if not name: raise InputError('請補上客人姓名，例如「明天下午2點到下午3點 林小姐 做臉」。')
+    return name+' '+('F+B' if face and body else 'F' if face else 'B')+('（新客）' if new else '')
 
 def clock():
     return datetime.now(TZ)
@@ -564,7 +578,7 @@ def digest_message(digest):
         d=date(task);state=task.get('status','未開始')
         detail='到期日：'+label(d) if d else '到期日：待安排'
         if d and (d.hour,d.minute)!=(23,59): detail+=' '+d.strftime('%H:%M')
-        elements=[tx(task['title'],'md','#172B2A',True),tx(detail,'sm','#475569',True),
+        elements=[tx(task['title'],'md',category_ink(task['title'],task.get('category')),True),tx(detail,'sm','#475569',True),
             tx('狀態：'+state,'sm','#345C58')]
         if 'id' in task:
             tid=str(task['id'])
@@ -621,7 +635,7 @@ def digest_message(digest):
             content.append({**tx('近期分類行程' if digest.mode in ('美容','商會') else '今日預計行程','lg','#345C58',True),'margin':'lg'})
             for event in events:
                 content.append({'type':'box','layout':'vertical','spacing':'sm','paddingAll':'12px','backgroundColor':category_style(event.get('summary',''))[1],'cornerRadius':'10px','margin':'md','contents':[
-                    tx(event.get('summary','未命名行程'),'md','#172B2A',True),tx(calendar.event_time(event),'sm','#345C58',True)]})
+                    tx(event.get('summary','未命名行程'),'md',category_ink(event.get('summary','')),True),tx(calendar.event_time(event),'sm','#345C58',True)]})
             if not events and not note: content.append({**tx('今天沒有安排Google行程。'),'margin':'md'})
             if note: content.append({**tx(note,'xs'),'margin':'md'})
     content.append({**tx('行程來源：Life OS 測試；尚未包含TimeTree及其他LINE聊天室。','xs','#64748B'),'margin':'lg'})

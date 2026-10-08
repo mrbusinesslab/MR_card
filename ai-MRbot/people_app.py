@@ -5,6 +5,7 @@ from flask import request, abort
 
 import legacy_app as legacy
 from people_lookup import find_people, get_person, available_categories, category_text, extract_urls
+import lifeos
 
 from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
@@ -20,11 +21,12 @@ from linebot.v3.messaging import (
     QuickReplyItem,
     MessageAction,
 )
-from linebot.v3.webhooks import MessageEvent, TextMessageContent
+from linebot.v3.webhooks import MessageEvent, TextMessageContent, AudioMessageContent
 
 app = legacy.app
 configuration = legacy.configuration
 handler = WebhookHandler(os.getenv("LINE_CHANNEL_SECRET"))
+lifeos.install_routes(app)
 
 
 def normalize(text):
@@ -469,6 +471,14 @@ def handle_message(event):
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
 
+        private_reply = lifeos.handle_text(user_id, user_msg,
+            getattr(event, "webhook_event_id", None), getattr(event.source, "type", "user"))
+        if private_reply is not None:
+            reply(line_bot_api, event, TextMessage(text=private_reply))
+            return
+        if user_msg.startswith("查客戶 "):
+            user_msg = user_msg.removeprefix("查客戶 ").strip()
+
         if user_msg.startswith("人物完整|"):
             parts = user_msg.split("|", 2)
             if len(parts) == 3:
@@ -557,10 +567,19 @@ def handle_message(event):
         reply(line_bot_api, event, TextMessage(text="找不到這位人物的資料。你可以輸入完整姓名，或輸入「電子名片」搜尋名片。"))
 
 
+@handler.add(MessageEvent, message=AudioMessageContent)
+def handle_audio_message(event):
+    user_id = getattr(event.source, "user_id", "unknown")
+    message = lifeos.handle_audio(user_id, getattr(event.source, "type", "user"))
+    if message:
+        with ApiClient(configuration) as api_client:
+            reply(MessagingApi(api_client), event, TextMessage(text=message))
+
+
 def callback():
     signature = request.headers.get("X-Line-Signature")
     body = request.get_data(as_text=True)
-    app.logger.info("Request body: " + body)
+    app.logger.info("LINE webhook received")
     try:
         handler.handle(body, signature)
     except InvalidSignatureError:

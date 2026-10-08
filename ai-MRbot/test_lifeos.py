@@ -1,0 +1,104 @@
+import os
+import unittest
+from datetime import datetime
+from unittest.mock import patch, Mock
+from flask import Flask
+import lifeos as l
+
+NOW = datetime(2026,10,8,14,0,tzinfo=l.TZ)
+UID = 'U' + '1'*32
+
+class ParserTests(unittest.TestCase):
+    def test_friday(self):
+        task=l.parse_tasks('星期五前把資料傳給林威',NOW)[0]
+        self.assertEqual(task['title'],'把資料傳給林威')
+        self.assertEqual(task['due_at'],'2026-10-09T23:59:00+08:00')
+    def test_next_week(self):
+        self.assertEqual(l.parse_date('下星期一',NOW)[0].day,12)
+    def test_unscheduled(self):
+        self.assertIsNone(l.parse_tasks('買耗材',NOW)[0]['due_at'])
+    def test_ambiguous_time(self):
+        with self.assertRaises(l.InputError): l.parse_date('明天2點',NOW)
+    def test_invalid_date(self):
+        with self.assertRaises(l.InputError): l.parse_date('2026年2月30日',NOW)
+    def test_no_calendar_guess(self):
+        with self.assertRaises(l.InputError): l.parse_tasks('客人預約前一天準備產品',NOW)
+    def test_no_recurring_guess(self):
+        with self.assertRaises(l.InputError): l.parse_tasks('每月繳電話費',NOW)
+    def test_half_hour(self):
+        self.assertEqual(l.parse_date('明天下午兩點半',NOW)[0].hour,14)
+        self.assertEqual(l.parse_date('明天下午兩點半',NOW)[0].minute,30)
+    def test_multi(self):
+        self.assertEqual(len(l.parse_tasks('明天買紙巾；星期五傳資料',NOW)),2)
+    def test_no_date_for_time(self):
+        with self.assertRaises(l.InputError): l.parse_date('下午2點',NOW)
+    def test_ambiguous_target(self):
+        with self.assertRaises(l.InputError): l.choose_task('資料',[{'id':1,'title':'資料A'},{'id':2,'title':'資料B'}])
+    def test_completed_excluded(self):
+        self.assertNotIn('秘密',l.summary([{'id':1,'title':'秘密','status':'完成'}],NOW))
+
+class HandlerTests(unittest.TestCase):
+    def setUp(self):
+        self.env=patch.dict(os.environ,{'LIFEOS_ENABLED':'1'});self.env.start()
+    def tearDown(self): self.env.stop()
+    @patch('lifeos.gateway')
+    def test_unbound_original(self,g):
+        g.return_value={'error':'not_enrolled'}
+        self.assertIsNone(l.handle_text(UID,'林威'))
+    @patch('lifeos.gateway')
+    def test_private_only(self,g):
+        self.assertIn('一對一',l.handle_text(UID,'我的待辦',source_type='group'));g.assert_not_called()
+    @patch('lifeos.gateway')
+    def test_draft_not_confirmed(self,g):
+        g.side_effect=[{'user':{'assistant_mode':True}},{'ok':True}]
+        self.assertIn('尚未存成',l.handle_text(UID,'買耗材','evt'))
+        self.assertEqual(g.call_args.args,('draft',UID,'evt'))
+    @patch('lifeos.gateway')
+    def test_no_false_save(self,g):
+        g.side_effect=[{'user':{'assistant_mode':True}},l.StorageError()]
+        self.assertIn('未確認成功',l.handle_text(UID,'確認存檔'))
+    @patch('lifeos.gateway')
+    def test_client_lookup(self,g):
+        g.return_value={'user':{'assistant_mode':True}}
+        self.assertIsNone(l.handle_text(UID,'查客戶 林威'))
+    @patch('lifeos.gateway')
+    def test_audio_no_paid_api(self,g):
+        g.return_value={'user':{'assistant_mode':True}}
+        self.assertIn('尚未辨識',l.handle_audio(UID))
+        g.assert_called_once_with('get_user',UID)
+    @patch('lifeos.gateway')
+    def test_exit_keeps_data(self,g):
+        g.side_effect=[{'user':{'assistant_mode':True}},{'ok':True}]
+        self.assertIn('仍保留',l.handle_text(UID,'離開助理','evt'))
+        self.assertEqual(g.call_args.kwargs,{'enabled':False})
+    def test_routes_auth(self):
+        app=Flask(__name__);l.install_routes(app)
+        self.assertEqual(app.test_client().post('/lifeos/reminders').status_code,401)
+        self.assertFalse(app.test_client().get('/lifeos/health').json['audio_transcription'])
+
+class ReminderTests(unittest.TestCase):
+    @patch.dict(os.environ,{'LIFEOS_ENABLED':'1'})
+    @patch('lifeos.requests.post')
+    @patch('lifeos.requests.get')
+    def test_quota_reserved(self,get,post):
+        get.side_effect=[Mock(json=lambda:{'type':'limited','value':200}),Mock(json=lambda:{'totalUsage':180})]
+        self.assertEqual(l.reminder_run(NOW.replace(hour=9))['skipped'],'quota_reserved');post.assert_not_called()
+    @patch.dict(os.environ,{'LIFEOS_ENABLED':'1'})
+    @patch('lifeos.requests.post')
+    @patch('lifeos.requests.get')
+    def test_unknown_quota(self,get,post):
+        get.side_effect=[Mock(json=lambda:{'type':'unlimited'}),Mock(json=lambda:{'totalUsage':0})]
+        self.assertEqual(l.reminder_run(NOW.replace(hour=9))['skipped'],'quota_not_verified');post.assert_not_called()
+    @patch.dict(os.environ,{'LIFEOS_ENABLED':'1'})
+    @patch('lifeos.gateway')
+    @patch('lifeos.requests.post')
+    @patch('lifeos.requests.get')
+    def test_retry_key(self,get,post,g):
+        get.side_effect=[Mock(json=lambda:{'type':'limited','value':200}),Mock(json=lambda:{'totalUsage':0})]
+        g.side_effect=[{'users':[{'user_id':UID}]},{'tasks':[{'id':1,'title':'買紙','status':'未開始'}]},
+          {'notification':{'id':'n','retry_key':'retry'}},{'ok':True}]
+        post.return_value.status_code=409
+        self.assertEqual(l.reminder_run(NOW.replace(hour=9))['sent'],1)
+        self.assertEqual(post.call_args.kwargs['headers']['X-Line-Retry-Key'],'retry')
+
+if __name__=='__main__': unittest.main()

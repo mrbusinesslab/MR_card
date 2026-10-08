@@ -12,7 +12,7 @@ from google.auth.transport.requests import AuthorizedSession
 import lifeos as l
 
 TIME_PATTERN=r'(上午|早上|下午|晚上|中午|凌晨)?\s*(\d{1,2}|[零一二兩三四五六七八九十]+)(?:點|時|:|：)(半|\d{1,2}|[一二三四五六七八九十]+)?(?:分)?'
-COMMANDS=('Google日曆','新增行程','行程 ','確認行程','放棄行程','改期行程')
+COMMANDS=('其他天的行程','Google日曆','新增行程','行程 ','確認行程','放棄行程','改期行程')
 
 class CalendarError(Exception):
     def __init__(self,reason): self.reason=reason
@@ -74,7 +74,7 @@ def card(title,lines,confirm=False,events=None):
         inner=[text(e.get('summary','未命名行程'),True),text(event_time(e))]
         if e.get('local_id'): inner.append(btn('改期這筆行程','改期行程 '+str(e['local_id'])))
         rows.append({'type':'box','layout':'vertical','spacing':'sm','paddingAll':'12px','backgroundColor':'#F4F7F6','cornerRadius':'10px','contents':inner})
-    choices=[('確認行程','確認行程'),('放棄行程','放棄行程')] if confirm else [('今日總覽','今天有哪些事'),('更多功能','更多功能')]
+    choices=[('確認行程','確認行程'),('放棄行程','放棄行程')] if confirm else [('今日總覽','今天有哪些事'),('生活助理','生活助理')]
     bubble={'type':'bubble','header':{'type':'box','layout':'vertical','paddingAll':'20px','contents':[text('MR 個人助理',True),text(title,True)]},
         'body':{'type':'box','layout':'vertical','spacing':'md','paddingAll':'16px','contents':rows or [text('近期沒有行程。')]},
         'footer':{'type':'box','layout':'vertical','spacing':'sm','contents':[btn(a,b) for a,b in choices]}}
@@ -94,11 +94,13 @@ def handle(user_id,text,event_id=None,source_type='user'):
         if text=='放棄行程':
             l.gateway('calendar_discard',user_id,event_id)
             return card('已放棄行程草稿',['這次沒有寫入Google日曆。'])
-        if text=='Google日曆':
-            now=l.clock();result=call('GET',params={'timeMin':now.replace(hour=0,minute=0,second=0,microsecond=0).isoformat(),'timeMax':(now+timedelta(days=7)).isoformat(),'singleEvents':'true','orderBy':'startTime','maxResults':10})
+        if text in ('Google日曆','其他天的行程'):
+            now=l.clock()
+            if text=='其他天的行程': now=(now+timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)
+            result=call('GET',params={'timeMin':now.replace(hour=0,minute=0,second=0,microsecond=0).isoformat(),'timeMax':(now+timedelta(days=7)).isoformat(),'singleEvents':'true','orderBy':'startTime','maxResults':10})
             owned={e['event_id']:e['id'] for e in l.gateway('calendar_events',user_id)['events'] if e['calendar_id']==cal}
             events=[{**e,'local_id':owned.get(e['id'])} for e in result.get('items',[]) if e.get('status')!='cancelled']
-            lines=['台北時間｜今天起七天的行程。']
+            lines=['台北時間｜'+('明天起七天的行程。' if text=='其他天的行程' else '今天起七天的行程。')]
             if result.get('nextPageToken'): lines.append('行程較多，這張卡片只列前10筆。')
             return card('Google日曆',lines,events=events)
         if text=='確認行程':

@@ -238,7 +238,7 @@ def handle_text(user_id, text, event_id=None, source_type="user"):
     if os.getenv("LIFEOS_ENABLED") != "1":
         return None
     text = text.strip()
-    explicit = text.startswith(("啟用助理","待辦按鈕 ","待辦操作 ")) or text in ("個人助理","我的待辦","今天有哪些事","今天有什麼事","逾期待辦","新增待辦","提醒設定","測試提醒","更多功能")
+    explicit = text.startswith(("啟用助理","待辦按鈕 ","待辦操作 ")) or text in ("個人助理","我的待辦","今天有哪些事","今天有什麼事","逾期待辦","新增待辦","提醒設定","測試提醒","更多功能","生活助理","其他天的事","今天有哪些是")
     if source_type != "user":
         return "私人待辦僅能在與MR小幫手的一對一聊天室使用。" if explicit else None
     try:
@@ -252,8 +252,8 @@ def handle_text(user_id, text, event_id=None, source_type="user"):
         user = result.get("user")
         if not user:
             return "個人助理尚未綁定。請使用建置者提供的一次性啟用碼。" if explicit else None
-        if text=="更多功能":
-            return "更多功能\n選擇需要的功能；日常直接交代事情，或查看今日總覽。"
+        if text in ("生活助理","更多功能"):
+            return "生活助理\n今天的事：今日待辦與行程\n其他天的事：未來待辦\n其他天的行程：未來七天日曆\n逾期追蹤：之前尚未完成的事\n新增事項：交代要做的事情\n提醒設定：設定與測試通知"
         if text in ("個人助理","助理說明"):
             gateway("mode",user_id,event_id,enabled=True)
             return HELP
@@ -304,12 +304,13 @@ def handle_text(user_id, text, event_id=None, source_type="user"):
         if text in ("放棄草稿","取消草稿"):
             gateway("discard",user_id,event_id)
             return "已放棄草稿，沒有新增待辦。"
-        if text in ("我的待辦","全部待辦","今天有哪些事","今天有什麼事","逾期待辦"):
+        if text in ("我的待辦","全部待辦","今天有哪些事","今天有什麼事","今天有哪些是","其他天的事","逾期待辦"):
             result = gateway("list",user_id)
-            body = summary(result["tasks"],user_id=user_id,mode="all" if text in ("我的待辦","全部待辦") else "overdue" if text=="逾期待辦" else "today")
+            body = summary(result["tasks"],user_id=user_id,mode="all" if text in ("我的待辦","全部待辦") else "overdue" if text=="逾期待辦" else "future" if text=="其他天的事" else "today")
             if result.get("truncated"):
                 body=Digest(str(body)+"\n待辦超過200件，這次僅列前200件。",body.tasks,body.now,body.mode)
                 body.truncated=True
+                body.user_id=user_id
             return body
         change = re.fullmatch(r"(完成|取消|等待|開始)\s*(.+)",text)
         postpone = re.fullmatch(r"延後\s*(.+?)\s*(?:到|至)\s*(.+)",text)
@@ -473,8 +474,8 @@ def button_message(body):
         choices=[("確認存檔","確認存檔"),("放棄草稿","放棄草稿")]
     elif body.startswith("每日提醒目前"):
         choices=[("測試提醒","測試提醒"),("開啟每日提醒","開啟每日提醒"),("關閉每日提醒","關閉每日提醒")]
-    if body.startswith("更多功能"):
-        choices=[("全部待辦","我的待辦"),("操作待辦","待辦按鈕 1"),("查日曆","Google日曆"),("提醒設定","提醒設定")]
+    if body.startswith("生活助理"):
+        choices=[("今天的事","今天有哪些事"),("其他天的事","其他天的事"),("其他天的行程","其他天的行程"),("逾期追蹤","逾期待辦"),("新增事項","新增待辦"),("提醒設定","提醒設定")]
     elif not choices:
         choices=[("今日總覽","今天有哪些事"),("更多功能","更多功能")]
     quick=QuickReply(items=[QuickReplyItem(action=MessageAction(label=label,text=command)) for label,command in choices[:13]])
@@ -527,8 +528,8 @@ def button_message(body):
     if draft: footer=[button("確認存檔","確認存檔",True),button("放棄草稿","放棄草稿")]
     elif body.startswith("待辦操作\n"): footer=[button(label,command,index==0) for index,(label,command) in enumerate(choices[:6])]
     elif body.startswith("每日提醒目前"): footer=[button("測試提醒（1～2分鐘）","測試提醒",True),button("開啟每日提醒","開啟每日提醒"),button("關閉每日提醒","關閉每日提醒")]
-    elif body.startswith("更多功能"): footer=[button(a,b) for a,b in choices]+[button("今日總覽","今天有哪些事",True)]
-    else: footer=[button("今日總覽","今天有哪些事",True),button("更多功能","更多功能")]
+    elif body.startswith("生活助理"): footer=[button(a,b) for a,b in choices]+[button("今日總覽","今天有哪些事",True)]
+    else: footer=[button("今日總覽","今天有哪些事",True),button("生活助理","生活助理")]
     bubble={"type":"bubble","size":"mega","header":{"type":"box","layout":"vertical","paddingAll":"20px","backgroundColor":"#FFFFFF",
         "contents":[text("MR 個人助理","xs","#345C58"),text(heading,"xl","#172B2A","bold")]},
         "body":{"type":"box","layout":"vertical","paddingAll":"16px","contents":content},
@@ -565,6 +566,10 @@ def digest_message(digest):
     future=[t for t in tasks if date(t) and date(t).date()>now.date()]
     unscheduled=[t for t in tasks if not date(t)]
     if digest.mode=='overdue': today=[];future=[];unscheduled=[]
+    elif digest.mode=='today':
+        today=[t for t in tasks if date(t) and date(t).date()==now.date()]
+        overdue=[];future=[];unscheduled=[]
+    elif digest.mode=='future': today=[];overdue=[];unscheduled=[]
     content=[];shown=0;total=len(overdue)+len(today)+len(future)+len(unscheduled)
     def board(title,items,bg,ink):
         nonlocal shown
@@ -576,7 +581,7 @@ def digest_message(digest):
             'contents':[heading]+[row(t) for t in visible]})
     board('今日待辦',today,'#F4F7F6','#345C58')
     board('已逾期',overdue,'#F4F7F6','#345C58')
-    if not today and digest.mode!='overdue': content.append({**tx('今天沒有到期事項','sm','#345C58',True),'margin':'md'})
+    if not today and digest.mode not in ('overdue','future'): content.append({**tx('今天沒有到期事項','sm','#345C58',True),'margin':'md'})
     if future:
         content.append({**tx('接下來的到期時間軸','md','#345C58',True),'margin':'xl'})
         grouped={}
@@ -607,11 +612,11 @@ def digest_message(digest):
             if not events and not note: content.append({**tx('今天沒有安排Google行程。'),'margin':'md'})
             if note: content.append({**tx(note,'xs'),'margin':'md'})
     content.append({**tx('行程來源：Life OS 測試；尚未包含TimeTree及其他LINE聊天室。','xs','#64748B'),'margin':'lg'})
-    title='逾期追蹤' if digest.mode=='overdue' else '我的待辦' if digest.mode=='all' else '今日摘要'
+    title='逾期追蹤' if digest.mode=='overdue' else '其他天的事' if digest.mode=='future' else '我的待辦' if digest.mode=='all' else '今日摘要'
     bubble={'type':'bubble','size':'mega','header':{'type':'box','layout':'vertical','paddingAll':'20px','spacing':'sm','contents':[
         tx('MR 個人助理','xs','#345C58',True),tx(title,'lg','#172B2A',True),tx(label(now),'xl','#172B2A',True),tx('摘要日期','xs','#64748B')]},
         'body':{'type':'box','layout':'vertical','paddingAll':'14px','contents':content},
-        'footer':{'type':'box','layout':'vertical','paddingAll':'14px','spacing':'sm','contents':[btn('新增事項','新增待辦',True),btn('更多功能','更多功能')]}}
-    choices=[('新增事項','新增待辦'),('更多功能','更多功能')]
+        'footer':{'type':'box','layout':'vertical','paddingAll':'14px','spacing':'sm','contents':[btn('新增事項','新增待辦',True),btn('生活助理','生活助理')]}}
+    choices=[('新增事項','新增待辦'),('生活助理','生活助理')]
     return FlexMessage(alt_text=title+'｜'+label(now),contents=FlexContainer.from_dict(bubble),
         quick_reply=QuickReply(items=[QuickReplyItem(action=MessageAction(label=a,text=b)) for a,b in choices]))

@@ -74,7 +74,7 @@ def card(title,lines,confirm=False,events=None):
         inner=[text(e.get('summary','未命名行程'),True),text(event_time(e))]
         if e.get('local_id'): inner.append(btn('改期這筆行程','改期行程 '+str(e['local_id'])))
         rows.append({'type':'box','layout':'vertical','spacing':'sm','paddingAll':'12px','backgroundColor':'#F4F7F6','cornerRadius':'10px','contents':inner})
-    choices=[('確認行程','確認行程'),('放棄行程','放棄行程')] if confirm else [('新增行程','新增行程'),('查日曆','Google日曆'),('今日待辦','今天有哪些事')]
+    choices=[('確認行程','確認行程'),('放棄行程','放棄行程')] if confirm else [('今日總覽','今天有哪些事'),('更多功能','更多功能')]
     bubble={'type':'bubble','header':{'type':'box','layout':'vertical','paddingAll':'20px','contents':[text('MR 個人助理',True),text(title,True)]},
         'body':{'type':'box','layout':'vertical','spacing':'md','paddingAll':'16px','contents':rows or [text('近期沒有行程。')]},
         'footer':{'type':'box','layout':'vertical','spacing':'sm','contents':[btn(a,b) for a,b in choices]}}

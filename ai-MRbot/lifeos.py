@@ -229,7 +229,7 @@ def handle_text(user_id, text, event_id=None, source_type="user"):
     if os.getenv("LIFEOS_ENABLED") != "1":
         return None
     text = text.strip()
-    explicit = text.startswith("啟用助理") or text in ("個人助理","我的待辦","今天有哪些事","今天有什麼事","逾期待辦")
+    explicit = text.startswith(("啟用助理","待辦按鈕 ","待辦操作 ")) or text in ("個人助理","我的待辦","今天有哪些事","今天有什麼事","逾期待辦","新增待辦","提醒設定")
     if source_type != "user":
         return "私人待辦僅能在與MR小幫手的一對一聊天室使用。" if explicit else None
     try:
@@ -254,6 +254,24 @@ def handle_text(user_id, text, event_id=None, source_type="user"):
         commands = ("完成","取消","等待","開始","延後","開啟每日提醒","關閉每日提醒")
         if not user.get("assistant_mode") and not explicit and not text.startswith(commands):
             return None
+        if text == "新增待辦":
+            gateway("mode",user_id,event_id,enabled=True)
+            return "請說明要做的事情與日期，例如「明天買耗材」。\n可按手機鍵盤的麥克風轉成文字，傳送後按「確認存檔」。"
+        if text == "提醒設定":
+            return "每日提醒目前" + ("開啟" if user.get("notifications") else "關閉") + "。\n開啟後上午9點發送未完成待辦摘要，受現有LINE額度限制。請點下方按鈕設定。"
+        page = re.fullmatch(r"待辦按鈕 (\d+)",text)
+        operation = re.fullmatch(r"待辦操作 (\d+)",text)
+        if page:
+            tasks=gateway("list",user_id)["tasks"]
+            index=max(1,int(page.group(1)))
+            if not tasks:
+                return "目前沒有未完成待辦。請點「新增待辦」。"
+            index=min(index,(len(tasks)+7)//8)
+            selected=tasks[(index-1)*8:index*8]
+            return f"選擇要操作的待辦｜第{index}頁\n\n" + "\n\n".join(task_line(t) for t in selected) + (f"\n下一頁：{index+1}" if index*8<len(tasks) else "")
+        if operation:
+            task=choose_task(operation.group(1),gateway("list",user_id)["tasks"])
+            return "待辦操作\n" + task_line(task) + "\n\n請點下方按鈕完成、等待對方或延後。"
         if text in ("開啟每日提醒","關閉每日提醒"):
             enabled = text.startswith("開啟")
             gateway("notifications",user_id,event_id,enabled=enabled)
@@ -348,7 +366,7 @@ def reminder_run(now=None):
         n = claimed["notification"]
         response = requests.post("https://api.line.me/v2/bot/message/push",
             headers={**headers,"X-Line-Retry-Key":n["retry_key"]},
-            json={"to":user["user_id"],"messages":[{"type":"text","text":summary(tasks,now)}]},timeout=15)
+            json={"to":user["user_id"],"messages":[button_message(summary(tasks,now)).to_dict()]},timeout=15)
         ok = response.status_code in (200,409)
         gateway("notification_finish",user["user_id"],notification_id=n["id"],sent=ok)
         if ok:
@@ -375,4 +393,28 @@ def install_routes(app):
         return {"enabled":os.getenv("LIFEOS_ENABLED")=="1",
             "storage_configured":bool(os.getenv("LIFEOS_GATEWAY_KEY") and os.getenv("LIFEOS_GATEWAY_URL")),
             "audio_transcription":False,"paid_ai_api":False,"calendar_sync":False,
-            "version":"2026-10-08-text-mvp"}
+            "version":"2026-10-08-buttons-mvp"}
+
+
+def button_message(body):
+    """LINE quick replies use existing commands, preserving owner checks."""
+    from linebot.v3.messaging import TextMessage, QuickReply, QuickReplyItem, MessageAction
+    choices=[]
+    if body.startswith("待辦操作\n"):
+        match=re.search(r"#(\d+)",body)
+        if match:
+            tid=match.group(1)
+            choices=[("完成這件事",f"完成 {tid}"),("等待對方",f"等待 {tid}"),
+                ("開始處理",f"開始 {tid}"),("延到明天",f"延後 {tid} 到明天"),
+                ("延到下週一",f"延後 {tid} 到下星期一"),("取消這件事",f"取消 {tid}")]
+    elif body.startswith("選擇要操作的待辦"):
+        choices=[(f"{tid} {title}"[:20],f"待辦操作 {tid}") for tid,title in re.findall(r"#(\d+) ([^\n]+)",body)]
+        next_page=re.search(r"下一頁：(\d+)",body)
+        if next_page: choices.append(("下一頁",f"待辦按鈕 {next_page.group(1)}"))
+    elif body.startswith("請確認內容"):
+        choices=[("確認存檔","確認存檔"),("放棄草稿","放棄草稿")]
+    elif body.startswith("每日提醒目前"):
+        choices=[("開啟每日提醒","開啟每日提醒"),("關閉每日提醒","關閉每日提醒")]
+    choices += [("新增待辦","新增待辦"),("今日摘要","今天有哪些事"),
+        ("我的待辦","我的待辦"),("操作待辦","待辦按鈕 1"),("提醒設定","提醒設定")]
+    return TextMessage(text=body,quick_reply=QuickReply(items=[QuickReplyItem(action=MessageAction(label=label,text=command)) for label,command in choices[:13]]))

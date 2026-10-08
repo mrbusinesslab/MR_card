@@ -474,7 +474,7 @@ def handle_message(event):
         private_reply = lifeos.handle_text(user_id, user_msg,
             getattr(event, "webhook_event_id", None), getattr(event.source, "type", "user"))
         if private_reply is not None:
-            reply(line_bot_api, event, TextMessage(text=private_reply))
+            reply(line_bot_api, event, lifeos.button_message(private_reply))
             return
         if user_msg.startswith("查客戶 "):
             user_msg = user_msg.removeprefix("查客戶 ").strip()
@@ -573,7 +573,7 @@ def handle_audio_message(event):
     message = lifeos.handle_audio(user_id, getattr(event.source, "type", "user"))
     if message:
         with ApiClient(configuration) as api_client:
-            reply(MessagingApi(api_client), event, TextMessage(text=message))
+            reply(MessagingApi(api_client), event, lifeos.button_message(message))
 
 
 def callback():

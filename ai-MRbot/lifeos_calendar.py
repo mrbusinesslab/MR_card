@@ -73,7 +73,7 @@ def card(title,lines,confirm=False,events=None):
     for e in events or []:
         inner=[text(e.get('summary','未命名行程'),True),text(event_time(e))]
         if e.get('local_id'): inner.append(btn('改期這筆行程','改期行程 '+str(e['local_id'])))
-        rows.append({'type':'box','layout':'vertical','spacing':'sm','paddingAll':'12px','backgroundColor':'#F4F7F6','cornerRadius':'10px','contents':inner})
+        rows.append({'type':'box','layout':'vertical','spacing':'sm','paddingAll':'12px','backgroundColor':l.category_style(e.get('summary',''))[1],'cornerRadius':'10px','contents':inner})
     choices=[('確認行程','確認行程'),('放棄行程','放棄行程')] if confirm else [('今日總覽','今天有哪些事'),('生活助理','生活助理')]
     bubble={'type':'bubble','header':{'type':'box','layout':'vertical','paddingAll':'20px','contents':[text('MR 個人助理',True),text(title,True)]},
         'body':{'type':'box','layout':'vertical','spacing':'md','paddingAll':'16px','contents':rows or [text('近期沒有行程。')]},
@@ -135,6 +135,8 @@ def handle(user_id,text,event_id=None,source_type='user'):
                 if current.get('recurrence') or current.get('recurringEventId'): raise l.InputError('這版先不更動重複行程。')
                 title=current.get('summary',owned['title']);draft.update(event_id=owned['event_id'],operation='update',etag=current['etag'])
             event={'summary':title,'start':{'dateTime':start.isoformat(),'timeZone':'Asia/Taipei'},'end':{'dateTime':end.isoformat(),'timeZone':'Asia/Taipei'}}
+            group,_=l.category_style(title)
+            if group!='其他': event['colorId']={'美容':'9','新客':'3','商會':'6'}[group]
             draft['event']=event
             l.gateway('calendar_draft',user_id,event_id,payload=draft)
             return card('確認Google行程',[title,event_time(event),'日曆：Life OS 測試','尚未寫入。請確認日期與時間後按「確認行程」。'],confirm=True)
@@ -146,13 +148,14 @@ def handle(user_id,text,event_id=None,source_type='user'):
         if exc.reason in ('conditionNotMet','412'): message='這筆行程在確認前已被更改，這次沒有覆蓋。請重新交代改期。'
         return card('Google日曆尚未完成連接',[message,'狀態：'+exc.reason])
 
-def today_events(user_id,now):
+def today_events(user_id,now,group=None):
     if not user_id or user_id!=config()[2]: return None,None
     try:
         start=now.replace(hour=0,minute=0,second=0,microsecond=0)
-        result=call('GET',params={'timeMin':start.isoformat(),'timeMax':(start+timedelta(days=1)).isoformat(),'singleEvents':'true','orderBy':'startTime','maxResults':8})
+        result=call('GET',params={'timeMin':start.isoformat(),'timeMax':(start+timedelta(days=7 if group else 1)).isoformat(),'singleEvents':'true','orderBy':'startTime','maxResults':100 if group else 8})
         events=[e for e in result.get('items',[]) if e.get('status')!='cancelled']
-        return events,('今日行程只列前8筆，完整內容請查Google日曆。' if result.get('nextPageToken') else None)
+        if group: events=[e for e in events if l.category_style(e.get('summary',''))[0] in (('美容','新客') if group=='美容' else ('商會',))]
+        return events[:8],('行程較多，只列前8筆；完整內容請查Google日曆。' if result.get('nextPageToken') or len(events)>8 else None)
     except CalendarError:
         return [],'目前無法讀取Google行程，請稍後查詢；待辦仍正常顯示。'
 

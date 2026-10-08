@@ -534,7 +534,7 @@ def button_message(body):
         "contents":[text("MR 個人助理","xs","#345C58"),text(heading,"xl","#172B2A","bold")]},
         "body":{"type":"box","layout":"vertical","paddingAll":"16px","contents":content},
         "footer":{"type":"box","layout":"vertical","spacing":"sm","paddingAll":"16px","contents":footer}}
-    return FlexMessage(alt_text=first[:400],contents=FlexContainer.from_dict(bubble),quick_reply=quick)
+    return FlexMessage(alt_text=first[:400],contents=FlexContainer.from_dict(bubble))
 
 
 def digest_message(digest):
@@ -618,5 +618,4 @@ def digest_message(digest):
         'body':{'type':'box','layout':'vertical','paddingAll':'14px','contents':content},
         'footer':{'type':'box','layout':'vertical','paddingAll':'14px','spacing':'sm','contents':[btn('新增事項','新增待辦',True),btn('生活助理','生活助理')]}}
     choices=[('新增事項','新增待辦'),('生活助理','生活助理')]
-    return FlexMessage(alt_text=title+'｜'+label(now),contents=FlexContainer.from_dict(bubble),
-        quick_reply=QuickReply(items=[QuickReplyItem(action=MessageAction(label=a,text=b)) for a,b in choices]))
+    return FlexMessage(alt_text=title+'｜'+label(now),contents=FlexContainer.from_dict(bubble))

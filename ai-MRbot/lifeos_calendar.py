@@ -78,7 +78,7 @@ def card(title,lines,confirm=False,events=None):
     bubble={'type':'bubble','header':{'type':'box','layout':'vertical','paddingAll':'20px','contents':[text('MR 個人助理',True),text(title,True)]},
         'body':{'type':'box','layout':'vertical','spacing':'md','paddingAll':'16px','contents':rows or [text('近期沒有行程。')]},
         'footer':{'type':'box','layout':'vertical','spacing':'sm','contents':[btn(a,b) for a,b in choices]}}
-    return FlexMessage(alt_text=title,contents=FlexContainer.from_dict(bubble),quick_reply=QuickReply(items=[QuickReplyItem(action=MessageAction(label=a,text=b)) for a,b in choices]))
+    return FlexMessage(alt_text=title,contents=FlexContainer.from_dict(bubble))
 
 def handle(user_id,text,event_id=None,source_type='user'):
     text=text.strip()

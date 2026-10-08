@@ -187,6 +187,13 @@ def task_line(task):
     return f"{tag}{task['title']}\n  {deadline(task)}｜{task.get('status','未開始')}"
 
 
+class Digest(str):
+    def __new__(cls,body,tasks,now,mode):
+        value=super().__new__(cls,body)
+        value.tasks=tasks;value.now=now;value.mode=mode
+        return value
+
+
 def summary(tasks, now=None, mode="today"):
     now = now or clock()
     active = [t for t in tasks if t.get("status") not in CLOSED]
@@ -213,7 +220,7 @@ def summary(tasks, now=None, mode="today"):
     # LINE limit is 5000 characters; a truthful truncation notice is required.
     if len(body) > 4500:
         body = body[:4350] + "\n\n內容較多，這份摘要未列完。請先完成部分事項後再查詢。"
-    return body
+    return Digest(body,active,now,mode)
 
 
 def choose_task(target, tasks):
@@ -296,7 +303,10 @@ def handle_text(user_id, text, event_id=None, source_type="user"):
         if text in ("我的待辦","全部待辦","今天有哪些事","今天有什麼事","逾期待辦"):
             result = gateway("list",user_id)
             body = summary(result["tasks"],mode="all" if text in ("我的待辦","全部待辦") else "overdue" if text=="逾期待辦" else "today")
-            return body + ("\n待辦超過200件，這次僅列前200件。" if result.get("truncated") else "")
+            if result.get("truncated"):
+                body=Digest(str(body)+"\n待辦超過200件，這次僅列前200件。",body.tasks,body.now,body.mode)
+                body.truncated=True
+            return body
         change = re.fullmatch(r"(完成|取消|等待|開始)\s*(.+)",text)
         postpone = re.fullmatch(r"延後\s*(.+?)\s*(?:到|至)\s*(.+)",text)
         if change or postpone:
@@ -410,7 +420,7 @@ def install_routes(app):
         return {"enabled":os.getenv("LIFEOS_ENABLED")=="1",
             "storage_configured":bool(os.getenv("LIFEOS_GATEWAY_KEY") and os.getenv("LIFEOS_GATEWAY_URL")),
             "audio_transcription":False,"paid_ai_api":False,"calendar_sync":False,
-            "version":"2026-10-08-test-reminder-mvp"}
+            "version":"2026-10-08-board-timeline-mvp"}
 
 
 def test_reminder_run():
@@ -441,6 +451,7 @@ def test_reminder_run():
 
 def button_message(body):
     """LINE quick replies use existing commands, preserving owner checks."""
+    if isinstance(body,Digest): return digest_message(body)
     from linebot.v3.messaging import FlexMessage, FlexContainer, QuickReply, QuickReplyItem, MessageAction
     choices=[]
     if body.startswith("待辦操作\n"):
@@ -517,3 +528,74 @@ def button_message(body):
         "body":{"type":"box","layout":"vertical","paddingAll":"16px","contents":content},
         "footer":{"type":"box","layout":"vertical","spacing":"sm","paddingAll":"16px","contents":footer}}
     return FlexMessage(alt_text=first[:400],contents=FlexContainer.from_dict(bubble),quick_reply=quick)
+
+
+def digest_message(digest):
+    """Today's deadlines use a board; other dates form a chronological timeline."""
+    from linebot.v3.messaging import FlexMessage,FlexContainer,QuickReply,QuickReplyItem,MessageAction
+    now=digest.now
+    def date(task):
+        return datetime.fromisoformat(task['due_at'].replace('Z','+00:00')).astimezone(TZ) if task.get('due_at') else None
+    def label(d): return d.strftime('%Y/%m/%d')+'（'+'一二三四五六日'[d.weekday()]+'）'
+    def tx(value,size='sm',color='#475569',bold=False):
+        return {'type':'text','text':value,'size':size,'color':color,'weight':'bold' if bold else 'regular','wrap':True}
+    def btn(title,command,primary=False):
+        b={'type':'button','height':'sm','style':'primary' if primary else 'secondary','action':{'type':'message','label':title,'text':command}}
+        if primary: b['color']='#345C58'
+        return b
+    def row(task):
+        d=date(task);state=task.get('status','未開始')
+        detail='到期日：'+label(d) if d else '到期日：待安排'
+        if d and (d.hour,d.minute)!=(23,59): detail+=' '+d.strftime('%H:%M')
+        elements=[tx(task['title'],'md','#172B2A',True),tx(detail,'sm','#475569',True),
+            tx('狀態：'+state,'sm','#9A3412' if state=='等待對方' else '#345C58')]
+        if 'id' in task:
+            tid=str(task['id'])
+            elements.append({'type':'box','layout':'horizontal','spacing':'sm','margin':'md','contents':[btn('完成','完成 '+tid,True),btn('更多操作','待辦操作 '+tid)]})
+        return {'type':'box','layout':'vertical','spacing':'sm','paddingAll':'14px','backgroundColor':'#FFFFFF','cornerRadius':'10px','contents':elements}
+    tasks=sorted(digest.tasks,key=lambda t:(date(t) or datetime.max.replace(tzinfo=TZ),t.get('id',0)))
+    overdue=[t for t in tasks if date(t) and date(t)<now]
+    today=[t for t in tasks if date(t) and date(t)>=now and date(t).date()==now.date()]
+    future=[t for t in tasks if date(t) and date(t).date()>now.date()]
+    unscheduled=[t for t in tasks if not date(t)]
+    if digest.mode=='overdue': today=[];future=[];unscheduled=[]
+    content=[];shown=0;total=len(overdue)+len(today)+len(future)+len(unscheduled)
+    def board(title,items,bg,ink):
+        nonlocal shown
+        if not items: return
+        remaining=max(0,8-shown);visible=items[:remaining];shown+=len(visible)
+        if not visible: return
+        heading={'type':'box','layout':'horizontal','contents':[{**tx(title,'md',ink,True),'flex':2},{**tx(str(len(items))+'件','sm',ink,True),'align':'end','flex':1}]}
+        content.append({'type':'box','layout':'vertical','spacing':'md','paddingAll':'12px','backgroundColor':bg,'cornerRadius':'12px','margin':'md',
+            'contents':[heading]+[row(t) for t in visible]})
+    board('今天到期',today,'#FFF0CB','#7C4A12')
+    board('已逾期',overdue,'#FDE6E2','#9A3412')
+    if not today and digest.mode!='overdue': content.append({**tx('今天沒有到期事項','sm','#345C58',True),'margin':'md'})
+    if future:
+        content.append({**tx('接下來的到期時間軸','md','#345C58',True),'margin':'xl'})
+        grouped={}
+        for task in future: grouped.setdefault(date(task).date(),[]).append(task)
+        for day,items in grouped.items():
+            visible=items[:max(0,8-shown)]
+            if not visible: break
+            shown+=len(visible)
+            d=date(visible[0]);relative='明天' if day==now.date()+timedelta(days=1) else '後天' if day==now.date()+timedelta(days=2) else '到期日'
+            node={'type':'box','layout':'vertical','spacing':'sm','contents':[tx(relative+'｜'+label(d),'sm','#345C58',True)]+[row(t) for t in visible]}
+            content.append({'type':'box','layout':'horizontal','spacing':'md','margin':'md','contents':[
+                {'type':'box','layout':'vertical','width':'14px','alignItems':'center','contents':[tx('●','sm','#345C58'),
+                    {'type':'box','layout':'vertical','width':'2px','height':'120px','backgroundColor':'#C9DDD7','contents':[tx(' ','xxs')]}]},
+                {**node,'flex':1}]})
+    board('待安排日期',unscheduled,'#F1F5F9','#475569')
+    if not tasks or (digest.mode=='overdue' and not overdue): content.append(tx('目前沒有未完成的逾期事項。' if digest.mode=='overdue' else '目前沒有未完成待辦。'))
+    if total>shown: content.append({**tx(f'卡片尚有{total-shown}件未展開，請點「操作待辦」逐頁查看。','xs'),'margin':'md'})
+    if getattr(digest,'truncated',False): content.append(tx('待辦超過200件，這份卡片僅整理前200件。','xs'))
+    content.append({**tx('目前整理的是已記錄待辦；尚未包含TimeTree行程及其他LINE聊天室。','xs','#64748B'),'margin':'lg'})
+    title='逾期追蹤' if digest.mode=='overdue' else '我的待辦' if digest.mode=='all' else '今日摘要'
+    bubble={'type':'bubble','size':'mega','header':{'type':'box','layout':'vertical','paddingAll':'20px','spacing':'sm','contents':[
+        tx('MR 個人助理','xs','#345C58',True),tx(title,'lg','#172B2A',True),tx(label(now),'xl','#172B2A',True),tx('摘要日期','xs','#64748B')]},
+        'body':{'type':'box','layout':'vertical','paddingAll':'14px','contents':content},
+        'footer':{'type':'box','layout':'vertical','paddingAll':'14px','spacing':'sm','contents':[btn('新增待辦','新增待辦',True),
+            {'type':'box','layout':'horizontal','spacing':'sm','contents':[btn('操作待辦','待辦按鈕 1'),btn('提醒設定','提醒設定')]}]}}
+    choices=[('新增待辦','新增待辦'),('今日摘要','今天有哪些事'),('我的待辦','我的待辦'),('操作待辦','待辦按鈕 1'),('提醒設定','提醒設定')]
+    return FlexMessage(alt_text=title+'｜'+label(now),contents=FlexContainer.from_dict(bubble),
+        quick_reply=QuickReply(items=[QuickReplyItem(action=MessageAction(label=a,text=b)) for a,b in choices]))

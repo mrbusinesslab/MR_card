@@ -17,5 +17,8 @@ select cron.schedule('lifeos-test-reminder','* * * * *', $job$
       'Bearer ' || (select decrypted_secret from vault.decrypted_secrets where name='lifeos_cron_key')),
     body := '{}'::jsonb,
     timeout_milliseconds := 20000
+  ) where exists (
+    select 1 from public.lifeos_test_reminders
+    where state<>'sent' and due_at<=now() and due_at>now()-interval '15 minutes'
   );
 $job$);

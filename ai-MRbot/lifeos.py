@@ -420,7 +420,7 @@ def install_routes(app):
         return {"enabled":os.getenv("LIFEOS_ENABLED")=="1",
             "storage_configured":bool(os.getenv("LIFEOS_GATEWAY_KEY") and os.getenv("LIFEOS_GATEWAY_URL")),
             "audio_transcription":False,"paid_ai_api":False,"calendar_sync":False,
-            "version":"2026-10-08-board-timeline-mvp"}
+            "version":"2026-10-08-calendar-pilot"}
 
 
 def test_reminder_run():
@@ -470,7 +470,7 @@ def button_message(body):
     elif body.startswith("每日提醒目前"):
         choices=[("測試提醒","測試提醒"),("開啟每日提醒","開啟每日提醒"),("關閉每日提醒","關閉每日提醒")]
     choices += [("新增待辦","新增待辦"),("今日摘要","今天有哪些事"),
-        ("我的待辦","我的待辦"),("操作待辦","待辦按鈕 1"),("提醒設定","提醒設定")]
+        ("我的待辦","我的待辦"),("操作待辦","待辦按鈕 1"),("提醒設定","提醒設定"),("Google日曆","Google日曆")]
     quick=QuickReply(items=[QuickReplyItem(action=MessageAction(label=label,text=command)) for label,command in choices[:13]])
     def text(value,size="sm",color="#475569",weight="regular"):
         return {"type":"text","text":value or " ","size":size,"color":color,"weight":weight,"wrap":True}
@@ -596,6 +596,6 @@ def digest_message(digest):
         'body':{'type':'box','layout':'vertical','paddingAll':'14px','contents':content},
         'footer':{'type':'box','layout':'vertical','paddingAll':'14px','spacing':'sm','contents':[btn('新增待辦','新增待辦',True),
             {'type':'box','layout':'horizontal','spacing':'sm','contents':[btn('操作待辦','待辦按鈕 1'),btn('提醒設定','提醒設定')]}]}}
-    choices=[('新增待辦','新增待辦'),('今日摘要','今天有哪些事'),('我的待辦','我的待辦'),('操作待辦','待辦按鈕 1'),('提醒設定','提醒設定')]
+    choices=[('新增待辦','新增待辦'),('今日摘要','今天有哪些事'),('我的待辦','我的待辦'),('操作待辦','待辦按鈕 1'),('提醒設定','提醒設定'),('Google日曆','Google日曆')]
     return FlexMessage(alt_text=title+'｜'+label(now),contents=FlexContainer.from_dict(bubble),
         quick_reply=QuickReply(items=[QuickReplyItem(action=MessageAction(label=a,text=b)) for a,b in choices]))

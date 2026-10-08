@@ -6,6 +6,7 @@ from flask import request, abort
 import legacy_app as legacy
 from people_lookup import find_people, get_person, available_categories, category_text, extract_urls
 import lifeos
+import lifeos_calendar
 
 from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
@@ -27,6 +28,7 @@ app = legacy.app
 configuration = legacy.configuration
 handler = WebhookHandler(os.getenv("LINE_CHANNEL_SECRET"))
 lifeos.install_routes(app)
+lifeos_calendar.install_routes(app)
 
 
 def normalize(text):
@@ -471,6 +473,11 @@ def handle_message(event):
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
 
+        calendar_reply = lifeos_calendar.handle(user_id,user_msg,
+            getattr(event,"webhook_event_id",None),getattr(event.source,"type","user"))
+        if calendar_reply is not None:
+            reply(line_bot_api,event,calendar_reply)
+            return
         private_reply = lifeos.handle_text(user_id, user_msg,
             getattr(event, "webhook_event_id", None), getattr(event.source, "type", "user"))
         if private_reply is not None:

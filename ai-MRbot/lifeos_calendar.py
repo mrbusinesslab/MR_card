@@ -12,7 +12,7 @@ from google.auth.transport.requests import AuthorizedSession
 import lifeos as l
 
 TIME_PATTERN=r'(上午|早上|下午|晚上|中午|凌晨)?\s*(\d{1,2}|[零一二兩三四五六七八九十]+)(?:點|時|:|：)(半|\d{1,2}|[一二三四五六七八九十]+)?(?:分)?'
-COMMANDS=('其他天的行程','Google日曆','新增行程','行程 ','確認行程','放棄行程','改期行程','分類行程 ','詳情行程 ')
+COMMANDS=('其他天的行程','Google日曆','新增行程','行程 ','確認行程','仍要新增行程','放棄行程','改期行程','分類行程 ','詳情行程 ')
 
 class CalendarError(Exception):
     def __init__(self,reason): self.reason=reason
@@ -72,6 +72,62 @@ def parse_range(text,now=None,title_required=True):
     title=re.sub(r'^\s*(?:至|到|～|~|-)\s*','',title).strip(' ，,。')
     if title_required and (not title or len(title)>500): raise l.InputError('請提供500字以内的行程名稱。')
     return title,start,end
+
+def parse_booking(text,now=None):
+    now=now or l.clock()
+    times=list(re.finditer(TIME_PATTERN,text))
+    if len(times)!=1: return parse_range(text,now)
+    start,spans=l.parse_date(text,now)
+    if start is None: raise l.InputError('請補上預約日期。')
+    title=''.join(ch for i,ch in enumerate(text) if not any(a<=i<b for a,b in spans)).strip(' ，,。')
+    if l.category_style(title)[0] not in ('美容','新客') or re.search(r'每(?:天|日|週|星期|月|年)',text):
+        raise l.InputError('美容美體可只提供開始時間，預設90分鐘；其他行程請提供開始與結束時間。')
+    if not title or len(title)>500: raise l.InputError('請提供預約名稱。')
+    return title,start,start+timedelta(minutes=90)
+
+def day_bookings(event,exclude_id=None):
+    from datetime import datetime
+    start=datetime.fromisoformat(event['start']['dateTime']).astimezone(l.TZ)
+    end=datetime.fromisoformat(event['end']['dateTime']).astimezone(l.TZ)
+    day=start.replace(hour=0,minute=0,second=0,microsecond=0)
+    until=(end+timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)
+    if end.date()==start.date(): until=day+timedelta(days=1)
+    params={'timeMin':day.isoformat(),'timeMax':until.isoformat(),'singleEvents':'true','orderBy':'startTime','maxResults':250}
+    events=[]
+    for _ in range(10):
+        result=call('GET',params=params)
+        events.extend(e for e in result.get('items',[]) if e.get('status')!='cancelled' and e.get('id')!=exclude_id)
+        token=result.get('nextPageToken')
+        if not token: break
+        params={**params,'pageToken':token}
+    else: raise CalendarError('conflict_check_incomplete')
+    conflicts=[]
+    for e in events:
+        a=e.get('start',{});b=e.get('end',{})
+        if a.get('dateTime') and b.get('dateTime'):
+            left=datetime.fromisoformat(a['dateTime'].replace('Z','+00:00')).astimezone(l.TZ)
+            right=datetime.fromisoformat(b['dateTime'].replace('Z','+00:00')).astimezone(l.TZ)
+        elif a.get('date') and b.get('date'):
+            left=datetime.fromisoformat(a['date']).replace(tzinfo=l.TZ)
+            right=datetime.fromisoformat(b['date']).replace(tzinfo=l.TZ)
+        else: raise CalendarError('conflict_check_incomplete')
+        if left<end and right>start: conflicts.append(e)
+    return events,conflicts
+
+def conflict_key(conflicts):
+    return hashlib.sha256(json.dumps([{'id':e.get('id'),'start':e.get('start'),'end':e.get('end'),'title':e.get('summary'),'etag':e.get('etag')} for e in conflicts],sort_keys=True).encode()).hexdigest()
+
+def preview(draft,user_id,event_id=None):
+    events,conflicts=day_bookings(draft['event'],draft.get('event_id'))
+    if conflicts:
+        draft['conflict_key']=conflict_key(conflicts)
+        l.gateway('calendar_draft',user_id,event_id,payload=draft)
+        lines=['準備新增：'+draft['event']['summary'],event_time(draft['event']),'以下標示「重疊」的預約有時間衝突。仍要新增嗎？']
+        ids={e['id'] for e in conflicts}
+        displayed=[{**e,'summary':('重疊｜' if e['id'] in ids else '')+e.get('summary','未命名行程')} for e in events[:12]]
+        if len(events)>12: lines.append('當天行程較多，下方列前12筆；所有重疊行程：'+ '、'.join(e.get('summary','未命名')+' '+event_time(e) for e in conflicts))
+        return card('預約時間重疊',lines,events=displayed,choices=[('仍要改期' if draft.get('operation')=='update' else '仍要新增','仍要新增行程'),('放棄','放棄行程')])
+    return card('確認Google行程',[draft['event']['summary'],event_time(draft['event']),'尚未寫入；確認後才建立。'],confirm=True)
 
 def event_time(event):
     from datetime import datetime
@@ -135,6 +191,8 @@ def set_category(draft,group):
 def handle(user_id,text,event_id=None,source_type='user'):
     text=text.strip()
     automatic=bool(re.search(TIME_PATTERN+r'\s*(?:到|至|～|~|－|-)\s*'+TIME_PATTERN,text))
+    single_beauty=len(list(re.finditer(TIME_PATTERN,text)))==1 and bool(re.search(r'做臉|做身體|美容預約|美體預約|(?<![A-Za-z])[FB](?![A-Za-z])',text,re.I)) and not re.search(r'前|截止|準備|提醒|要買',text)
+    automatic=automatic or single_beauty
     if not text.startswith(COMMANDS):
         if not automatic or source_type!='user' or user_id!=config()[2]: return None
         text='行程 '+text
@@ -148,7 +206,7 @@ def handle(user_id,text,event_id=None,source_type='user'):
             if not owned or owned['calendar_id']!=cal: raise l.InputError('找不到自己建立的行程。')
             current=call('GET','/'+quote(owned['event_id'],safe=''))
             return card('行程詳情',[current.get('summary',owned['title']),event_time(current)],choices=[('改期','改期行程 '+detail.group(1))])
-        if text=='新增行程': return card('新增Google行程',['請傳送：行程 明天下午2點到下午3點 美容預約','請提供日期、開始與結束時間；確認後才寫入Google日曆。'])
+        if text=='新增行程': return card('新增Google行程',['請傳送：行程 明天下午2點到下午3點 美容預約','美容美體只需開始時間，預設90分鐘；其他行程請提供起訖時間。'])
         if text=='放棄行程':
             l.gateway('calendar_discard',user_id,event_id)
             return card('已放棄行程草稿',['這次沒有寫入Google日曆。'])
@@ -173,12 +231,15 @@ def handle(user_id,text,event_id=None,source_type='user'):
             elif not re.search(r'建築組|商會|BNI|商務引薦',draft['event']['summary'],re.I): group='交流'
             set_category(draft,group)
             l.gateway('calendar_draft',user_id,event_id,payload=draft)
-            return card('確認Google行程',[draft['event']['summary'],event_time(draft['event']),'分類：'+('商會私下交流' if group=='交流' else group),'尚未寫入；確認後才建立。'],confirm=True)
-        if text=='確認行程':
+            return preview(draft,user_id)
+        if text in ('確認行程','仍要新增行程'):
             draft=l.gateway('calendar_get_draft',user_id)['draft']
             if not draft: return card('沒有行程草稿',['請重新交代行程日期與時間。'])
             if draft['calendar_id']!=cal: raise CalendarError('calendar_changed')
             if draft.get('needs_category'): return classification_card(draft)
+            _,conflicts=day_bookings(draft['event'],draft.get('event_id'))
+            if conflicts and (text!='仍要新增行程' or draft.get('conflict_key')!=conflict_key(conflicts)):
+                return preview(draft,user_id)
             key=draft['event_id'];payload=draft['event']
             if draft['operation']=='create':
                 payload=apply_label(payload,draft.get('category'))
@@ -198,7 +259,7 @@ def handle(user_id,text,event_id=None,source_type='user'):
         if update and not update.group(2): return card('請交代新的時間',[f'例如：改期行程 {update.group(1)} 明天下午3點到下午4點'])
         if text.startswith('行程 ') or update:
             value=text.removeprefix('行程 ') if not update else update.group(2)
-            title,start,end=parse_range(value,title_required=not update)
+            title,start,end=parse_range(value,title_required=False) if update else parse_booking(value)
             if not update: title=l.beauty_title(title)
             key=hashlib.sha256((user_id+str(event_id or os.urandom(16).hex())).encode()).hexdigest()
             draft={'calendar_id':cal,'event_id':key,'operation':'create'}
@@ -216,11 +277,12 @@ def handle(user_id,text,event_id=None,source_type='user'):
                 else: set_category(draft,group)
             l.gateway('calendar_draft',user_id,event_id,payload=draft)
             if draft.get('needs_category'): return classification_card(draft)
-            return card('確認Google行程',[title,event_time(event),'日曆：Life OS 測試','尚未寫入。請確認日期與時間後按「確認行程」。'],confirm=True)
+            return preview(draft,user_id)
         return card('行程指令',['請點新增行程或查日曆。'])
     except l.InputError as exc: return card('請補充行程資料',[str(exc)])
     except l.StorageError: return card('行程存檔未確認',['小幫手目前無法讀寫草稿，請稍後再試。'])
     except CalendarError as exc:
+        if exc.reason in ('conflict_check_incomplete','connection_failed'): return card('尚未完成重疊檢查',['目前無法確認行程是否重疊，這次沒有新增。請稍後再試。'])
         message='請確認測試日曆已共用給小幫手服務帳號，並開啟Google Calendar API。'
         if exc.reason in ('conditionNotMet','412'): message='這筆行程在確認前已被更改，這次沒有覆蓋。請重新交代改期。'
         return card('Google日曆尚未完成連接',[message,'狀態：'+exc.reason])

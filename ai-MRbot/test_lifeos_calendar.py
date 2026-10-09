@@ -7,8 +7,29 @@ import lifeos_calendar as c
 
 UID='U'+'1'*32
 NOW=datetime(2026,10,8,15,tzinfo=l.TZ)
+REAL_DAY_BOOKINGS=c.day_bookings
 
 class CalendarTests(unittest.TestCase):
+ def setUp(self):
+  self.bookings=patch("lifeos_calendar.day_bookings",return_value=([],[]));self.bookings.start();self.addCleanup(self.bookings.stop)
+ def test_default_beauty_duration(self):
+  for title in ('林小姐 F','林小姐 B','陳小姐 F+B（新客）'):
+   _,start,end=c.parse_booking('明天下午2點 '+title,NOW)
+   self.assertEqual((end-start).total_seconds(),5400)
+  _,start,end=c.parse_booking('明天下午2點到下午3點 林小姐 F',NOW)
+  self.assertEqual((end-start).total_seconds(),3600)
+ def test_overlap_requires_second_confirmation(self):
+  event={'id':'busy','summary':'林小姐 F','start':{'dateTime':'2026-10-09T14:00:00+08:00'},'end':{'dateTime':'2026-10-09T15:30:00+08:00'}}
+  draft={'calendar_id':'cal','event_id':'new','operation':'create','event':event}
+  with patch.dict(os.environ,{'LIFEOS_GOOGLE_USER_ID':UID,'LIFEOS_GOOGLE_CALENDAR_ID':'cal'}),patch('lifeos.gateway') as db,patch('lifeos_calendar.call') as api,patch('lifeos_calendar.day_bookings',return_value=([event],[event])):
+   db.side_effect=[{'draft':draft},{'ok':True}]
+   self.assertEqual(c.handle(UID,'確認行程').alt_text,'預約時間重疊');api.assert_not_called()
+ def test_adjacent_events_do_not_overlap(self):
+  target={'start':{'dateTime':'2026-10-09T14:00:00+08:00'},'end':{'dateTime':'2026-10-09T15:30:00+08:00'}}
+  events=[{'id':'adjacent','start':{'dateTime':'2026-10-09T13:00:00+08:00'},'end':{'dateTime':'2026-10-09T14:00:00+08:00'}},{'id':'overlap','start':{'dateTime':'2026-10-09T15:00:00+08:00'},'end':{'dateTime':'2026-10-09T16:00:00+08:00'}}]
+  with patch('lifeos_calendar.call',return_value={'items':events}):
+   _,conflicts=REAL_DAY_BOOKINGS(target)
+   self.assertEqual([e['id'] for e in conflicts],['overlap'])
  def test_parse(self):
   title,start,end=c.parse_range('明天下午2點到下午3點 美容預約',NOW)
   self.assertEqual(title,'美容預約');self.assertEqual(start.hour,14);self.assertEqual(end.hour,15)

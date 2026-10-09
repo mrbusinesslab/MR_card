@@ -710,6 +710,32 @@ def digest_message(digest):
             tid=str(task['id'])
             elements.append({'type':'box','layout':'horizontal','spacing':'sm','margin':'md','contents':[btn('完成','完成 '+tid,True),btn('取消','取消 '+tid),btn('延期','延期 '+tid)]})
         return result
+    if digest.mode in ('week','month'):
+        from urllib.parse import urlencode
+        import lifeos_calendar as calendar
+        start,end=period_bounds(now,digest.mode)
+        title='本周' if digest.mode=='week' else '本月'
+        period_label=label(start)+'～'+label(end-timedelta(days=1))
+        pending=sorted([t for t in digest.tasks if date(t) and start<=date(t)<end and date(t)>=now],key=lambda t:(date(t),t.get('id',0)))
+        expired=sorted([t for t in digest.tasks if date(t) and date(t)<now],key=lambda t:(date(t),t.get('id',0)))
+        pages=[]
+        def page(heading,contents):
+            return {'type':'bubble','size':'mega','header':{'type':'box','layout':'vertical','paddingAll':'20px','spacing':'sm','contents':[tx(heading,'lg','#172B2A',True),tx(period_label,'sm')]},'body':{'type':'box','layout':'vertical','paddingAll':'14px','spacing':'md','contents':contents}}
+        for heading,items in ((title+'待辦',pending),('逾期事項',expired)):
+            chunks=[items[i:i+4] for i in range(0,len(items),4)] or [[]]
+            for index,chunk in enumerate(chunks[:5]):
+                content=[row(t) for t in chunk] or [tx('這段期間沒有到期待辦。' if heading!= '逾期事項' else '目前沒有逾期事項。')]
+                if index==4 and len(items)>20:
+                    content.extend([tx('另有'+str(len(items)-20)+'件，請查看完整待辦。','xs'),btn('查看完整待辦','待辦按鈕 1')])
+                pages.append(page(heading+('｜'+str(index+1) if len(chunks)>1 else ''),content))
+        if getattr(digest,'truncated',False):
+            pages[0]['body']['contents'].append(tx('待辦超過200件，僅整理前200件。','xs'))
+        _,cal,approved=calendar.config()
+        if cal and getattr(digest,'user_id',None)==approved:
+            view='week' if digest.mode=='week' else 'month'
+            url='https://calendar.google.com/calendar/u/0/r/'+view+'/'+now.strftime('%Y/%m/%d')+'?'+urlencode({'cid':cal})
+            pages.append(page(title+'行程',[tx('開啟 Google 日曆，查看目前最新的行程。','md','#172B2A',True),{'type':'button','style':'primary','color':'#345C58','action':{'type':'uri','label':'開啟'+title+'日曆','uri':url}}]))
+        return FlexMessage(alt_text=title+'｜'+period_label,contents=FlexContainer.from_dict({'type':'carousel','contents':pages}))
     selected=digest.tasks
     if digest.mode in ("美容","商會"):
         selected=[t for t in selected if category_style(t["title"],t.get("category"))[0] in (("美容","新客") if digest.mode=="美容" else ("商會","交流"))]
@@ -787,3 +813,4 @@ def digest_message(digest):
             pages.append({'type':'bubble','size':'mega','header':{'type':'box','layout':'vertical','paddingAll':'20px','contents':[tx(title+'行程｜第'+str(offset//8+2)+'頁','lg','#172B2A',True)]},'body':{'type':'box','layout':'vertical','paddingAll':'14px','spacing':'md','contents':[calendar.event_row(e,show_date=True) for e in extra_events[offset:offset+8]]}})
         output={'type':'carousel','contents':pages}
     return FlexMessage(alt_text=title+'｜'+label(now+timedelta(days=1) if digest.mode=='tomorrow' else now),contents=FlexContainer.from_dict(output))
+

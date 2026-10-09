@@ -77,6 +77,20 @@ class HandlerTests(unittest.TestCase):
         self.assertFalse(app.test_client().get('/lifeos/health').json['audio_transcription'])
 
 class SimpleInteractionTests(unittest.TestCase):
+    def test_menu_only_five_buttons(self):
+        card=l.button_message('生活助理').to_dict()['contents']
+        self.assertNotIn('header',card);self.assertNotIn('footer',card)
+        self.assertEqual([b['action']['label'] for b in card['body']['contents']],['今天','本周','本月','逾期事項','提醒設定'])
+    def test_week_and_month_boundaries(self):
+        start,end=l.period_bounds(NOW,'week')
+        self.assertEqual((start.day,end.day),(5,12))
+        start,end=l.period_bounds(NOW,'month')
+        self.assertEqual((start.month,start.day,end.month,end.day),(10,1,11,1))
+    def test_week_excludes_other_dates(self):
+        tasks=[{'id':i,'title':title,'status':'未開始','due_at':date} for i,title,date in [(1,'本周事情','2026-10-10T18:00:00+08:00'),(2,'下周事情','2026-10-12T18:00:00+08:00')]]
+        with patch('lifeos_calendar.today_events',return_value=(None,None)):
+            card=str(l.digest_message(l.summary(tasks,NOW,mode='week')).to_dict())
+        self.assertIn('本周事情',card);self.assertNotIn('下周事情',card)
     def test_detail_has_only_three_actions(self):
         message=l.button_message('待辦操作\n#12 傳資料\n  2026/10/09 18:00｜未開始').to_dict()
         buttons=message['contents']['footer']['contents']
@@ -87,7 +101,9 @@ class SimpleInteractionTests(unittest.TestCase):
             msg=l.digest_message(l.summary([task],NOW)).to_dict()
         self.assertNotIn('footer',msg['contents'])
         self.assertNotIn('更多操作',str(msg));self.assertNotIn('#AC93CC',str(msg))
-        self.assertIn('待辦操作 12',str(msg))
+        self.assertIn('延期 12',str(msg))
+        self.assertIn('取消 12',str(msg))
+        self.assertIn('完成 12',str(msg))
     @patch.dict(os.environ,{'LIFEOS_ENABLED':'1'})
     @patch('lifeos.gateway')
     @patch('lifeos.clock',return_value=NOW)

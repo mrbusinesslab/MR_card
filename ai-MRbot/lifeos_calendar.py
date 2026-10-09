@@ -225,11 +225,13 @@ def handle(user_id,text,event_id=None,source_type='user'):
         if exc.reason in ('conditionNotMet','412'): message='這筆行程在確認前已被更改，這次沒有覆蓋。請重新交代改期。'
         return card('Google日曆尚未完成連接',[message,'狀態：'+exc.reason])
 
-def today_events(user_id,now,group=None):
+def today_events(user_id,now,group=None,period=None):
     if not user_id or user_id!=config()[2]: return None,None
     try:
         start=now.replace(hour=0,minute=0,second=0,microsecond=0)
-        result=call('GET',params={'timeMin':start.isoformat(),'timeMax':(start+timedelta(days=7 if group else 1)).isoformat(),'singleEvents':'true','orderBy':'startTime','maxResults':100 if group else 8})
+        end=start+timedelta(days=7 if group else 1)
+        if period: start,end=l.period_bounds(now,period)
+        result=call('GET',params={'timeMin':start.isoformat(),'timeMax':end.isoformat(),'singleEvents':'true','orderBy':'startTime','maxResults':100 if group else 8})
         events=[e for e in result.get('items',[]) if e.get('status')!='cancelled']
         if group: events=[e for e in events if l.category_style(e.get('summary',''),e.get('extendedProperties',{}).get('private',{}).get('lifeos_category'))[0] in (('美容','新客') if group=='美容' else ('商會','交流'))]
         owned={e['event_id']:e['id'] for e in l.gateway('calendar_events',user_id)['events'] if e['calendar_id']==config()[1]}

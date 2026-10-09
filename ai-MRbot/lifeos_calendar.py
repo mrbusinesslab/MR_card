@@ -65,15 +65,36 @@ def event_time(event):
         return a.strftime('%Y/%m/%d')+'（'+'一二三四五六日'[a.weekday()]+'） '+a.strftime('%H:%M')+'～'+b.strftime('%H:%M')
     return start.get('date','日期未提供')+' 全天'
 
+def event_row(event,show_date=False):
+    from datetime import datetime
+    title=event.get('summary','未命名行程')
+    group,_=l.category_style(title)
+    ink=l.category_ink(title)
+    def tx(value,color='#172B2A',size='sm',bold=False):
+        return {'type':'text','text':value,'size':size,'color':color,'weight':'bold' if bold else 'regular','wrap':True}
+    start=event.get('start',{});end=event.get('end',{})
+    if start.get('dateTime'):
+        a=datetime.fromisoformat(start['dateTime'].replace('Z','+00:00')).astimezone(l.TZ)
+        b=datetime.fromisoformat(end['dateTime'].replace('Z','+00:00')).astimezone(l.TZ)
+        times=[tx(a.strftime('%H:%M'),bold=True),tx(b.strftime('%H:%M'),'#94A3B8')]
+        date=a.strftime('%m/%d')+'（'+'一二三四五六日'[a.weekday()]+'）'
+    else:
+        times=[tx('全天',bold=True)];date=start.get('date','日期未提供')
+    details=([tx(date,'#64748B','xs')] if show_date else [])+[tx(title,size='md',bold=True)]
+    if event.get('local_id'):
+        details.append({'type':'button','height':'sm','style':'link','color':'#64748B','action':{'type':'message','label':'改期','text':'改期行程 '+str(event['local_id'])}})
+    return {'type':'box','layout':'horizontal','spacing':'md','margin':'lg','paddingAll':'4px','contents':[
+        {'type':'box','layout':'vertical','width':'54px','spacing':'sm','contents':times},
+        {'type':'box','layout':'vertical','width':'3px','height':'52px','backgroundColor':ink,'contents':[]},
+        {'type':'box','layout':'vertical','spacing':'sm','flex':1,'contents':details}]}
+
 def card(title,lines,confirm=False,events=None):
     from linebot.v3.messaging import FlexMessage,FlexContainer,QuickReply,QuickReplyItem,MessageAction
     def text(value,bold=False): return {'type':'text','text':value,'size':'md' if bold else 'sm','weight':'bold' if bold else 'regular','color':'#172B2A','wrap':True}
     def btn(label,command): return {'type':'button','style':'secondary','height':'sm','action':{'type':'message','label':label,'text':command}}
     rows=[text(x) for x in lines]
     for e in events or []:
-        inner=[{**text(e.get('summary','未命名行程'),True),'color':l.category_ink(e.get('summary',''))},text(event_time(e))]
-        if e.get('local_id'): inner.append(btn('改期這筆行程','改期行程 '+str(e['local_id'])))
-        rows.append({'type':'box','layout':'vertical','spacing':'sm','paddingAll':'12px','backgroundColor':l.category_style(e.get('summary',''))[1],'cornerRadius':'10px','contents':inner})
+        rows.append(event_row(e,show_date=True))
     choices=[('確認行程','確認行程'),('放棄行程','放棄行程')] if confirm else [('今日總覽','今天有哪些事'),('生活助理','生活助理')]
     bubble={'type':'bubble','header':{'type':'box','layout':'vertical','paddingAll':'20px','contents':[text('MR 個人助理',True),text(title,True)]},
         'body':{'type':'box','layout':'vertical','spacing':'md','paddingAll':'16px','contents':rows or [text('近期沒有行程。')]},
@@ -137,7 +158,7 @@ def handle(user_id,text,event_id=None,source_type='user'):
                 title=current.get('summary',owned['title']);draft.update(event_id=owned['event_id'],operation='update',etag=current['etag'])
             event={'summary':title,'start':{'dateTime':start.isoformat(),'timeZone':'Asia/Taipei'},'end':{'dateTime':end.isoformat(),'timeZone':'Asia/Taipei'}}
             group,_=l.category_style(title)
-            if group!='其他': event['colorId']={'美容':'9','新客':'3','商會':'6'}[group]
+            if group!='其他': event['colorId']={'美容':'9','新客':'3','商會':'6','交流':'2'}[group]
             draft['event']=event
             l.gateway('calendar_draft',user_id,event_id,payload=draft)
             return card('確認Google行程',[title,event_time(event),'日曆：Life OS 測試','尚未寫入。請確認日期與時間後按「確認行程」。'],confirm=True)
@@ -155,7 +176,7 @@ def today_events(user_id,now,group=None):
         start=now.replace(hour=0,minute=0,second=0,microsecond=0)
         result=call('GET',params={'timeMin':start.isoformat(),'timeMax':(start+timedelta(days=7 if group else 1)).isoformat(),'singleEvents':'true','orderBy':'startTime','maxResults':100 if group else 8})
         events=[e for e in result.get('items',[]) if e.get('status')!='cancelled']
-        if group: events=[e for e in events if l.category_style(e.get('summary',''))[0] in (('美容','新客') if group=='美容' else ('商會',))]
+        if group: events=[e for e in events if l.category_style(e.get('summary',''))[0] in (('美容','新客') if group=='美容' else ('商會','交流'))]
         return events[:8],('行程較多，只列前8筆；完整內容請查Google日曆。' if result.get('nextPageToken') or len(events)>8 else None)
     except CalendarError:
         return [],'目前無法讀取Google行程，請稍後查詢；待辦仍正常顯示。'

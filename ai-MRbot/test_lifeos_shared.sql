@@ -29,7 +29,9 @@ begin
  update lifeos_users set share_tasks=false where user_id=a;
  assert not lifeos_can_access(b,a,'task') and lifeos_can_access(b,a,'calendar'),'Independent switches failed';
  assert lifeos_dispatch(jsonb_build_object('action','update','user_id',b,'task_id',tid,'status','取消'))->>'error'='not_found','Private task writable';
+ perform lifeos_calendar_dispatch(jsonb_build_object('action','calendar_draft','user_id',b,'payload',jsonb_build_object('operation','update','calendar_id','verification','event_id',code)));
  update lifeos_users set share_calendar=false where user_id=a;
+ assert lifeos_calendar_dispatch(jsonb_build_object('action','calendar_get_draft','user_id',b))->'draft'='null'::jsonb,'Old shared draft survived privacy switch';
  assert lifeos_calendar_dispatch(jsonb_build_object('action','calendar_event','user_id',b,'id',cid))->'event'='null'::jsonb,'Private calendar readable';
  assert exists(select 1 from lifeos_change_log where record_id=cid and entity='lifeos_calendar_events' and creator=a and actor=b),'Calendar audit missing';
  assert exists(select 1 from lifeos_change_log where record_id=tid and entity='lifeos_tasks' and creator=a and actor=b),'Task audit missing';

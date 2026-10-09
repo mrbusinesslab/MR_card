@@ -276,7 +276,7 @@ def handle_text(user_id, text, event_id=None, source_type="user"):
     if os.getenv("LIFEOS_ENABLED") != "1":
         return None
     text = text.strip()
-    explicit = text.startswith(("啟用助理","待辦按鈕 ","待辦操作 ","延期 ")) or text in ("個人助理","我的待辦","今天有哪些事","今天有什麼事","逾期待辦","新增待辦","提醒設定","測試提醒","更多功能","生活助理","其他天的事","今天有哪些是","今天的事","今天","本周","本週","本月","逾期事項","停止延期","美容","商會")
+    explicit = text.startswith(("啟用助理","待辦按鈕 ","待辦操作 ","延期 ","確認取消 ")) or text in ("個人助理","我的待辦","今天有哪些事","今天有什麼事","逾期待辦","新增待辦","提醒設定","測試提醒","更多功能","生活助理","其他天的事","今天有哪些是","今天的事","今天","本周","本週","本月","逾期事項","停止延期","美容","商會")
     if source_type != "user":
         return "私人待辦僅能在與MR小幫手的一對一聊天室使用。" if explicit else None
     try:
@@ -371,15 +371,17 @@ def handle_text(user_id, text, event_id=None, source_type="user"):
                 body.truncated=True
                 body.user_id=user_id
             return body
-        change = re.fullmatch(r"(完成|取消|等待|開始)\s*(.+)",text)
+        change = re.fullmatch(r"(完成|取消|確認取消|等待|開始)\s*(.+)",text)
         postpone = re.fullmatch(r"延後\s*(.+?)\s*(?:到|至)\s*(.+)",text)
         if change or postpone:
             tasks = gateway("list",user_id,include_closed=True)["tasks"]
             target = change.group(2) if change else postpone.group(1)
             task = choose_task(target,tasks)
             if task["status"] in CLOSED: return "目前狀態："+task["status"]+"\n"+task["title"]
+            if change and change.group(1)=="取消":
+                return "確認取消待辦\n"+task_line(task)+"\n\n確定取消這件事？"
             if change:
-                state = {"完成":"完成","取消":"取消","等待":"等待對方","開始":"進行中"}[change.group(1)]
+                state = {"完成":"完成","取消":"取消","確認取消":"取消","等待":"等待對方","開始":"進行中"}[change.group(1)]
                 result = gateway("update",user_id,event_id,task_id=task["id"],status=state)
             else:
                 date, _ = parse_date(postpone.group(2))
@@ -547,7 +549,10 @@ def button_message(body):
     if isinstance(body,Digest): return digest_message(body)
     from linebot.v3.messaging import FlexMessage, FlexContainer, QuickReply, QuickReplyItem, MessageAction
     choices=[]
-    if body.startswith("待辦操作\n"):
+    if body.startswith("確認取消待辦\n"):
+        match=re.search(r"#(\d+)",body)
+        if match: choices=[("確定取消","確認取消 "+match.group(1)),("保留待辦","待辦操作 "+match.group(1))]
+    elif body.startswith("待辦操作\n"):
         match=re.search(r"#(\d+)",body)
         if match:
             tid=match.group(1)
@@ -593,7 +598,7 @@ def button_message(body):
             row=[text(title,"md","#172B2A","bold"),
                 {"type":"box","layout":"horizontal","margin":"md","contents":[
                   {**text(date,"sm"),"flex":3}, {**text(state,"xs",badge_color,"bold"),"flex":2,"align":"end"}]}]
-            if match and state not in CLOSED and not body.startswith(('待辦操作\n','已更新','已延期','已存檔')):
+            if match and state not in CLOSED and not body.startswith(('確認取消待辦\n','待辦操作\n','已更新','已延期','已存檔')):
                 row[0]['action']={'type':'message','label':'查看待辦','text':'待辦操作 '+match.group(1)}
             content.append({"type":"box","layout":"vertical","paddingAll":"16px","cornerRadius":"12px",
                 "backgroundColor":"#F4F7F6","contents":row,"margin":"md"})
@@ -606,8 +611,14 @@ def button_message(body):
             i+=1
     if omitted: content.append(text(f"這張卡片另有{omitted}項未展開，請點「操作待辦」逐頁查看。","xs"))
     if not content: content=[text(first)]
-    if body=="生活助理": content=[button(a,b) for a,b in choices]
+    if body=="生活助理":
+        def menu_item(label,command,primary=False):
+            return {'type':'box','layout':'horizontal','paddingAll':'16px','backgroundColor':'#345C58' if primary else '#F4F7F6','cornerRadius':'10px','action':{'type':'message','label':label,'text':command},'contents':[text(label,'md','#FFFFFF' if primary else '#172B2A','bold'),{**text('›','lg','#FFFFFF' if primary else '#94A3B8'),'align':'end','flex':0}]}
+        content=[menu_item(a,b,i==0) for i,(a,b) in enumerate(choices[:3])]
+        content.append({'type':'separator','margin':'lg'})
+        content.append({'type':'box','layout':'horizontal','spacing':'md','margin':'lg','contents':[menu_item(a,b) for a,b in choices[3:]]})
     if draft: footer=[button("確認存檔","確認存檔",True),button("放棄草稿","放棄草稿")]
+    elif body.startswith("確認取消待辦\n"): footer=[button(a,b) for a,b in choices]
     elif body.startswith("待辦操作\n"): footer=[button(label,command,index==0) for index,(label,command) in enumerate(choices[:6])]
     elif body.startswith("每日提醒目前"): footer=[button("測試提醒（1～2分鐘）","測試提醒",True),button("開啟每日提醒","開啟每日提醒"),button("關閉每日提醒","關閉每日提醒")]
     elif body=="生活助理": footer=[]
@@ -615,7 +626,7 @@ def button_message(body):
     else: footer=[]
     bubble={"type":"bubble","size":"mega","header":{"type":"box","layout":"vertical","paddingAll":"20px","backgroundColor":"#FFFFFF",
         "contents":[text("MR 個人助理","xs","#345C58"),text(heading,"xl","#172B2A","bold")]},
-        "body":{"type":"box","layout":"vertical","paddingAll":"16px","contents":content},
+        "body":{"type":"box","layout":"vertical","paddingAll":"16px","spacing":"sm","contents":content},
         "footer":{"type":"box","layout":"vertical","spacing":"sm","paddingAll":"16px","contents":footer}}
     if not footer: bubble.pop("footer",None)
     if body=="生活助理": bubble.pop("header",None)
@@ -632,15 +643,14 @@ def digest_message(digest):
     def tx(value,size='sm',color='#475569',bold=False):
         return {'type':'text','text':value,'size':size,'color':color,'weight':'bold' if bold else 'regular','wrap':True}
     def btn(title,command,primary=False):
-        b={'type':'button','height':'sm','style':'primary' if primary else 'secondary','action':{'type':'message','label':title,'text':command}}
+        b={'type':'button','height':'sm','style':'primary' if primary else 'link' if title=='取消' else 'secondary','action':{'type':'message','label':title,'text':command}}
         if primary: b['color']='#345C58'
         return b
     def row(task):
         d=date(task);state=task.get('status','未開始')
         detail='到期日：'+label(d) if d else '到期日：待安排'
         if d and (d.hour,d.minute)!=(23,59): detail+=' '+d.strftime('%H:%M')
-        elements=[tx(task['title'],'md','#172B2A',True),tx(detail,'sm','#475569',True),
-            tx('狀態：'+state,'sm','#345C58')]
+        elements=[tx(task['title'],'md','#172B2A',True),tx(detail,'sm','#475569',True)]
         result={'type':'box','layout':'vertical','spacing':'sm','paddingAll':'14px','backgroundColor':'#FFFFFF','cornerRadius':'10px','contents':elements}
         if 'id' in task:
             tid=str(task['id'])

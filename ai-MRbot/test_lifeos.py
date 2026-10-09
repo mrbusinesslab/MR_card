@@ -80,7 +80,9 @@ class SimpleInteractionTests(unittest.TestCase):
     def test_menu_only_five_buttons(self):
         card=l.button_message('生活助理').to_dict()['contents']
         self.assertNotIn('header',card);self.assertNotIn('footer',card)
-        self.assertEqual([b['action']['label'] for b in card['body']['contents']],['今天','本周','本月','逾期事項','提醒設定'])
+        rows=card['body']['contents']
+        self.assertEqual([r['action']['label'] for r in rows[:3]],['今天','本周','本月'])
+        self.assertEqual([r['action']['label'] for r in rows[-1]['contents']],['逾期事項','提醒設定'])
     def test_week_and_month_boundaries(self):
         start,end=l.period_bounds(NOW,'week')
         self.assertEqual((start.day,end.day),(5,12))
@@ -91,6 +93,15 @@ class SimpleInteractionTests(unittest.TestCase):
         with patch('lifeos_calendar.today_events',return_value=(None,None)):
             card=str(l.digest_message(l.summary(tasks,NOW,mode='week')).to_dict())
         self.assertIn('本周事情',card);self.assertNotIn('下周事情',card)
+    @patch.dict(os.environ,{'LIFEOS_ENABLED':'1'})
+    @patch('lifeos.gateway')
+    def test_cancel_requires_confirmation(self,g):
+        task={'id':12,'title':'傳資料','status':'未開始'}
+        g.side_effect=[{'user':{'assistant_mode':True}},{'tasks':[task]}]
+        result=l.handle_text(UID,'取消 12','evt')
+        self.assertIn('確定取消',result);self.assertEqual(g.call_count,2)
+        buttons=l.button_message(result).to_dict()['contents']['footer']['contents']
+        self.assertEqual(buttons[0]['action']['text'],'確認取消 12')
     def test_detail_has_only_three_actions(self):
         message=l.button_message('待辦操作\n#12 傳資料\n  2026/10/09 18:00｜未開始').to_dict()
         buttons=message['contents']['footer']['contents']

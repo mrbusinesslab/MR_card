@@ -22,6 +22,30 @@ def config():
     except ValueError: info={}
     return info,os.getenv('LIFEOS_GOOGLE_CALENDAR_ID',''),os.getenv('LIFEOS_GOOGLE_USER_ID','')
 
+def calendar_access(user_id):
+    approved=config()[2]
+    if not approved or not user_id: return False
+    if user_id==approved: return True
+    try:
+        user=l.gateway('get_user',user_id).get('user')
+        return isinstance(user,dict) and user.get('shared_owner')==approved
+    except l.StorageError:
+        return False
+
+def actor_metadata(event,user_id,creating=False):
+    extended=event.get('extendedProperties',{})
+    private={**extended.get('private',{})}
+    if creating: private.setdefault('lifeos_created_by',user_id)
+    private['lifeos_modified_by']=user_id
+    return {**extended,'private':private}
+
+def visible_events(user_id,events):
+    user=l.gateway('get_user',user_id).get('user')
+    if isinstance(user,dict) and user.get('calendar_shared') is False:
+        allowed={e['event_id'] for e in l.gateway('calendar_events',user_id)['events'] if e['calendar_id']==config()[1]}
+        return [e for e in events if e.get('id') in allowed]
+    return events
+
 def call(method,path='',body=None,params=None,etag=None,calendar_metadata=False):
     info,cal,_=config()
     if not info.get('client_email') or not cal: raise CalendarError('not_configured')
@@ -254,11 +278,11 @@ def handle(user_id,text,event_id=None,source_type='user'):
     automatic=automatic or single_beauty
     named=bool(name_move or name_cancel)
     if not text.startswith(COMMANDS):
-        if not (automatic or named) or source_type!='user' or user_id!=config()[2]: return None
+        if not (automatic or named) or source_type!='user' or not calendar_access(user_id): return None
         if not named: text='行程 '+text
     if source_type!='user': return card('私人日曆',['請在一對一聊天室使用。'])
     _,cal,approved=config()
-    if not approved or user_id!=approved: return card('Google日曆尚未啟用',['目前只開放建置者的測試帳號。'])
+    if not calendar_access(user_id): return card('Google日曆尚未啟用',['請先使用管理者提供的啟用碼加入Life OS。'])
     try:
         if named:
             name=(name_move or name_cancel).group(1).strip()
@@ -283,13 +307,13 @@ def handle(user_id,text,event_id=None,source_type='user'):
             if not draft or draft.get('operation')!='cancel' or draft['calendar_id']!=cal: raise l.InputError('沒有待確認的取消預約。')
             current=call('GET','/'+quote(draft['event_id'],safe=''))
             if current.get('status')!='cancelled':
-                call('PATCH','/'+quote(draft['event_id'],safe=''),body={'status':'cancelled'},params={'sendUpdates':'none'},etag=draft['etag'])
+                call('PATCH','/'+quote(draft['event_id'],safe=''),body={'status':'cancelled','extendedProperties':actor_metadata(current,user_id)},params={'sendUpdates':'none'},etag=draft['etag'])
             l.gateway('calendar_save',user_id,calendar_id=cal,event_id=draft['event_id'],title=draft['event']['summary'])
             return card('預約已取消',[draft['event']['summary'],event_time(draft['event']),'Google日曆已同步取消。'])
         detail=re.fullmatch(r'詳情行程 (\d+)',text)
         if detail:
             owned=l.gateway('calendar_event',user_id,id=int(detail.group(1)))['event']
-            if not owned or owned['calendar_id']!=cal: raise l.InputError('找不到自己建立的行程。')
+            if not owned or owned['calendar_id']!=cal: raise l.InputError('找不到可操作的行程。')
             current=call('GET','/'+quote(owned['event_id'],safe=''))
             return card('行程詳情',[current.get('summary',owned['title']),event_time(current)],choices=[('改期','改期行程 '+detail.group(1))])
         if text=='新增行程': return card('新增Google行程',['請傳送：行程 明天下午2點到下午3點 美容預約','美容美體只需開始時間：F或B預設90分鐘、F+B預設180分鐘；其他行程請提供起訖時間。'])
@@ -301,7 +325,7 @@ def handle(user_id,text,event_id=None,source_type='user'):
             if text=='其他天的行程': now=(now+timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0)
             result=call('GET',params={'timeMin':now.replace(hour=0,minute=0,second=0,microsecond=0).isoformat(),'timeMax':(now+timedelta(days=7)).isoformat(),'singleEvents':'true','orderBy':'startTime','maxResults':10})
             owned={e['event_id']:e['id'] for e in l.gateway('calendar_events',user_id)['events'] if e['calendar_id']==cal}
-            events=[{**e,'local_id':owned.get(e['id'])} for e in result.get('items',[]) if e.get('status')!='cancelled']
+            events=[{**e,'local_id':owned.get(e['id'])} for e in visible_events(user_id,result.get('items',[])) if e.get('status')!='cancelled']
             lines=['台北時間｜'+('明天起七天的行程。' if text=='其他天的行程' else '今天起七天的行程。')]
             if result.get('nextPageToken'): lines.append('行程較多，這張卡片只列前10筆。')
             return card('Google日曆',lines,events=events)
@@ -332,7 +356,7 @@ def handle(user_id,text,event_id=None,source_type='user'):
             key=draft['event_id'];payload=draft['event']
             if draft['operation']=='create':
                 payload=apply_label(payload,draft.get('category'))
-                try: event=call('POST',body={**payload,'id':key},params={'sendUpdates':'none'})
+                try: event=call('POST',body={**payload,'id':key,'extendedProperties':actor_metadata(payload,user_id,creating=True)},params={'sendUpdates':'none'})
                 except CalendarError as exc:
                     if exc.reason not in ('duplicate','409'): raise
                     event=call('GET','/'+quote(key,safe=''))
@@ -340,7 +364,7 @@ def handle(user_id,text,event_id=None,source_type='user'):
                 current=call('GET','/'+quote(key,safe=''))
                 if current.get('start')==payload['start'] and current.get('end')==payload['end']: event=current
                 else:
-                    event=call('PATCH','/'+quote(key,safe=''),body={'start':payload['start'],'end':payload['end']},params={'sendUpdates':'none'},etag=draft['etag'])
+                    event=call('PATCH','/'+quote(key,safe=''),body={'start':payload['start'],'end':payload['end'],'extendedProperties':actor_metadata(current,user_id)},params={'sendUpdates':'none'},etag=draft['etag'])
             try: saved=l.gateway('calendar_save',user_id,calendar_id=cal,event_id=key,title=event.get('summary',payload['summary']))
             except l.StorageError: return card('Google已更新',['Google已完成這次寫入，但小幫手未完成索引存檔。請再按「確認行程」重試，不會新增第二筆。'],confirm=True)
             lines=[event.get('summary',payload['summary'])]
@@ -357,7 +381,7 @@ def handle(user_id,text,event_id=None,source_type='user'):
             draft={'calendar_id':cal,'event_id':key,'operation':'create'}
             if update:
                 owned=l.gateway('calendar_event',user_id,id=int(update.group(1)))['event']
-                if not owned or owned['calendar_id']!=cal: raise l.InputError('只能改期自己透過小幫手建立的行程。')
+                if not owned or owned['calendar_id']!=cal: raise l.InputError('找不到可操作、透過小幫手建立的行程。')
                 current=call('GET','/'+quote(owned['event_id'],safe=''))
                 if current.get('recurrence') or current.get('recurringEventId'): raise l.InputError('這版先不更動重複行程。')
                 title=current.get('summary',owned['title']);draft.update(event_id=owned['event_id'],operation='update',etag=current['etag'],original={'summary':title,'start':current['start'],'end':current['end']})
@@ -380,13 +404,13 @@ def handle(user_id,text,event_id=None,source_type='user'):
         return card('Google日曆尚未完成連接',[message,'狀態：'+exc.reason])
 
 def today_events(user_id,now,group=None,period=None):
-    if not user_id or user_id!=config()[2]: return None,None
+    if not calendar_access(user_id): return None,None
     try:
         start=now.replace(hour=0,minute=0,second=0,microsecond=0)
         end=start+timedelta(days=7 if group else 1)
         if period: start,end=l.period_bounds(now,period)
         result=call('GET',params={'timeMin':start.isoformat(),'timeMax':end.isoformat(),'singleEvents':'true','orderBy':'startTime','maxResults':100 if group or period in ('week','month') else 8})
-        events=[e for e in result.get('items',[]) if e.get('status')!='cancelled']
+        events=[e for e in visible_events(user_id,result.get('items',[])) if e.get('status')!='cancelled']
         if group: events=[e for e in events if l.category_style(e.get('summary',''),e.get('extendedProperties',{}).get('private',{}).get('lifeos_category'))[0] in (('美容','新客') if group=='美容' else ('商會','交流'))]
         owned={e['event_id']:e['id'] for e in l.gateway('calendar_events',user_id)['events'] if e['calendar_id']==config()[1]}
         events=[{**e,'local_id':owned.get(e['id'])} for e in events]

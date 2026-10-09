@@ -57,7 +57,8 @@ class CalendarTests(unittest.TestCase):
   with patch.dict(os.environ,{'LIFEOS_GOOGLE_USER_ID':UID,'LIFEOS_GOOGLE_CALENDAR_ID':'cal'}),patch('lifeos.gateway') as db,patch('lifeos_calendar.call') as api:
    db.side_effect=[{'draft':draft},{'ok':True}];api.side_effect=[event,{'status':'cancelled'}]
    self.assertIn('已取消',c.handle(UID,'確認取消行程').alt_text)
-   self.assertEqual(api.call_args.kwargs['body'],{'status':'cancelled'})
+   self.assertEqual(api.call_args.kwargs['body']['status'],'cancelled')
+   self.assertEqual(api.call_args.kwargs['body']['extendedProperties']['private']['lifeos_modified_by'],UID)
    self.assertEqual(api.call_args.kwargs['etag'],'expected')
  def test_parse(self):
   title,start,end=c.parse_range('明天下午2點到下午3點 美容預約',NOW)
@@ -141,3 +142,4 @@ class CalendarTests(unittest.TestCase):
    self.assertIn('補充',c.handle(UID,'改期行程 1 明天下午2點到下午3點').alt_text);api.assert_not_called()
 
 if __name__=='__main__': unittest.main()
+

@@ -1,0 +1,40 @@
+do $test$
+declare a text:='U'||replace(gen_random_uuid()::text,'-',''); b text:='U'||replace(gen_random_uuid()::text,'-',''); c text:='U'||replace(gen_random_uuid()::text,'-',''); r jsonb; tid bigint; cid bigint; code text:=gen_random_uuid()::text;
+begin
+ begin
+ insert into lifeos_users(user_id,label,share_tasks,share_calendar) values(a,'verification',true,true),(c,'outsider',false,false);
+ insert into lifeos_invites(code_hash,label,expires_at,shared_owner) values(code,'verification member',now()+interval '1 hour',a);
+ r:=lifeos_dispatch(jsonb_build_object('action','enroll','user_id',b,'code_hash',code));
+ assert r->'user'->>'shared_owner'=a,'Enrollment did not join group';
+ assert (lifeos_dispatch(jsonb_build_object('action','enroll','user_id','U'||replace(gen_random_uuid()::text,'-',''),'code_hash',code))->>'error')='invalid_invite','Invite was reusable';
+ perform lifeos_dispatch(jsonb_build_object('action','draft','user_id',a,'tasks',jsonb_build_array(jsonb_build_object('title','Shared verification task','original_text','Shared verification task','status','等待對方'))));
+ r:=lifeos_confirm_tasks(jsonb_build_object('action','confirm_tasks','user_id',a));tid:=(r->'tasks'->0->>'id')::bigint;
+ assert r->'tasks'->0->>'status'='等待對方','Waiting status lost';
+ assert jsonb_array_length(lifeos_dispatch(jsonb_build_object('action','list','user_id',b))->'tasks')=1,'Member cannot list';
+ assert jsonb_array_length(lifeos_dispatch(jsonb_build_object('action','list','user_id',c))->'tasks')=0,'Outsider can list';
+ assert lifeos_dispatch(jsonb_build_object('action','update','user_id',c,'task_id',tid,'status','完成'))->>'error'='not_found','Outsider can update';
+ perform lifeos_postpone_dispatch(jsonb_build_object('action','postpone_start','user_id',b,'task_id',tid));
+ assert lifeos_postpone_dispatch(jsonb_build_object('action','postpone_get','user_id',a))->'pending'='null'::jsonb,'Draft crossed accounts';
+ r:=lifeos_postpone_dispatch(jsonb_build_object('action','postpone_finish','user_id',b,'due_at',now()+interval '2 days'));
+ assert r->'task'->>'user_id'=a and r->'task'->>'last_modified_by'=b,'Postpone creator changed';
+ r:=lifeos_dispatch(jsonb_build_object('action','update','user_id',b,'task_id',tid,'status','完成'));
+ assert r->'task'->>'user_id'=a and r->'task'->>'last_modified_by'=b,'Complete creator changed';
+ r:=lifeos_calendar_dispatch(jsonb_build_object('action','calendar_save','user_id',a,'calendar_id','verification','event_id',code,'title','Shared verification event'));cid:=(r->'event'->>'id')::bigint;
+ assert lifeos_calendar_dispatch(jsonb_build_object('action','calendar_event','user_id',b,'id',cid))->'event'->>'user_id'=a,'Member cannot read calendar';
+ assert lifeos_calendar_dispatch(jsonb_build_object('action','calendar_event','user_id',c,'id',cid))->'event'='null'::jsonb,'Outsider calendar read';
+ assert lifeos_calendar_dispatch(jsonb_build_object('action','calendar_save','user_id',c,'calendar_id','verification','event_id',code,'title','bad'))->>'error'='not_authorized','Outsider calendar write';
+ r:=lifeos_calendar_dispatch(jsonb_build_object('action','calendar_save','user_id',b,'calendar_id','verification','event_id',code,'title','Updated verification'));
+ assert r->'event'->>'user_id'=a and r->'event'->>'last_modified_by'=b,'Calendar creator changed';
+ assert (select count(*) from lifeos_calendar_events where calendar_id='verification' and event_id=code)=1,'Calendar duplicated';
+ update lifeos_users set share_tasks=false where user_id=a;
+ assert not lifeos_can_access(b,a,'task') and lifeos_can_access(b,a,'calendar'),'Independent switches failed';
+ assert lifeos_dispatch(jsonb_build_object('action','update','user_id',b,'task_id',tid,'status','取消'))->>'error'='not_found','Private task writable';
+ update lifeos_users set share_calendar=false where user_id=a;
+ assert lifeos_calendar_dispatch(jsonb_build_object('action','calendar_event','user_id',b,'id',cid))->'event'='null'::jsonb,'Private calendar readable';
+ assert exists(select 1 from lifeos_change_log where record_id=cid and entity='lifeos_calendar_events' and creator=a and actor=b),'Calendar audit missing';
+ assert exists(select 1 from lifeos_change_log where record_id=tid and entity='lifeos_tasks' and creator=a and actor=b),'Task audit missing';
+ raise sqlstate 'ZX001' using message='rollback verification fixtures';
+ exception when sqlstate 'ZX001' then null;
+ end;
+end $test$;
+select 'passed: enrollment, one-use invite, shared tasks, postpone, complete, calendar ownership, outsider isolation, independent switches, audit' as verification;

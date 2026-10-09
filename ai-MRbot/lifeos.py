@@ -317,7 +317,8 @@ def handle_text(user_id, text, event_id=None, source_type="user"):
             result = gateway("enroll",user_id,event_id,code_hash=hashlib.sha256(code.encode()).hexdigest())
             if result.get("error"):
                 return "啟用碼無效、已使用或已到期。請向建置者確認，不需要提供LINE密碼。"
-            return "你的私人待辦已啟用。每日主動提醒尚未開啟。\n\n" + HELP
+            shared=result.get('user',{}).get('shared_owner')
+            return ("你已加入共用Life OS，可查看與管理共用待辦、日曆行程。" if shared else "你的私人待辦已啟用。") + "每日主動提醒尚未開啟。\n\n" + HELP
         result = gateway("get_user",user_id)
         user = result.get("user")
         if not user:

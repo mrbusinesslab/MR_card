@@ -116,9 +116,9 @@ def weekly_message(user_id,now):
     import lifeos_calendar as c
     from linebot.v3.messaging import ImageMessage
     _,cal,approved=c.config()
-    if not cal or not user_id or user_id!=approved: return None
+    if not cal or not c.calendar_access(user_id): return None
     start,end=l.period_bounds(now,'week')
-    events=week_events(start,end)
+    events=c.visible_events(user_id,week_events(start,end))
     try: colors={x['id']:x.get('backgroundColor') for x in c.event_labels()}
     except c.CalendarError: colors={}
     data=render_week(events,start,now,colors)

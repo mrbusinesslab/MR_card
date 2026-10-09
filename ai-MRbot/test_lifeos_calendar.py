@@ -32,8 +32,30 @@ class CalendarTests(unittest.TestCase):
    api.assert_not_called();self.assertEqual(db.call_args.args,('calendar_draft',UID,'evt'))
  def test_automatic_range(self):
   with patch.dict(os.environ,{'LIFEOS_GOOGLE_USER_ID':UID,'LIFEOS_GOOGLE_CALENDAR_ID':'cal'}),patch('lifeos.gateway',return_value={'ok':True}),patch('lifeos_calendar.call') as api:
-   self.assertIn('確認Google行程',c.handle(UID,'明天下午2點到下午3點 日曆串接測試','evt').alt_text)
+   self.assertIn('請選擇排程類型',c.handle(UID,'明天下午2點到下午3點 日曆串接測試','evt').alt_text)
    api.assert_not_called()
+ def test_person_names_do_not_guess(self):
+  self.assertEqual(l.category_style('傑哥 電子名片')[0],'其他')
+  self.assertEqual(l.category_style('max 開會')[0],'其他')
+  self.assertEqual(l.category_style('林小姐 F')[0],'美容')
+ def test_pending_category_blocks_write(self):
+  draft={'calendar_id':'cal','needs_category':True,'event':{'summary':'max 開會','start':{'dateTime':'2026-10-09T14:00:00+08:00'},'end':{'dateTime':'2026-10-09T15:00:00+08:00'}}}
+  with patch.dict(os.environ,{'LIFEOS_GOOGLE_USER_ID':UID,'LIFEOS_GOOGLE_CALENDAR_ID':'cal'}),patch('lifeos.gateway',return_value={'draft':draft}),patch('lifeos_calendar.call') as api:
+   result=c.handle(UID,'確認行程')
+   self.assertIn('請選擇',result.alt_text);api.assert_not_called()
+ def test_business_choice_preserves_title(self):
+  draft={'calendar_id':'cal','needs_category':True,'event':{'summary':'max 開會','start':{'dateTime':'2026-10-09T14:00:00+08:00'},'end':{'dateTime':'2026-10-09T15:00:00+08:00'}}}
+  with patch.dict(os.environ,{'LIFEOS_GOOGLE_USER_ID':UID,'LIFEOS_GOOGLE_CALENDAR_ID':'cal'}),patch('lifeos.gateway') as db,patch('lifeos_calendar.call') as api:
+   db.side_effect=[{'draft':draft},{'ok':True}]
+   self.assertIn('確認',c.handle(UID,'分類行程 商會').alt_text)
+   saved=db.call_args.kwargs['payload']
+   self.assertEqual(saved['event']['summary'],'max 開會')
+   self.assertEqual(saved['category'],'交流');self.assertNotIn('needs_category',saved)
+   api.assert_not_called()
+ def test_named_label_uses_custom_id(self):
+  with patch('lifeos_calendar.event_labels',return_value=[{'name':'美容美體','id':'custom-blue','backgroundColor':'#123456'}]):
+   result=c.apply_label({'summary':'林小姐 F','colorId':'9'},'美容')
+   self.assertEqual(result['eventLabelId'],'custom-blue');self.assertNotIn('colorId',result)
  def test_deadline_stays_task(self):
   self.assertIsNone(c.handle(UID,'明天下午3點前傳資料'))
  def test_digest_with_calendar(self):

@@ -40,9 +40,9 @@ class InputError(Exception):
 def category_style(title,category=None):
     if category in ('美容','新客','商會','交流'): group=category
     elif re.search(r'建築組|商會|BNI|商務引薦',title,re.I): group='商會'
-    elif re.search(r'一對一交流|私下交流',title,re.I): group='交流'
     elif re.search(r'新客|首次美容|初次諮詢',title): group='新客'
     elif re.search(r'美容|保養|護膚|美容耗材|做臉|做身體|(?<![A-Za-z])[FB](?:\s*\+\s*[FB])?(?![A-Za-z])',title): group='美容'
+    elif re.search(r'一對一交流|私下交流|開會|會議|電子名片|商務交流|合作討論',title,re.I): group='交流'
     else: group='其他'
     return group,{'美容':'#EEF7FE','新客':'#F6F3FA','商會':'#F6EFE5','交流':'#EAF4EF','其他':'#F4F7F6'}[group]
 

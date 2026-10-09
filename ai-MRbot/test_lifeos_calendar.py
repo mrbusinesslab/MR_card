@@ -35,9 +35,22 @@ class CalendarTests(unittest.TestCase):
    self.assertIn('請選擇排程類型',c.handle(UID,'明天下午2點到下午3點 日曆串接測試','evt').alt_text)
    api.assert_not_called()
  def test_person_names_do_not_guess(self):
-  self.assertEqual(l.category_style('傑哥 電子名片')[0],'其他')
-  self.assertEqual(l.category_style('max 開會')[0],'其他')
+  self.assertEqual(l.category_style('傑哥 電子名片')[0],'交流')
+  self.assertEqual(l.category_style('max 開會')[0],'交流')
   self.assertEqual(l.category_style('林小姐 F')[0],'美容')
+  self.assertEqual(l.category_style('max')[0],'其他')
+  self.assertEqual(l.category_style('傑哥')[0],'其他')
+ def test_business_details_skip_category_buttons(self):
+  with patch.dict(os.environ,{'LIFEOS_GOOGLE_USER_ID':UID,'LIFEOS_GOOGLE_CALENDAR_ID':'cal'}),patch('lifeos.gateway',return_value={'ok':True}) as db,patch('lifeos_calendar.call') as api:
+   for title in ('max 開會','傑哥 電子名片'):
+    self.assertEqual(c.handle(UID,'明天下午2點到下午3點 '+title,'evt').alt_text,'確認Google行程')
+    self.assertEqual(db.call_args.kwargs['payload']['category'],'交流')
+    self.assertNotIn('needs_category',db.call_args.kwargs['payload'])
+   api.assert_not_called()
+ def test_name_only_asks_category(self):
+  with patch.dict(os.environ,{'LIFEOS_GOOGLE_USER_ID':UID,'LIFEOS_GOOGLE_CALENDAR_ID':'cal'}),patch('lifeos.gateway',return_value={'ok':True}),patch('lifeos_calendar.call') as api:
+   self.assertEqual(c.handle(UID,'明天下午2點到下午3點 max','evt').alt_text,'請選擇排程類型')
+   api.assert_not_called()
  def test_pending_category_blocks_write(self):
   draft={'calendar_id':'cal','needs_category':True,'event':{'summary':'max 開會','start':{'dateTime':'2026-10-09T14:00:00+08:00'},'end':{'dateTime':'2026-10-09T15:00:00+08:00'}}}
   with patch.dict(os.environ,{'LIFEOS_GOOGLE_USER_ID':UID,'LIFEOS_GOOGLE_CALENDAR_ID':'cal'}),patch('lifeos.gateway',return_value={'draft':draft}),patch('lifeos_calendar.call') as api:

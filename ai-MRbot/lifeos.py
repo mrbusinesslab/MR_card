@@ -313,6 +313,7 @@ def handle_text(user_id, text, event_id=None, source_type="user"):
         if not user.get("assistant_mode") and not explicit and not text.startswith(commands):
             return None
         if text == "新增待辦":
+            if pending: gateway("postpone_cancel",user_id)
             gateway("mode",user_id,event_id,enabled=True)
             return "請說明要做的事情與日期，例如「明天買耗材」。\n可按手機鍵盤的麥克風轉成文字，傳送後按「確認存檔」。"
         if text == "提醒設定":
@@ -352,7 +353,7 @@ def handle_text(user_id, text, event_id=None, source_type="user"):
         if text in ("放棄草稿","取消草稿"):
             gateway("discard",user_id,event_id)
             return "已放棄草稿，沒有新增待辦。"
-        if text in ("我的待辦","全部待辦","今天有哪些事","今天有什麼事","今天有哪些是","其他天的事","逾期待辦","美容","商會"):
+        if text in ("我的待辦","全部待辦","今天有哪些事","今天有什麼事","今天有哪些是","今天的事","其他天的事","逾期待辦","美容","商會"):
             result = gateway("list",user_id)
             body = summary(result["tasks"],user_id=user_id,mode="all" if text in ("我的待辦","全部待辦") else "overdue" if text=="逾期待辦" else "future" if text=="其他天的事" else text if text in ("美容","商會") else "today")
             if result.get("truncated"):
@@ -672,7 +673,9 @@ def digest_message(digest):
                 {**node,'flex':1}]})
     board('待安排日期',unscheduled,'#F4F7F6','#345C58')
     if not tasks or (digest.mode=='overdue' and not overdue): content.append(tx('目前沒有未完成的逾期事項。' if digest.mode=='overdue' else '目前沒有未完成待辦。'))
-    if total>shown: content.append({**tx(f'卡片尚有{total-shown}件未展開，請點「操作待辦」逐頁查看。','xs'),'margin':'md'})
+    if total>shown:
+        content.append({**tx(f'另有{total-shown}件未展開。','xs'),'margin':'md'})
+        content.append(btn('查看完整待辦','待辦按鈕 1'))
     if getattr(digest,'truncated',False): content.append(tx('待辦超過200件，這份卡片僅整理前200件。','xs'))
     if digest.mode in ('today','美容','商會'):
         import lifeos_calendar as calendar

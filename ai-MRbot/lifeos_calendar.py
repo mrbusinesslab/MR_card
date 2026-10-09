@@ -12,7 +12,7 @@ from google.auth.transport.requests import AuthorizedSession
 import lifeos as l
 
 TIME_PATTERN=r'(上午|早上|下午|晚上|中午|凌晨)?\s*(\d{1,2}|[零一二兩三四五六七八九十]+)(?:點|時|:|：)(半|\d{1,2}|[一二三四五六七八九十]+)?(?:分)?'
-COMMANDS=('其他天的行程','Google日曆','新增行程','行程 ','確認行程','放棄行程','改期行程','分類行程 ')
+COMMANDS=('其他天的行程','Google日曆','新增行程','行程 ','確認行程','放棄行程','改期行程','分類行程 ','詳情行程 ')
 
 class CalendarError(Exception):
     def __init__(self,reason): self.reason=reason
@@ -98,12 +98,13 @@ def event_row(event,show_date=False):
     else:
         times=[tx('全天',bold=True)];date=start.get('date','日期未提供')
     details=([tx(date,'#64748B','xs')] if show_date else [])+[tx(title,size='md',bold=True)]
-    if event.get('local_id'):
-        details.append({'type':'button','height':'sm','style':'link','color':'#64748B','action':{'type':'message','label':'改期','text':'改期行程 '+str(event['local_id'])}})
-    return {'type':'box','layout':'horizontal','spacing':'md','margin':'lg','paddingAll':'4px','contents':[
+
+    row={'type':'box','layout':'horizontal','spacing':'md','margin':'lg','paddingAll':'4px','contents':[
         {'type':'box','layout':'vertical','width':'54px','spacing':'sm','contents':times},
         {'type':'box','layout':'vertical','width':'3px','height':'52px','backgroundColor':ink,'contents':[]},
         {'type':'box','layout':'vertical','spacing':'sm','flex':1,'contents':details}]}
+    if event.get('local_id'): row['action']={'type':'message','label':'查看行程','text':'詳情行程 '+str(event['local_id'])}
+    return row
 
 def card(title,lines,confirm=False,events=None,choices=None):
     from linebot.v3.messaging import FlexMessage,FlexContainer,QuickReply,QuickReplyItem,MessageAction
@@ -112,10 +113,11 @@ def card(title,lines,confirm=False,events=None,choices=None):
     rows=[text(x) for x in lines]
     for e in events or []:
         rows.append(event_row(e,show_date=True))
-    choices=choices or ([('確認行程','確認行程'),('放棄行程','放棄行程')] if confirm else [('今日總覽','今天有哪些事'),('生活助理','生活助理')])
+    choices=choices or ([('確認行程','確認行程'),('放棄行程','放棄行程')] if confirm else [])
     bubble={'type':'bubble','header':{'type':'box','layout':'vertical','paddingAll':'20px','contents':[text('MR 個人助理',True),text(title,True)]},
         'body':{'type':'box','layout':'vertical','spacing':'md','paddingAll':'16px','contents':rows or [text('近期沒有行程。')]},
         'footer':{'type':'box','layout':'vertical','spacing':'sm','contents':[btn(a,b) for a,b in choices]}}
+    if not choices: bubble.pop('footer',None)
     return FlexMessage(alt_text=title,contents=FlexContainer.from_dict(bubble))
 
 def classification_card(draft):
@@ -140,6 +142,12 @@ def handle(user_id,text,event_id=None,source_type='user'):
     _,cal,approved=config()
     if not approved or user_id!=approved: return card('Google日曆尚未啟用',['目前只開放建置者的測試帳號。'])
     try:
+        detail=re.fullmatch(r'詳情行程 (\d+)',text)
+        if detail:
+            owned=l.gateway('calendar_event',user_id,id=int(detail.group(1)))['event']
+            if not owned or owned['calendar_id']!=cal: raise l.InputError('找不到自己建立的行程。')
+            current=call('GET','/'+quote(owned['event_id'],safe=''))
+            return card('行程詳情',[current.get('summary',owned['title']),event_time(current)],choices=[('改期','改期行程 '+detail.group(1))])
         if text=='新增行程': return card('新增Google行程',['請傳送：行程 明天下午2點到下午3點 美容預約','請提供日期、開始與結束時間；確認後才寫入Google日曆。'])
         if text=='放棄行程':
             l.gateway('calendar_discard',user_id,event_id)
@@ -224,8 +232,10 @@ def today_events(user_id,now,group=None):
         result=call('GET',params={'timeMin':start.isoformat(),'timeMax':(start+timedelta(days=7 if group else 1)).isoformat(),'singleEvents':'true','orderBy':'startTime','maxResults':100 if group else 8})
         events=[e for e in result.get('items',[]) if e.get('status')!='cancelled']
         if group: events=[e for e in events if l.category_style(e.get('summary',''),e.get('extendedProperties',{}).get('private',{}).get('lifeos_category'))[0] in (('美容','新客') if group=='美容' else ('商會','交流'))]
+        owned={e['event_id']:e['id'] for e in l.gateway('calendar_events',user_id)['events'] if e['calendar_id']==config()[1]}
+        events=[{**e,'local_id':owned.get(e['id'])} for e in events]
         return events[:8],('行程較多，只列前8筆；完整內容請查Google日曆。' if result.get('nextPageToken') or len(events)>8 else None)
-    except CalendarError:
+    except (CalendarError,l.StorageError):
         return [],'目前無法讀取Google行程，請稍後查詢；待辦仍正常顯示。'
 
 def install_routes(app):

@@ -76,6 +76,36 @@ class HandlerTests(unittest.TestCase):
         self.assertEqual(app.test_client().post('/lifeos/reminders').status_code,401)
         self.assertFalse(app.test_client().get('/lifeos/health').json['audio_transcription'])
 
+class SimpleInteractionTests(unittest.TestCase):
+    def test_detail_has_only_three_actions(self):
+        message=l.button_message('待辦操作\n#12 傳資料\n  2026/10/09 18:00｜未開始').to_dict()
+        buttons=message['contents']['footer']['contents']
+        self.assertEqual([b['action']['label'] for b in buttons],['完成','取消','延期'])
+    def test_summary_plain_and_tappable(self):
+        task={'id':12,'title':'美容備品','category':'新客','status':'未開始','due_at':'2026-10-08T18:00:00+08:00'}
+        with patch('lifeos_calendar.today_events',return_value=(None,None)):
+            msg=l.digest_message(l.summary([task],NOW)).to_dict()
+        self.assertNotIn('footer',msg['contents'])
+        self.assertNotIn('更多操作',str(msg));self.assertNotIn('#AC93CC',str(msg))
+        self.assertIn('待辦操作 12',str(msg))
+    @patch.dict(os.environ,{'LIFEOS_ENABLED':'1'})
+    @patch('lifeos.gateway')
+    @patch('lifeos.clock',return_value=NOW)
+    def test_date_reply_updates_same_task(self,clock,g):
+        task={'id':12,'title':'傳資料','status':'未開始','due_at':'2026-10-12T23:59:00+08:00'}
+        g.side_effect=[{'user':{'assistant_mode':True,'pending_postpone':{'task_id':12,'title':'傳資料'}}},{'task':task}]
+        self.assertIn('已延期',l.handle_text(UID,'10/12','evt'))
+        self.assertEqual(g.call_args.args,('postpone_finish',UID,'evt'))
+        self.assertEqual(g.call_args.kwargs['due_at'],'2026-10-12T23:59:00+08:00')
+    @patch.dict(os.environ,{'LIFEOS_ENABLED':'1'})
+    @patch('lifeos.gateway')
+    def test_closed_task_does_not_change(self,g):
+        g.side_effect=[{'user':{'assistant_mode':True}},{'tasks':[{'id':12,'title':'傳資料','status':'完成'}]}]
+        self.assertIn('目前狀態：完成',l.handle_text(UID,'取消 12','evt'))
+        self.assertEqual(g.call_count,2)
+    def test_result_card_has_no_navigation(self):
+        self.assertNotIn('footer',l.button_message('已更新\n#12 傳資料\n  2026/10/09 18:00｜完成').to_dict()['contents'])
+
 class ReminderTests(unittest.TestCase):
     @patch.dict(os.environ,{'LIFEOS_ENABLED':'1'})
     @patch('lifeos.requests.post')

@@ -225,6 +225,9 @@ class Digest(str):
 
 def period_bounds(now,mode):
     start=now.replace(hour=0,minute=0,second=0,microsecond=0)
+    if mode=='tomorrow':
+        start+=timedelta(days=1)
+        return start,start+timedelta(days=1)
     if mode=='week':
         start-=timedelta(days=start.weekday())
         return start,start+timedelta(days=7)
@@ -305,7 +308,7 @@ def handle_text(user_id, text, event_id=None, source_type="user"):
     if os.getenv("LIFEOS_ENABLED") != "1":
         return None
     text = text.strip()
-    explicit = text.startswith(("啟用助理","待辦按鈕 ","待辦操作 ","延期 ","確認取消 ")) or text in ("個人助理","我的待辦","今天有哪些事","今天有什麼事","逾期待辦","新增待辦","提醒設定","測試提醒","更多功能","生活助理","其他天的事","今天有哪些是","今天的事","今天","本周","本週","本月","逾期事項","停止延期","美容","商會")
+    explicit = text.startswith(("啟用助理","待辦按鈕 ","待辦操作 ","延期 ","確認取消 ")) or text in ("個人助理","我的待辦","今天有哪些事","今天有什麼事","逾期待辦","新增待辦","提醒設定","測試提醒","更多功能","生活助理","其他天的事","今天有哪些是","今天的事","今天","明天","本周","本週","本月","逾期事項","停止延期","美容","商會")
     if source_type != "user":
         return "私人待辦僅能在與MR小幫手的一對一聊天室使用。" if explicit else None
     try:
@@ -392,9 +395,9 @@ def handle_text(user_id, text, event_id=None, source_type="user"):
         if text in ("放棄草稿","取消草稿"):
             gateway("discard",user_id,event_id)
             return "已放棄草稿，沒有新增待辦。"
-        if text in ("我的待辦","全部待辦","今天有哪些事","今天有什麼事","今天有哪些是","今天的事","今天","本周","本週","本月","逾期事項","其他天的事","逾期待辦","美容","商會"):
+        if text in ("我的待辦","全部待辦","今天有哪些事","今天有什麼事","今天有哪些是","今天的事","今天","明天","本周","本週","本月","逾期事項","其他天的事","逾期待辦","美容","商會"):
             result = gateway("list",user_id)
-            body = summary(result["tasks"],user_id=user_id,mode="all" if text in ("我的待辦","全部待辦") else "week" if text in ("本周","本週") else "month" if text=="本月" else "overdue" if text in ("逾期待辦","逾期事項") else "future" if text=="其他天的事" else text if text in ("美容","商會") else "today")
+            body = summary(result["tasks"],user_id=user_id,mode="all" if text in ("我的待辦","全部待辦") else "tomorrow" if text=="明天" else "week" if text in ("本周","本週") else "month" if text=="本月" else "overdue" if text in ("逾期待辦","逾期事項") else "future" if text=="其他天的事" else text if text in ("美容","商會") else "today")
             if result.get("truncated"):
                 body=Digest(str(body)+"\n待辦超過200件，這次僅列前200件。",body.tasks,body.now,body.mode)
                 body.truncated=True
@@ -615,7 +618,7 @@ def button_message(body):
     elif body.startswith("每日提醒目前"):
         choices=[("測試提醒","測試提醒"),("開啟每日提醒","開啟每日提醒"),("關閉每日提醒","關閉每日提醒")]
     if body=="生活助理":
-        choices=[('今天','今天'),('本周','本周'),('本月','本月'),('逾期事項','逾期事項'),('提醒設定','提醒設定')]
+        choices=[('今天','今天'),('明天','明天'),('本周','本周'),('本月','本月'),('逾期事項','逾期事項'),('提醒設定','提醒設定')]
     def text(value,size="sm",color="#475569",weight="regular"):
         return {"type":"text","text":value or " ","size":size,"color":color,"weight":weight,"wrap":True}
     def button(label,command,primary=False):
@@ -663,9 +666,9 @@ def button_message(body):
     if body=="生活助理":
         def menu_item(label,command,primary=False):
             return {'type':'box','layout':'horizontal','paddingAll':'16px','backgroundColor':'#345C58' if primary else '#F4F7F6','cornerRadius':'10px','action':{'type':'message','label':label,'text':command},'contents':[text(label,'md','#FFFFFF' if primary else '#172B2A','bold'),{**text('›','lg','#FFFFFF' if primary else '#94A3B8'),'align':'end','flex':0}]}
-        content=[menu_item(a,b,i==0) for i,(a,b) in enumerate(choices[:3])]
+        content=[menu_item(a,b,i==0) for i,(a,b) in enumerate(choices[:4])]
         content.append({'type':'separator','margin':'lg'})
-        content.append({'type':'box','layout':'horizontal','spacing':'md','margin':'lg','contents':[menu_item(a,b) for a,b in choices[3:]]})
+        content.append({'type':'box','layout':'horizontal','spacing':'md','margin':'lg','contents':[menu_item(a,b) for a,b in choices[4:]]})
     if isinstance(body,TaskChoice): footer=[button(a,b) for a,b in choices]
     elif draft: footer=[button("確認存檔","確認存檔",True),button("放棄草稿","放棄草稿")]
     elif body.startswith("確認取消待辦\n"): footer=[button(a,b) for a,b in choices]
@@ -722,6 +725,9 @@ def digest_message(digest):
     elif digest.mode=='today':
         today=[t for t in tasks if date(t) and date(t).date()==now.date()]
         overdue=[];future=[];unscheduled=[]
+    elif digest.mode=='tomorrow':
+        today=[t for t in tasks if date(t) and date(t).date()==(now+timedelta(days=1)).date()]
+        overdue=[];future=[];unscheduled=[]
     elif digest.mode=='future': today=[];overdue=[];unscheduled=[]
     content=[];shown=0;total=len(overdue)+len(today)+len(future)+len(unscheduled)
     def board(title,items,bg,ink):
@@ -732,9 +738,9 @@ def digest_message(digest):
         heading={'type':'box','layout':'horizontal','contents':[{**tx(title,'md',ink,True),'flex':2},{**tx(str(len(items))+'件','sm',ink,True),'align':'end','flex':1}]}
         content.append({'type':'box','layout':'vertical','spacing':'md','paddingAll':'12px','backgroundColor':bg,'cornerRadius':'12px','margin':'md',
             'contents':[heading]+[row(t) for t in visible]})
-    board('今日待辦',today,'#F4F7F6','#345C58')
+    board('明日待辦' if digest.mode=='tomorrow' else '今日待辦',today,'#F4F7F6','#345C58')
     board('已逾期',overdue,'#F4F7F6','#345C58')
-    if not today and digest.mode not in ('overdue','future','week','month'): content.append({**tx('今天沒有到期事項','sm','#345C58',True),'margin':'md'})
+    if not today and digest.mode not in ('overdue','future','week','month'): content.append({**tx('明天沒有到期事項' if digest.mode=='tomorrow' else '今天沒有到期事項','sm','#345C58',True),'margin':'md'})
     if future:
         content.append({**tx('接下來的到期時間軸','md','#345C58',True),'margin':'xl'})
         grouped={}
@@ -755,20 +761,29 @@ def digest_message(digest):
         content.append({**tx(f'另有{total-shown}件未展開。','xs'),'margin':'md'})
         content.append(btn('查看完整待辦','待辦按鈕 1'))
     if getattr(digest,'truncated',False): content.append(tx('待辦超過200件，這份卡片僅整理前200件。','xs'))
-    if digest.mode in ('today','week','month','美容','商會'):
+    extra_events=[]
+    if digest.mode in ('today','tomorrow','week','month','美容','商會'):
         import lifeos_calendar as calendar
-        events,note=calendar.today_events(getattr(digest,'user_id',None),now,group=digest.mode if digest.mode in ('美容','商會') else None,period=digest.mode if digest.mode in ('week','month') else None)
+        events,note=calendar.today_events(getattr(digest,'user_id',None),now,group=digest.mode if digest.mode in ('美容','商會') else None,period=digest.mode if digest.mode in ('tomorrow','week','month') else None)
         if events is not None:
             content.append({'type':'separator','margin':'xl'})
-            content.append({**tx('近期分類行程' if digest.mode in ('美容','商會') else '本周行程' if digest.mode=='week' else '本月行程' if digest.mode=='month' else '今日預計行程','lg','#345C58',True),'margin':'lg'})
-            for event in events:
+            content.append({**tx('近期分類行程' if digest.mode in ('美容','商會') else '本周行程' if digest.mode=='week' else '本月行程' if digest.mode=='month' else '明日預計行程' if digest.mode=='tomorrow' else '今日預計行程','lg','#345C58',True),'margin':'lg'})
+            extra_events=events[8:] if digest.mode in ('week','month') else []
+            if extra_events: content.append({**tx('向左滑看更多行程','xs','#345C58'),'margin':'md'})
+            for event in events[:8]:
                 content.append(calendar.event_row(event,show_date=digest.mode!='today'))
-            if not events and not note: content.append({**tx('這段期間沒有行程。' if digest.mode in ('week','month') else '今天沒有安排Google行程。'),'margin':'md'})
+            if not events and not note: content.append({**tx('這段期間沒有行程。' if digest.mode in ('week','month') else '明天沒有安排Google行程。' if digest.mode=='tomorrow' else '今天沒有安排Google行程。'),'margin':'md'})
             if note: content.append({**tx(note,'xs'),'margin':'md'})
-    title='本周' if digest.mode=='week' else '本月' if digest.mode=='month' else '逾期事項' if digest.mode=='overdue' else digest.mode+'事項' if digest.mode in ('美容','商會') else '其他天的事' if digest.mode=='future' else '我的待辦' if digest.mode=='all' else '今日摘要'
+    title='本周' if digest.mode=='week' else '本月' if digest.mode=='month' else '逾期事項' if digest.mode=='overdue' else digest.mode+'事項' if digest.mode in ('美容','商會') else '其他天的事' if digest.mode=='future' else '我的待辦' if digest.mode=='all' else '明日摘要' if digest.mode=='tomorrow' else '今日摘要'
     bubble={'type':'bubble','size':'mega','header':{'type':'box','layout':'vertical','paddingAll':'20px','spacing':'sm','contents':[
-        tx(title,'lg','#172B2A',True),tx((label(period_bounds(now,digest.mode)[0])+'～'+label(period_bounds(now,digest.mode)[1]-timedelta(days=1))) if digest.mode in ('week','month') else label(now),'md','#172B2A',True)]},
+        tx(title,'lg','#172B2A',True),tx((label(period_bounds(now,digest.mode)[0])+'～'+label(period_bounds(now,digest.mode)[1]-timedelta(days=1))) if digest.mode in ('week','month') else label(now+timedelta(days=1) if digest.mode=='tomorrow' else now),'md','#172B2A',True)]},
         'body':{'type':'box','layout':'vertical','paddingAll':'14px','contents':content},
         'footer':{'type':'box','layout':'vertical','paddingAll':'14px','spacing':'sm','contents':[btn('新增事項','新增待辦',True),btn('生活助理','生活助理')]}}
     bubble.pop('footer',None)
-    return FlexMessage(alt_text=title+'｜'+label(now),contents=FlexContainer.from_dict(bubble))
+    output=bubble
+    if extra_events:
+        pages=[bubble]
+        for offset in range(0,len(extra_events),8):
+            pages.append({'type':'bubble','size':'mega','header':{'type':'box','layout':'vertical','paddingAll':'20px','contents':[tx(title+'行程｜第'+str(offset//8+2)+'頁','lg','#172B2A',True)]},'body':{'type':'box','layout':'vertical','paddingAll':'14px','spacing':'md','contents':[calendar.event_row(e,show_date=True) for e in extra_events[offset:offset+8]]}})
+        output={'type':'carousel','contents':pages}
+    return FlexMessage(alt_text=title+'｜'+label(now+timedelta(days=1) if digest.mode=='tomorrow' else now),contents=FlexContainer.from_dict(output))

@@ -77,11 +77,11 @@ class HandlerTests(unittest.TestCase):
         self.assertFalse(app.test_client().get('/lifeos/health').json['audio_transcription'])
 
 class SimpleInteractionTests(unittest.TestCase):
-    def test_menu_only_five_buttons(self):
+    def test_menu_only_six_buttons(self):
         card=l.button_message('生活助理').to_dict()['contents']
         self.assertNotIn('header',card);self.assertNotIn('footer',card)
         rows=card['body']['contents']
-        self.assertEqual([r['action']['label'] for r in rows[:3]],['今天','本周','本月'])
+        self.assertEqual([r['action']['label'] for r in rows[:4]],['今天','明天','本周','本月'])
         self.assertEqual([r['action']['label'] for r in rows[-1]['contents']],['逾期事項','提醒設定'])
     def test_week_and_month_boundaries(self):
         start,end=l.period_bounds(NOW,'week')
@@ -219,3 +219,33 @@ class NaturalTaskTests(unittest.TestCase):
         self.assertIn('等傑哥回覆',sent)
         self.assertIn('追蹤日',sent)
         self.assertIn('已逾期',sent)
+
+class TomorrowTests(unittest.TestCase):
+    @patch.dict(os.environ,{'LIFEOS_ENABLED':'1'})
+    @patch('lifeos.gateway')
+    def test_tomorrow_available_without_entering_mode(self,g):
+        g.side_effect=[{'user':{'assistant_mode':False}},{'tasks':[]}]
+        result=l.handle_text(UID,'明天')
+        self.assertEqual(result.mode,'tomorrow')
+    def test_menu_four_dates_then_two_settings(self):
+        card=l.button_message('生活助理').to_dict()['contents']['body']['contents']
+        self.assertEqual([x['action']['text'] for x in card[:4]],['今天','明天','本周','本月'])
+        self.assertEqual([x['action']['text'] for x in card[5]['contents']],['逾期事項','提醒設定'])
+    def test_tomorrow_excludes_today_and_later_dates(self):
+        tasks=[{'id':i,'title':t,'status':'未開始','due_at':d} for i,t,d in [(1,'今天事情','2026-10-08T18:00:00+08:00'),(2,'明天事情','2026-10-09T18:00:00+08:00'),(3,'後天事情','2026-10-10T18:00:00+08:00')]]
+        with patch('lifeos_calendar.today_events',return_value=([],None)) as events:
+            digest=l.summary(tasks,NOW,mode='tomorrow',user_id=UID)
+            card=str(l.button_message(digest).to_dict())
+        self.assertIn('明天事情',card);self.assertNotIn('今天事情',card);self.assertNotIn('後天事情',card)
+        self.assertIn('明日摘要',card);self.assertIn('2026/10/09',card)
+        self.assertEqual(events.call_args.kwargs['period'],'tomorrow')
+    def test_tomorrow_crosses_month_boundary(self):
+        start,end=l.period_bounds(NOW.replace(day=31),'tomorrow')
+        self.assertEqual((start.month,start.day,end.month,end.day),(11,1,11,2))
+    def test_month_swipes_include_later_events(self):
+        events=[{'id':str(i),'summary':'測試行程'+str(i),'start':{'dateTime':'2026-10-'+str(9+i//2).zfill(2)+'T10:00:00+08:00'},'end':{'dateTime':'2026-10-'+str(9+i//2).zfill(2)+'T11:00:00+08:00'}} for i in range(19)]
+        with patch('lifeos_calendar.today_events',return_value=(events,None)):
+            card=l.button_message(l.summary([],NOW,mode='month',user_id=UID)).to_dict()['contents']
+        self.assertEqual(card['type'],'carousel')
+        self.assertEqual(len(card['contents']),3)
+        self.assertIn('測試行程18',str(card))

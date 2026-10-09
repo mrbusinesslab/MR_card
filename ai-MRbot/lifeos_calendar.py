@@ -385,12 +385,13 @@ def today_events(user_id,now,group=None,period=None):
         start=now.replace(hour=0,minute=0,second=0,microsecond=0)
         end=start+timedelta(days=7 if group else 1)
         if period: start,end=l.period_bounds(now,period)
-        result=call('GET',params={'timeMin':start.isoformat(),'timeMax':end.isoformat(),'singleEvents':'true','orderBy':'startTime','maxResults':100 if group else 8})
+        result=call('GET',params={'timeMin':start.isoformat(),'timeMax':end.isoformat(),'singleEvents':'true','orderBy':'startTime','maxResults':100 if group or period in ('week','month') else 8})
         events=[e for e in result.get('items',[]) if e.get('status')!='cancelled']
         if group: events=[e for e in events if l.category_style(e.get('summary',''),e.get('extendedProperties',{}).get('private',{}).get('lifeos_category'))[0] in (('美容','新客') if group=='美容' else ('商會','交流'))]
         owned={e['event_id']:e['id'] for e in l.gateway('calendar_events',user_id)['events'] if e['calendar_id']==config()[1]}
         events=[{**e,'local_id':owned.get(e['id'])} for e in events]
-        return events[:8],('行程較多，只列前8筆；完整內容請查Google日曆。' if result.get('nextPageToken') or len(events)>8 else None)
+        limit=64 if period in ('week','month') else 8
+        return events[:limit],(f'行程較多，只列前{limit}筆；完整內容請查Google日曆。' if result.get('nextPageToken') or len(events)>limit else None)
     except (CalendarError,l.StorageError):
         return [],'目前無法讀取Google行程，請稍後查詢；待辦仍正常顯示。'
 

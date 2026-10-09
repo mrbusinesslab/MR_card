@@ -711,8 +711,6 @@ def digest_message(digest):
             elements.append({'type':'box','layout':'horizontal','spacing':'sm','margin':'md','contents':[btn('完成','完成 '+tid,True),btn('取消','取消 '+tid),btn('延期','延期 '+tid)]})
         return result
     if digest.mode in ('week','month'):
-        from urllib.parse import urlencode
-        import lifeos_calendar as calendar
         start,end=period_bounds(now,digest.mode)
         title='本周' if digest.mode=='week' else '本月'
         period_label=label(start)+'～'+label(end-timedelta(days=1))
@@ -730,12 +728,16 @@ def digest_message(digest):
                 pages.append(page(heading+('｜'+str(index+1) if len(chunks)>1 else ''),content))
         if getattr(digest,'truncated',False):
             pages[0]['body']['contents'].append(tx('待辦超過200件，僅整理前200件。','xs'))
-        _,cal,approved=calendar.config()
-        if cal and getattr(digest,'user_id',None)==approved:
-            view='week' if digest.mode=='week' else 'month'
-            url='https://calendar.google.com/calendar/u/0/r/'+view+'/'+now.strftime('%Y/%m/%d')+'?'+urlencode({'cid':cal})
-            pages.append(page(title+'行程',[tx('開啟 Google 日曆，查看目前最新的行程。','md','#172B2A',True),{'type':'button','style':'primary','color':'#345C58','action':{'type':'uri','label':'開啟'+title+'日曆','uri':url}}]))
-        return FlexMessage(alt_text=title+'｜'+period_label,contents=FlexContainer.from_dict({'type':'carousel','contents':pages}))
+        image_message=None
+        if digest.mode=='week':
+            import lifeos_week_image
+            try: image_message=lifeos_week_image.weekly_message(getattr(digest,'user_id',None),now)
+            except Exception:
+                import logging
+                logging.exception('Weekly calendar image could not be generated')
+                pages.append(page('本周行程',[tx('目前無法產生本週行程圖，請稍後再點「本周」。待辦與逾期仍正常顯示。')]))
+        task_message=FlexMessage(alt_text=title+'｜'+period_label,contents=FlexContainer.from_dict({'type':'carousel','contents':pages}))
+        return [image_message,task_message] if image_message else task_message
     selected=digest.tasks
     if digest.mode in ("美容","商會"):
         selected=[t for t in selected if category_style(t["title"],t.get("category"))[0] in (("美容","新客") if digest.mode=="美容" else ("商會","交流"))]

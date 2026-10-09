@@ -396,6 +396,8 @@ def today_events(user_id,now,group=None,period=None):
         return [],'目前無法讀取Google行程，請稍後查詢；待辦仍正常顯示。'
 
 def install_routes(app):
+    import lifeos_week_image
+    lifeos_week_image.install_routes(app)
     @app.post('/lifeos/calendar-label')
     def calendar_label():
         from flask import request
@@ -428,3 +430,4 @@ def install_routes(app):
             result['labels']=event_labels()
         except CalendarError as exc: result['status']=exc.reason
         return result
+

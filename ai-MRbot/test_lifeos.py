@@ -242,14 +242,24 @@ class TomorrowTests(unittest.TestCase):
     def test_tomorrow_crosses_month_boundary(self):
         start,end=l.period_bounds(NOW.replace(day=31),'tomorrow')
         self.assertEqual((start.month,start.day,end.month,end.day),(11,1,11,2))
-    def test_month_separates_overdue_and_links_live_calendar(self):
+    def test_month_only_shows_tasks_and_overdue(self):
         tasks=[{'id':1,'title':'待辦甲','due_at':'2026-10-10T18:00:00+08:00'}, {'id':2,'title':'逾期甲','due_at':'2026-09-30T18:00:00+08:00'}]
-        with patch('lifeos_calendar.config',return_value=({},'private-calendar',UID)),patch('lifeos_calendar.today_events') as api:
+        with patch('lifeos_week_image.weekly_message') as image,patch('lifeos_calendar.today_events') as api:
             card=l.button_message(l.summary(tasks,NOW,mode='month',user_id=UID)).to_dict()['contents']
             api.assert_not_called()
+            image.assert_not_called()
         self.assertEqual(card['type'],'carousel')
-        self.assertEqual(len(card['contents']),3)
+        self.assertEqual(len(card['contents']),2)
         self.assertIn('待辦甲',str(card['contents'][0]));self.assertNotIn('逾期甲',str(card['contents'][0]))
         self.assertIn('逾期甲',str(card['contents'][1]));self.assertNotIn('待辦甲',str(card['contents'][1]))
-        self.assertIn('/r/month/2026/10/08',str(card['contents'][2]))
+        self.assertNotIn('calendar.google.com',str(card))
+
+    def test_week_returns_image_inside_chat(self):
+        from linebot.v3.messaging import ImageMessage
+        picture=ImageMessage(original_content_url='https://example.com/week.png',preview_image_url='https://example.com/week.png')
+        with patch('lifeos_week_image.weekly_message',return_value=picture) as image:
+            messages=l.button_message(l.summary([],NOW,mode='week',user_id=UID))
+        self.assertIs(messages[0],picture)
+        image.assert_called_once_with(UID,NOW)
+        self.assertNotIn('calendar.google.com',str(messages[1].to_dict()))
 

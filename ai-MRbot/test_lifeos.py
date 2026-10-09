@@ -199,3 +199,23 @@ class NaturalTaskTests(unittest.TestCase):
         g.side_effect=[{'user':{'assistant_mode':True}},{'tasks':[{'id':1,'title':'等傑哥回覆','status':'等待對方'}]}]
         self.assertIn('等待對方',l.handle_text(UID,'確認存檔','evt'))
         self.assertEqual(g.call_args.args,('confirm_tasks',UID,'evt'))
+    def test_waiting_card_uses_follow_up_date(self):
+        tasks=[{'id':3,'title':'等傑哥回覆','status':'等待對方','due_at':NOW.isoformat()}]
+        with patch('lifeos_calendar.today_events',return_value=(None,None)):
+            card=str(l.button_message(l.summary(tasks,NOW)).to_dict())
+        self.assertIn('追蹤日',card)
+        self.assertIn('等對方回覆',card)
+        self.assertIn('完成 3',card)
+    @patch('lifeos.requests.post')
+    @patch('lifeos.requests.get')
+    @patch('lifeos.gateway')
+    def test_daily_reminder_keeps_overdue_waiting_visible(self,g,get,post):
+        quota=Mock();quota.json.return_value={'type':'limited','value':200}
+        usage=Mock();usage.json.return_value={'totalUsage':0};get.side_effect=[quota,usage]
+        post.return_value.status_code=200
+        g.side_effect=[{'users':[{'user_id':UID}]},{'tasks':[{'id':3,'title':'等傑哥回覆','status':'等待對方','due_at':'2026-10-07T18:00:00+08:00'}]},{'notification':{'id':1,'retry_key':'retry'}},{'ok':True}]
+        self.assertEqual(l.reminder_run(NOW.replace(hour=9))['sent'],1)
+        sent=str(post.call_args.kwargs['json']['messages'])
+        self.assertIn('等傑哥回覆',sent)
+        self.assertIn('追蹤日',sent)
+        self.assertIn('已逾期',sent)

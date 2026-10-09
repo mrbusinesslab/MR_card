@@ -497,7 +497,7 @@ def reminder_run(now=None):
         n = claimed["notification"]
         response = requests.post("https://api.line.me/v2/bot/message/push",
             headers={**headers,"X-Line-Retry-Key":n["retry_key"]},
-            json={"to":user["user_id"],"messages":[button_message(summary(tasks,now,user_id=user["user_id"])).to_dict()]},timeout=15)
+            json={"to":user["user_id"],"messages":[button_message(summary(tasks,now,mode="all",user_id=user["user_id"])).to_dict()]},timeout=15)
         ok = response.status_code in (200,409)
         gateway("notification_finish",user["user_id"],notification_id=n["id"],sent=ok)
         if ok:

@@ -242,10 +242,14 @@ class TomorrowTests(unittest.TestCase):
     def test_tomorrow_crosses_month_boundary(self):
         start,end=l.period_bounds(NOW.replace(day=31),'tomorrow')
         self.assertEqual((start.month,start.day,end.month,end.day),(11,1,11,2))
-    def test_month_swipes_include_later_events(self):
-        events=[{'id':str(i),'summary':'測試行程'+str(i),'start':{'dateTime':'2026-10-'+str(9+i//2).zfill(2)+'T10:00:00+08:00'},'end':{'dateTime':'2026-10-'+str(9+i//2).zfill(2)+'T11:00:00+08:00'}} for i in range(19)]
-        with patch('lifeos_calendar.today_events',return_value=(events,None)):
-            card=l.button_message(l.summary([],NOW,mode='month',user_id=UID)).to_dict()['contents']
+    def test_month_separates_overdue_and_links_live_calendar(self):
+        tasks=[{'id':1,'title':'待辦甲','due_at':'2026-10-10T18:00:00+08:00'}, {'id':2,'title':'逾期甲','due_at':'2026-09-30T18:00:00+08:00'}]
+        with patch('lifeos_calendar.config',return_value=({},'private-calendar',UID)),patch('lifeos_calendar.today_events') as api:
+            card=l.button_message(l.summary(tasks,NOW,mode='month',user_id=UID)).to_dict()['contents']
+            api.assert_not_called()
         self.assertEqual(card['type'],'carousel')
         self.assertEqual(len(card['contents']),3)
-        self.assertIn('測試行程18',str(card))
+        self.assertIn('待辦甲',str(card['contents'][0]));self.assertNotIn('逾期甲',str(card['contents'][0]))
+        self.assertIn('逾期甲',str(card['contents'][1]));self.assertNotIn('待辦甲',str(card['contents'][1]))
+        self.assertIn('/r/month/2026/10/08',str(card['contents'][2]))
+

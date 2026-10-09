@@ -159,3 +159,43 @@ class ReminderTests(unittest.TestCase):
         self.assertEqual(post.call_args.kwargs['headers']['X-Line-Retry-Key'],'retry')
 
 if __name__=='__main__': unittest.main()
+
+class NaturalTaskTests(unittest.TestCase):
+    def setUp(self):
+        self.env=patch.dict(os.environ,{'LIFEOS_ENABLED':'1'});self.env.start();self.addCleanup(self.env.stop)
+    @patch('lifeos.gateway')
+    def test_purchase_does_not_complete_inventory(self,g):
+        task={'id':2,'title':'買耗材','status':'未開始'}
+        g.side_effect=[{'user':{'assistant_mode':True}},{'tasks':[task,{'id':6,'title':'清點面膜與耗材','status':'未開始'}]},{'task':{**task,'status':'完成'}}]
+        self.assertIn('已更新',l.handle_text(UID,'耗材買好了','evt'))
+        self.assertEqual(g.call_args.kwargs,{'task_id':2,'status':'完成'})
+    @patch('lifeos.gateway')
+    def test_ambiguous_postpone_only_shows_choices(self,g):
+        g.side_effect=[{'user':{'assistant_mode':True}},{'tasks':[{'id':2,'title':'林威 傳資料','status':'未開始'},{'id':3,'title':'max 傳資料','status':'未開始'}]}]
+        with patch('lifeos.clock',return_value=NOW): body=l.handle_text(UID,'資料延到星期五','evt')
+        self.assertIsInstance(body,l.TaskChoice)
+        self.assertEqual(g.call_count,2)
+        self.assertEqual(body.choices[0][1],'延後 2 到 2026/10/09 23:59')
+        self.assertIn('延後 2',str(l.button_message(body).to_dict()))
+    @patch('lifeos.gateway')
+    def test_no_match_does_not_create_a_task(self,g):
+        g.side_effect=[{'user':{'assistant_mode':True}},{'tasks':[]}]
+        self.assertIn('沒有更新或新增',l.handle_text(UID,'耗材買好了'))
+        self.assertEqual(g.call_count,2)
+    def test_reply_only_matches_waiting(self):
+        tasks=[{'title':'等傑哥回覆','status':'等待對方'},{'title':'傑哥 電子名片','status':'未開始'}]
+        self.assertEqual(l.matching_tasks('傑哥',tasks,'等待對方'),tasks[:1])
+    def test_waiting_and_own_commitment(self):
+        self.assertEqual(l.parse_tasks('星期五等傑哥回覆',NOW)[0]['status'],'等待對方')
+        self.assertEqual(l.parse_tasks('星期五前傳資料給林威',NOW)[0]['status'],'未開始')
+        self.assertIn('追蹤日',l.task_line(l.parse_tasks('星期五等傑哥回覆',NOW)[0]))
+    @patch('lifeos.gateway')
+    def test_waiting_draft_is_not_update_command(self,g):
+        g.side_effect=[{'user':{'assistant_mode':True}},{'ok':True}]
+        self.assertIn('尚未存成',l.handle_text(UID,'等待傑哥回覆'))
+        self.assertEqual(g.call_args.args[0],'draft')
+    @patch('lifeos.gateway')
+    def test_confirm_uses_atomic_waiting_extension(self,g):
+        g.side_effect=[{'user':{'assistant_mode':True}},{'tasks':[{'id':1,'title':'等傑哥回覆','status':'等待對方'}]}]
+        self.assertIn('等待對方',l.handle_text(UID,'確認存檔','evt'))
+        self.assertEqual(g.call_args.args,('confirm_tasks',UID,'evt'))

@@ -198,7 +198,7 @@ def parse_tasks(text, now=None):
         if group!="其他": category=group
         tasks.append({"title":title,"due_at":due.isoformat() if due else None,
             "remind_at":None,"category":category,"priority":"重要" if re.search(r"重要|緊急",part) else "一般",
-            "original_text":part})
+            "original_text":part,"status":"等待對方" if re.search(r"^(?:等|等待).*(?:回覆|回復|交付|提供|寄|傳|確認)",title) else "未開始"})
     return tasks
 
 
@@ -212,7 +212,8 @@ def deadline(task):
 
 def task_line(task):
     tag = f"#{task['id']} " if "id" in task else ""
-    return f"{tag}{task['title']}\n  {deadline(task)}｜{task.get('status','未開始')}"
+    kind="追蹤日：" if task.get("status")=="等待對方" else "到期日："
+    return f"{tag}{task['title']}\n  {kind}{deadline(task)}｜{task.get('status','未開始')}"
 
 
 class Digest(str):
@@ -261,6 +262,34 @@ def summary(tasks, now=None, mode="today", user_id=None):
     digest=Digest(body,active,now,mode)
     digest.user_id=user_id
     return digest
+
+
+class TaskChoice(str):
+    def __new__(cls,body,choices):
+        value=super().__new__(cls,body)
+        value.choices=choices
+        return value
+
+
+def natural_task_action(text):
+    """Bounded phrases only; never interpret a new commitment as completion."""
+    text=re.sub(r"^(?:幫我|請|我已經|我)\s*","",text.strip()).rstrip("。！! ")
+    move=re.fullmatch(r"(.+?)(?:延到|延期到|延後到)\s*(.+)",text)
+    if move: return ("延期",move.group(1).strip(),move.group(2),None)
+    done=re.fullmatch(r"(.+?)(買好了|傳好了|寄好了|回覆了|回復了|完成了|做完了|處理好了)",text)
+    if done:
+        verb={"買好了":"買","傳好了":"傳","寄好了":"寄","回覆了":"等待對方","回復了":"等待對方"}.get(done.group(2))
+        return ("完成",done.group(1).strip(),None,verb)
+    return None
+
+
+def matching_tasks(target,tasks,verb=None):
+    active=[t for t in tasks if t.get("status") not in CLOSED]
+    matches=[t for t in active if target and target in t["title"]]
+    if verb=="等待對方": matches=[t for t in matches if t.get("status")==verb]
+    elif verb: matches=[t for t in matches if verb in t["title"]]
+    exact=[t for t in matches if t["title"]==target]
+    return exact or matches
 
 
 def choose_task(target, tasks):
@@ -354,7 +383,7 @@ def handle_text(user_id, text, event_id=None, source_type="user"):
             return ("已開啟每日上午9點待辦摘要。僅有未完成事項時發送，每月最多60次，"
                 "並受MR現有LINE額度限制；額度不足時停止推播，不會升級方案。") if enabled else "已關閉主動提醒。待辦保留，可隨時傳「今天有哪些事」查詢。"
         if text in ("確認","確認存檔","存檔"):
-            result = gateway("confirm",user_id,event_id)
+            result = gateway("confirm_tasks",user_id,event_id)
             if result.get("error") in ("no_draft","expired_draft"):
                 return "目前沒有可確認的草稿，或草稿已超過一天。請重新交代內容。"
             if result.get("error"):
@@ -371,7 +400,26 @@ def handle_text(user_id, text, event_id=None, source_type="user"):
                 body.truncated=True
                 body.user_id=user_id
             return body
-        change = re.fullmatch(r"(完成|取消|確認取消|等待|開始)\s*(.+)",text)
+        natural=natural_task_action(text)
+        if natural:
+            action,target,date_text,verb=natural
+            date=None
+            if action=="延期":
+                date,_=parse_date(date_text)
+                if date is None: raise InputError("請補上延期日期，例如「資料延到星期五」。")
+            tasks=gateway("list",user_id)["tasks"]
+            matches=matching_tasks(target,tasks,verb)
+            if not matches: return "找不到對應的未完成待辦\n請說得更完整，或傳「我的待辦」查看。這次沒有更新或新增事項。"
+            if len(matches)>1:
+                choices=[((t["title"]+"｜"+deadline(t))[:40],
+                    "完成 "+str(t["id"]) if action=="完成" else "延後 "+str(t["id"])+" 到 "+date.strftime("%Y/%m/%d %H:%M")) for t in matches[:8]]
+                return TaskChoice("請選擇要"+action+"的待辦\n有多筆符合，點選後才會更新。"+("\n符合超過8筆，請改用更完整的名稱。" if len(matches)>8 else ""),choices)
+            task=matches[0]
+            payload={"status":"完成"} if action=="完成" else {"due_at":date.isoformat()}
+            result=gateway("update",user_id,event_id,task_id=task["id"],**payload)
+            if result.get("error"): raise StorageError("update failed")
+            return "已更新\n"+task_line(result["task"])
+        change = re.fullmatch(r"(完成|取消|確認取消|等待(?=\s|#?\d)|開始)\s*(.+)",text)
         postpone = re.fullmatch(r"延後\s*(.+?)\s*(?:到|至)\s*(.+)",text)
         if change or postpone:
             tasks = gateway("list",user_id,include_closed=True)["tasks"]
@@ -549,7 +597,8 @@ def button_message(body):
     if isinstance(body,Digest): return digest_message(body)
     from linebot.v3.messaging import FlexMessage, FlexContainer, QuickReply, QuickReplyItem, MessageAction
     choices=[]
-    if body.startswith("確認取消待辦\n"):
+    if isinstance(body,TaskChoice): choices=body.choices
+    elif body.startswith("確認取消待辦\n"):
         match=re.search(r"#(\d+)",body)
         if match: choices=[("確定取消","確認取消 "+match.group(1)),("保留待辦","待辦操作 "+match.group(1))]
     elif body.startswith("待辦操作\n"):
@@ -617,7 +666,8 @@ def button_message(body):
         content=[menu_item(a,b,i==0) for i,(a,b) in enumerate(choices[:3])]
         content.append({'type':'separator','margin':'lg'})
         content.append({'type':'box','layout':'horizontal','spacing':'md','margin':'lg','contents':[menu_item(a,b) for a,b in choices[3:]]})
-    if draft: footer=[button("確認存檔","確認存檔",True),button("放棄草稿","放棄草稿")]
+    if isinstance(body,TaskChoice): footer=[button(a,b) for a,b in choices]
+    elif draft: footer=[button("確認存檔","確認存檔",True),button("放棄草稿","放棄草稿")]
     elif body.startswith("確認取消待辦\n"): footer=[button(a,b) for a,b in choices]
     elif body.startswith("待辦操作\n"): footer=[button(label,command,index==0) for index,(label,command) in enumerate(choices[:6])]
     elif body.startswith("每日提醒目前"): footer=[button("測試提醒（1～2分鐘）","測試提醒",True),button("開啟每日提醒","開啟每日提醒"),button("關閉每日提醒","關閉每日提醒")]
@@ -648,9 +698,10 @@ def digest_message(digest):
         return b
     def row(task):
         d=date(task);state=task.get('status','未開始')
-        detail='到期日：'+label(d) if d else '到期日：待安排'
+        kind='追蹤日：' if state=='等待對方' else '到期日：'
+        detail=kind+(label(d) if d else '待安排')
         if d and (d.hour,d.minute)!=(23,59): detail+=' '+d.strftime('%H:%M')
-        elements=[tx(task['title'],'md','#172B2A',True),tx(detail,'sm','#475569',True)]
+        elements=[tx(task['title'],'md','#172B2A',True),tx(('等對方回覆／交付｜' if state=='等待對方' else '')+detail,'sm','#475569',True)]
         result={'type':'box','layout':'vertical','spacing':'sm','paddingAll':'14px','backgroundColor':'#FFFFFF','cornerRadius':'10px','contents':elements}
         if 'id' in task:
             tid=str(task['id'])

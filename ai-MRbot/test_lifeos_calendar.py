@@ -15,7 +15,7 @@ class CalendarTests(unittest.TestCase):
  def test_default_beauty_duration(self):
   for title in ('林小姐 F','林小姐 B','陳小姐 F+B（新客）'):
    _,start,end=c.parse_booking('明天下午2點 '+title,NOW)
-   self.assertEqual((end-start).total_seconds(),5400)
+   self.assertEqual((end-start).total_seconds(),10800 if 'F+B' in title else 5400)
   _,start,end=c.parse_booking('明天下午2點到下午3點 林小姐 F',NOW)
   self.assertEqual((end-start).total_seconds(),3600)
  def test_overlap_requires_second_confirmation(self):

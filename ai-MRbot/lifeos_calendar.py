@@ -81,9 +81,11 @@ def parse_booking(text,now=None):
     if start is None: raise l.InputError('請補上預約日期。')
     title=''.join(ch for i,ch in enumerate(text) if not any(a<=i<b for a,b in spans)).strip(' ，,。')
     if l.category_style(title)[0] not in ('美容','新客') or re.search(r'每(?:天|日|週|星期|月|年)',text):
-        raise l.InputError('美容美體可只提供開始時間，預設90分鐘；其他行程請提供開始與結束時間。')
+        raise l.InputError('美容美體可只提供開始時間；F或B預設90分鐘、F+B預設180分鐘。其他行程請提供起訖時間。')
     if not title or len(title)>500: raise l.InputError('請提供預約名稱。')
-    return title,start,start+timedelta(minutes=90)
+    normalized=l.beauty_title(title)
+    minutes=180 if re.search(r'F\s*\+\s*B',normalized,re.I) else 90
+    return title,start,start+timedelta(minutes=minutes)
 
 def day_bookings(event,exclude_id=None):
     from datetime import datetime
@@ -206,7 +208,7 @@ def handle(user_id,text,event_id=None,source_type='user'):
             if not owned or owned['calendar_id']!=cal: raise l.InputError('找不到自己建立的行程。')
             current=call('GET','/'+quote(owned['event_id'],safe=''))
             return card('行程詳情',[current.get('summary',owned['title']),event_time(current)],choices=[('改期','改期行程 '+detail.group(1))])
-        if text=='新增行程': return card('新增Google行程',['請傳送：行程 明天下午2點到下午3點 美容預約','美容美體只需開始時間，預設90分鐘；其他行程請提供起訖時間。'])
+        if text=='新增行程': return card('新增Google行程',['請傳送：行程 明天下午2點到下午3點 美容預約','美容美體只需開始時間：F或B預設90分鐘、F+B預設180分鐘；其他行程請提供起訖時間。'])
         if text=='放棄行程':
             l.gateway('calendar_discard',user_id,event_id)
             return card('已放棄行程草稿',['這次沒有寫入Google日曆。'])

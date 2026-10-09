@@ -20,7 +20,7 @@ class CalendarTests(unittest.TestCase):
   self.assertEqual((end-start).total_seconds(),3600)
  def test_overlap_requires_second_confirmation(self):
   event={'id':'busy','summary':'林小姐 F','start':{'dateTime':'2026-10-09T14:00:00+08:00'},'end':{'dateTime':'2026-10-09T15:30:00+08:00'}}
-  draft={'calendar_id':'cal','event_id':'new','operation':'create','event':event}
+  draft={'calendar_id':'cal','event_id':'new','operation':'create','event':{**event,'summary':'陳小姐 F'}}
   with patch.dict(os.environ,{'LIFEOS_GOOGLE_USER_ID':UID,'LIFEOS_GOOGLE_CALENDAR_ID':'cal'}),patch('lifeos.gateway') as db,patch('lifeos_calendar.call') as api,patch('lifeos_calendar.day_bookings',return_value=([event],[event])):
    db.side_effect=[{'draft':draft},{'ok':True}]
    self.assertEqual(c.handle(UID,'確認行程').alt_text,'預約時間重疊');api.assert_not_called()
@@ -30,6 +30,35 @@ class CalendarTests(unittest.TestCase):
   with patch('lifeos_calendar.call',return_value={'items':events}):
    _,conflicts=REAL_DAY_BOOKINGS(target)
    self.assertEqual([e['id'] for e in conflicts],['overlap'])
+ def test_duplicate_preview_does_not_create(self):
+  event={'id':'existing','summary':'林小姐 F','start':{'dateTime':'2026-10-09T14:00:00+08:00'},'end':{'dateTime':'2026-10-09T15:30:00+08:00'}}
+  with patch('lifeos_calendar.day_bookings',return_value=([event],[event])),patch('lifeos_calendar.call') as api:
+   result=c.preview({'event':event,'operation':'create','event_id':'new'},UID)
+   self.assertIn('已經建立',result.alt_text);api.assert_not_called()
+ def test_name_move_keeps_duration(self):
+  current={'id':'existing','etag':'etag','summary':'林小姐 F','start':{'dateTime':'2026-10-09T14:00:00+08:00'},'end':{'dateTime':'2026-10-09T15:30:00+08:00'}}
+  with patch.dict(os.environ,{'LIFEOS_GOOGLE_USER_ID':UID,'LIFEOS_GOOGLE_CALENDAR_ID':'cal'}),patch('lifeos.clock',return_value=NOW),patch('lifeos_calendar.named_candidates',return_value=[current]),patch('lifeos_calendar.call',return_value=current) as api,patch('lifeos.gateway',return_value={'ok':True}) as db:
+   result=c.handle(UID,'林小姐改到明天下午三點','evt')
+   self.assertIn('確認改期',result.alt_text)
+   event=db.call_args.kwargs['payload']['event']
+   self.assertIn('T15:00:00',event['start']['dateTime']);self.assertIn('T16:30:00',event['end']['dateTime'])
+   self.assertEqual(api.call_count,1)
+ def test_name_not_found_never_creates(self):
+  with patch.dict(os.environ,{'LIFEOS_GOOGLE_USER_ID':UID,'LIFEOS_GOOGLE_CALENDAR_ID':'cal'}),patch('lifeos_calendar.named_candidates',return_value=[]),patch('lifeos_calendar.call') as api:
+   self.assertIn('找不到',c.handle(UID,'林小姐改到明天下午三點').alt_text);api.assert_not_called()
+ def test_multiple_names_asks_before_write(self):
+  event={'id':'one','local_id':1,'summary':'林小姐 F','start':{'dateTime':'2026-10-09T14:00:00+08:00'},'end':{'dateTime':'2026-10-09T15:30:00+08:00'}}
+  with patch.dict(os.environ,{'LIFEOS_GOOGLE_USER_ID':UID,'LIFEOS_GOOGLE_CALENDAR_ID':'cal'}),patch('lifeos_calendar.named_candidates',return_value=[event,{**event,'id':'two','local_id':2}]),patch('lifeos.gateway',return_value={'ok':True}),patch('lifeos_calendar.call') as api:
+   result=c.handle(UID,'取消林小姐的預約','evt')
+   self.assertIn('請選擇',result.alt_text);api.assert_not_called()
+ def test_cancel_confirmation_updates_google(self):
+  event={'summary':'林小姐 F','start':{'dateTime':'2026-10-09T14:00:00+08:00'},'end':{'dateTime':'2026-10-09T15:30:00+08:00'}}
+  draft={'calendar_id':'cal','event_id':'existing','operation':'cancel','etag':'expected','event':event}
+  with patch.dict(os.environ,{'LIFEOS_GOOGLE_USER_ID':UID,'LIFEOS_GOOGLE_CALENDAR_ID':'cal'}),patch('lifeos.gateway') as db,patch('lifeos_calendar.call') as api:
+   db.side_effect=[{'draft':draft},{'ok':True}];api.side_effect=[event,{'status':'cancelled'}]
+   self.assertIn('已取消',c.handle(UID,'確認取消行程').alt_text)
+   self.assertEqual(api.call_args.kwargs['body'],{'status':'cancelled'})
+   self.assertEqual(api.call_args.kwargs['etag'],'expected')
  def test_parse(self):
   title,start,end=c.parse_range('明天下午2點到下午3點 美容預約',NOW)
   self.assertEqual(title,'美容預約');self.assertEqual(start.hour,14);self.assertEqual(end.hour,15)
@@ -73,12 +102,12 @@ class CalendarTests(unittest.TestCase):
    self.assertEqual(c.handle(UID,'明天下午2點到下午3點 max','evt').alt_text,'請選擇排程類型')
    api.assert_not_called()
  def test_pending_category_blocks_write(self):
-  draft={'calendar_id':'cal','needs_category':True,'event':{'summary':'max 開會','start':{'dateTime':'2026-10-09T14:00:00+08:00'},'end':{'dateTime':'2026-10-09T15:00:00+08:00'}}}
+  draft={'calendar_id':'cal','operation':'create','needs_category':True,'event':{'summary':'max 開會','start':{'dateTime':'2026-10-09T14:00:00+08:00'},'end':{'dateTime':'2026-10-09T15:00:00+08:00'}}}
   with patch.dict(os.environ,{'LIFEOS_GOOGLE_USER_ID':UID,'LIFEOS_GOOGLE_CALENDAR_ID':'cal'}),patch('lifeos.gateway',return_value={'draft':draft}),patch('lifeos_calendar.call') as api:
    result=c.handle(UID,'確認行程')
    self.assertIn('請選擇',result.alt_text);api.assert_not_called()
  def test_business_choice_preserves_title(self):
-  draft={'calendar_id':'cal','needs_category':True,'event':{'summary':'max 開會','start':{'dateTime':'2026-10-09T14:00:00+08:00'},'end':{'dateTime':'2026-10-09T15:00:00+08:00'}}}
+  draft={'calendar_id':'cal','operation':'create','needs_category':True,'event':{'summary':'max 開會','start':{'dateTime':'2026-10-09T14:00:00+08:00'},'end':{'dateTime':'2026-10-09T15:00:00+08:00'}}}
   with patch.dict(os.environ,{'LIFEOS_GOOGLE_USER_ID':UID,'LIFEOS_GOOGLE_CALENDAR_ID':'cal'}),patch('lifeos.gateway') as db,patch('lifeos_calendar.call') as api:
    db.side_effect=[{'draft':draft},{'ok':True}]
    self.assertIn('確認',c.handle(UID,'分類行程 商會').alt_text)

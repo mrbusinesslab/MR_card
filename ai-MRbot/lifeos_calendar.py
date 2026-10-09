@@ -241,6 +241,27 @@ def today_events(user_id,now,group=None,period=None):
         return [],'目前無法讀取Google行程，請稍後查詢；待辦仍正常顯示。'
 
 def install_routes(app):
+    @app.post('/lifeos/calendar-label')
+    def calendar_label():
+        from flask import request
+        secret=os.getenv('LIFEOS_CRON_KEY','')
+        if not secret or not hmac.compare_digest(request.headers.get('Authorization',''),'Bearer '+secret): return {'error':'unauthorized'},401
+        data=request.get_json(silent=True) or {}
+        key=data.get('event_id','');expected=data.get('expected_title','')
+        if not isinstance(key,str) or not re.fullmatch(r'[0-9a-v]{5,1024}',key) or not expected: return {'error':'invalid_event'},400
+        try:
+            event=call('GET','/'+quote(key,safe=''),params={'eventLabelVersion':1})
+            if event.get('summary')!=expected: return {'error':'title_changed'},409
+            group=l.category_style(expected)[0]
+            if group not in ('美容','新客'): return {'error':'not_beauty_booking'},400
+            payload=apply_label({},group)
+            if not payload.get('eventLabelId'): return {'error':'label_missing'},409
+            if event.get('eventLabelId')!=payload['eventLabelId']:
+                call('PATCH','/'+quote(key,safe=''),body=payload,params={'sendUpdates':'none'},etag=event['etag'])
+            verified=call('GET','/'+quote(key,safe=''),params={'eventLabelVersion':1})
+            return {'title':verified.get('summary'),'label_id':verified.get('eventLabelId'),'verified':verified.get('eventLabelId')==payload['eventLabelId']}
+        except CalendarError as exc: return {'error':exc.reason},502
+
     @app.post('/lifeos/calendar-status')
     def calendar_status():
         from flask import request

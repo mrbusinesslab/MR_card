@@ -14,7 +14,7 @@ class LabelImportTests(unittest.TestCase):
   return c,events
  def test_exact_labels_preserve_creator_and_never_reset_later_changes(self):
   c,events=self.fixture();m.run(c,Mock())
-  self.assertEqual(sum(x.args[0]=='PATCH' for x in c.call.call_args_list),len(m.TARGETS))
+  self.assertEqual(sum(x.args[0]=='PATCH' and 'eventLabelId' in x.kwargs.get('body',{}) for x in c.call.call_args_list),len(m.TARGETS))
   for t in m.TARGETS:
    self.assertEqual(events[t['id']]['eventLabelId'],t['label'])
    self.assertEqual(events[t['id']]['extendedProperties']['private']['lifeos_created_by'],'original')
@@ -24,4 +24,16 @@ class LabelImportTests(unittest.TestCase):
   c,_=self.fixture();c.config.return_value=({},'other','owner');m.run(c,Mock());c.call.assert_not_called()
  def test_renamed_event_not_overwritten(self):
   c,events=self.fixture();events[m.TARGETS[0]['id']]['summary']='changed';m.run(c,Mock())
-  self.assertEqual(sum(x.args[0]=='PATCH' for x in c.call.call_args_list),len(m.TARGETS)-1)
+  self.assertEqual(sum(x.args[0]=='PATCH' and 'eventLabelId' in x.kwargs.get('body',{}) for x in c.call.call_args_list),len(m.TARGETS)-1)
+
+ def test_meet_removed_once_without_changing_booking_fields(self):
+  c,events=self.fixture()
+  for e in events.values():
+   e['conferenceData']={'conferenceId':'test'}
+   e['start']={'dateTime':'2026-10-12T18:00:00+08:00'}
+  m.run(c,Mock())
+  for e in events.values():
+   self.assertIsNone(e['conferenceData'])
+   self.assertEqual(e['start'],{'dateTime':'2026-10-12T18:00:00+08:00'})
+  first=events[m.TARGETS[0]['id']];first['conferenceData']={'conferenceId':'explicitly-added-later'}
+  m.run(c,Mock());self.assertEqual(first['conferenceData']['conferenceId'],'explicitly-added-later')

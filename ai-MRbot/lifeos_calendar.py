@@ -366,7 +366,7 @@ def handle(user_id,text,event_id=None,source_type='user'):
             key=draft['event_id'];payload=draft['event']
             if draft['operation']=='create':
                 payload=apply_label(payload,draft.get('category'))
-                try: event=call('POST',body={**payload,'id':key,'extendedProperties':actor_metadata(payload,user_id,creating=True)},params={'sendUpdates':'none'})
+                try: event=call('POST',body={**payload,'id':key,'extendedProperties':actor_metadata(payload,user_id,creating=True),'conferenceData':None},params={'sendUpdates':'none','conferenceDataVersion':1})
                 except CalendarError as exc:
                     if exc.reason not in ('duplicate','409'): raise
                     event=call('GET','/'+quote(key,safe=''))

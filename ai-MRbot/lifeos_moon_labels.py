@@ -16,6 +16,15 @@ def run(c, logger):
             event = c.call('GET','/'+quote(target['id'],safe=''),params={'eventLabelVersion':1})
             if event.get('status') == 'cancelled': continue
             private = event.get('extendedProperties',{}).get('private',{})
+            no_meet_marker='import_no_meet_202610_v1'
+            if not private.get(no_meet_marker) and event.get('summary')==target['title'] and 'TimeTree UID' in event.get('description',''):
+                extended=c.actor_metadata(event,owner)
+                extended['private'][no_meet_marker]='done'
+                event=c.call('PATCH','/'+quote(target['id'],safe=''),body={'conferenceData':None,'extendedProperties':extended},params={'sendUpdates':'none','conferenceDataVersion':1},etag=event['etag'])
+                event=c.call('GET','/'+quote(target['id'],safe=''),params={'eventLabelVersion':1})
+                if event.get('conferenceData') or event.get('hangoutLink'): raise RuntimeError('Meet removal verification failed')
+                private=event.get('extendedProperties',{}).get('private',{})
+
             if not private.get(MARKER):
                 if event.get('summary') != target['title'] or 'TimeTree UID' not in event.get('description',''): continue
                 label = labels.get(target['label'])

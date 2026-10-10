@@ -24,6 +24,23 @@ def profile(tid):
         'LIFEOS_STANDALONE':'1'})
 
 class ClientTests(unittest.TestCase):
+    def test_edit_context_isolated_for_same_line_user(self):
+        import time
+        import lifeos_calendar_list_flow as flow
+        with use_profile(profile('aa')):
+            flow._PENDING[('aa',UID)]={'until':time.monotonic()+600}
+            self.assertTrue(flow.is_editing(UID))
+        with use_profile(profile('bb')):
+            self.assertFalse(flow.is_editing(UID))
+        flow._PENDING.pop(('aa',UID),None)
+    def test_customer_does_not_inherit_mr_person_rule(self):
+        with use_profile(profile('aa')):
+            self.assertFalse(lifeos_calendar.is_xiaomeng('小孟'))
+        self.assertTrue(lifeos_calendar.is_xiaomeng('小孟'))
+    def test_customer_blueprint_does_not_run_mr_import(self):
+        with patch('lifeos_moon_labels.start') as migration:
+            create_app([profile('aa')],verify_backend=False)
+            migration.assert_not_called()
     def test_thread_settings_and_restore(self):
         def work(tid):
             with use_profile(profile(tid)):

@@ -115,17 +115,20 @@ def signature(key,expires):
     if not secret: raise ValueError('image_signing_not_configured')
     return hmac.new(secret.encode(),(key+':'+str(expires)).encode(),hashlib.sha256).hexdigest()
 
-def weekly_message(user_id,now):
+def weekly_message(user_id,now,period='week'):
     import lifeos as l
     import lifeos_calendar as c
     from linebot.v3.messaging import ImageMessage
     _,cal,approved=c.config()
     if not cal or not c.calendar_access(user_id): return None
-    start,end=l.period_bounds(now,'week')
+    start,end=l.period_bounds(now,period)
     events=c.visible_events(user_id,week_events(start,end))
     try: colors={x['id']:x.get('backgroundColor') for x in c.event_labels()}
     except c.CalendarError: colors={}
-    data=render_week(events,start,now,colors)
+    if period=='month':
+        from lifeos_month_image import render_month
+        data=render_month(events,start,now,colors)
+    else: data=render_week(events,start,now,colors)
     asset_root().mkdir(mode=0o700,parents=True,exist_ok=True)
     for old in asset_root().glob('*.png'):
         try:

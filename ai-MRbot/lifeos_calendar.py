@@ -75,7 +75,7 @@ def event_labels():
     return metadata.get('labelProperties',{}).get('eventLabels',[])
 
 def apply_label(payload,group):
-    names={'美容':'美容美體','新客':'新客'}
+    names={'美容':'美容美體','新客':'新客','講座':'講座'}
     if group not in names: return payload
     labels=event_labels()
     match=next((x for x in labels if x.get('name')==names[group]),None)
@@ -102,6 +102,12 @@ def parse_range(text,now=None,title_required=True):
     if title_required and (not title or len(title)>500): raise l.InputError('請提供500字以内的行程名稱。')
     return title,start,end
 
+def is_xiaomeng(title):
+    return tenant_id()=='mr' and bool(re.search(r'(?<![\u3400-\u9fffA-Za-z])小孟(?![\u3400-\u9fffA-Za-z])',title))
+
+def booking_category(title):
+    return '美容' if is_xiaomeng(title) else l.category_style(title)[0]
+
 def parse_booking(text,now=None):
     now=now or l.clock()
     times=list(re.finditer(TIME_PATTERN,text))
@@ -109,11 +115,11 @@ def parse_booking(text,now=None):
     start,spans=l.parse_date(text,now)
     if start is None: raise l.InputError('請補上預約日期。')
     title=''.join(ch for i,ch in enumerate(text) if not any(a<=i<b for a,b in spans)).strip(' ，,。')
-    if l.category_style(title)[0] not in ('美容','新客') or re.search(r'每(?:天|日|週|星期|月|年)',text):
+    if booking_category(title) not in ('美容','新客') or re.search(r'每(?:天|日|週|星期|月|年)',text):
         raise l.InputError('美容美體可只提供開始時間；F或B預設90分鐘、F+B預設180分鐘。其他行程請提供起訖時間。')
     if not title or len(title)>500: raise l.InputError('請提供預約名稱。')
     normalized=l.beauty_title(title)
-    minutes=180 if re.search(r'F\s*\+\s*B',normalized,re.I) else 90
+    minutes=180 if is_xiaomeng(title) or re.search(r'F\s*\+\s*B',normalized,re.I) else 90
     return title,start,start+timedelta(minutes=minutes)
 
 def day_bookings(event,exclude_id=None):
@@ -276,10 +282,14 @@ def set_category(draft,group):
 
 def handle(user_id,text,event_id=None,source_type='user'):
     text=text.strip()
+    import sys
+    from lifeos_calendar_list_flow import handle as review_handle
+    review_reply = review_handle(sys.modules[__name__],user_id,text,event_id,source_type)
+    if review_reply is not None: return review_reply
     name_move=re.fullmatch(r'(.+?)(?:的預約|預約)?(?:改到|改期到)\s*(.+)',text)
     name_cancel=re.fullmatch(r'取消\s*(.+?)(?:的預約|預約)',text)
     automatic=bool(re.search(TIME_PATTERN+r'\s*(?:到|至|～|~|－|-)\s*'+TIME_PATTERN,text))
-    single_beauty=len(list(re.finditer(TIME_PATTERN,text)))==1 and bool(re.search(r'做臉|做身體|美容預約|美體預約|(?<![A-Za-z])[FB](?![A-Za-z])',text,re.I)) and not re.search(r'前|截止|準備|提醒|要買',text)
+    single_beauty=len(list(re.finditer(TIME_PATTERN,text)))==1 and (is_xiaomeng(text) or bool(re.search(r'做臉|做身體|美容預約|美體預約|(?<![A-Za-z])[FB](?![A-Za-z])',text,re.I))) and not re.search(r'前|截止|準備|提醒|要買',text)
     automatic=automatic or single_beauty
     named=bool(name_move or name_cancel)
     if not text.startswith(COMMANDS):
@@ -361,7 +371,7 @@ def handle(user_id,text,event_id=None,source_type='user'):
             key=draft['event_id'];payload=draft['event']
             if draft['operation']=='create':
                 payload=apply_label(payload,draft.get('category'))
-                try: event=call('POST',body={**payload,'id':key,'extendedProperties':actor_metadata(payload,user_id,creating=True)},params={'sendUpdates':'none'})
+                try: event=call('POST',body={**payload,'id':key,'extendedProperties':actor_metadata(payload,user_id,creating=True),'conferenceData':None},params={'sendUpdates':'none','conferenceDataVersion':1})
                 except CalendarError as exc:
                     if exc.reason not in ('duplicate','409'): raise
                     event=call('GET','/'+quote(key,safe=''))
@@ -391,7 +401,7 @@ def handle(user_id,text,event_id=None,source_type='user'):
                 if current.get('recurrence') or current.get('recurringEventId'): raise l.InputError('這版先不更動重複行程。')
                 title=current.get('summary',owned['title']);draft.update(event_id=owned['event_id'],operation='update',etag=current['etag'],original={'summary':title,'start':current['start'],'end':current['end']})
             event={'summary':title,'start':{'dateTime':start.isoformat(),'timeZone':'Asia/Taipei'},'end':{'dateTime':end.isoformat(),'timeZone':'Asia/Taipei'}}
-            group,_=l.category_style(title)
+            group=booking_category(title)
             draft['event']=event
             if not update:
                 if group=='其他': draft['needs_category']=True
@@ -427,6 +437,11 @@ def today_events(user_id,now,group=None,period=None):
 def install_routes(app):
     import lifeos_week_image
     lifeos_week_image.install_routes(app)
+    # Bounded, idempotent migration of the explicitly imported MOON events.
+    from lifeos_moon_labels import start as start_moon_labels
+    import sys
+    if hasattr(app,'logger') and getenv('LIFEOS_STANDALONE') != '1' and tenant_id()=='mr':
+        start_moon_labels(sys.modules[__name__],app.logger)
     @app.post('/lifeos/calendar-label')
     def calendar_label():
         from flask import request
@@ -459,4 +474,5 @@ def install_routes(app):
             result['labels']=event_labels()
         except CalendarError as exc: result['status']=exc.reason
         return result
+
 

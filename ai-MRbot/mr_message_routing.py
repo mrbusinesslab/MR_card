@@ -17,8 +17,11 @@ PEOPLE_PREFIXES = ('查客戶 ','人物資料|','人物完整|','人物選單|',
 def normalize(text):
     return ''.join(text.split()).lower()
 
+def is_date_query(text):
+    return bool(re.fullmatch(r'(?:(?:\d{4})/)?\d{1,2}/\d{1,2}',text.strip()))
+
 def is_lifeos_command(text):
-    return text in LIFEOS_LABELS or text.startswith(LIFEOS_PREFIXES) or bool(
+    return is_date_query(text) or text in LIFEOS_LABELS or text.startswith(LIFEOS_PREFIXES) or bool(
         re.fullmatch(r'.+?(?:的預約|預約)?(?:改到|改期到)\s*.+',text)
         or re.fullmatch(r'取消\s*.+?(?:的預約|預約)',text))
 

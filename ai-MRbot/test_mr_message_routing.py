@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import Mock
 from types import SimpleNamespace
-from mr_message_routing import prefer_people, PeopleQueryMode, may_be_person_name
+from mr_message_routing import prefer_people, PeopleQueryMode, may_be_person_name, is_date_query
 
 class RoutingTests(unittest.TestCase):
     def test_known_names_bypass_without_keyword_matching_sentences(self):
@@ -37,7 +37,7 @@ class HandlerTests(unittest.TestCase):
         from mr_message_routing import is_lifeos_command
         self.env={'ApiClient':Mock(return_value=api),'configuration':None,'MessagingApi':Mock(),
             'legacy':self.legacy,'lifeos_calendar':self.calendar,'lifeos':self.tasks,
-            'prefer_people':prefer_people,'is_lifeos_command':is_lifeos_command,'reply':self.reply,
+            'is_date_query':is_date_query,'prefer_people':prefer_people,'is_lifeos_command':is_lifeos_command,'reply':self.reply,
             'people_query_mode':PeopleQueryMode(),'may_be_person_name':may_be_person_name,
             'normalize':lambda x:''.join(x.split()).lower(),
             'find_card_for_person':Mock(return_value=None),'resolve_people':Mock(return_value=[{'姓名':'林威'}]),
@@ -104,6 +104,11 @@ class HandlerTests(unittest.TestCase):
         self.env['find_card_for_person'].return_value={'case':'test'}
         self.send('查資料');self.send('林威')
         self.assertEqual(self.reply.call_args.args[2],['card','url'])
+    def test_bare_date_exits_data_mode_and_queries_lifeos(self):
+        self.send('查資料');self.send('10/12')
+        self.tasks.handle_text.assert_called()
+        self.assertFalse(self.env['people_query_mode'].active(self.uid))
+
     def test_beauty_keyword_stays_in_data_mode(self):
         self.send('查資料');self.send('美容')
         self.tasks.handle_text.assert_not_called()

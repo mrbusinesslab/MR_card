@@ -7,7 +7,7 @@ import legacy_app as legacy
 from people_lookup import find_people, get_person, available_categories, category_text, extract_urls
 import lifeos
 import lifeos_calendar
-from mr_message_routing import prefer_people, is_lifeos_command, PeopleQueryMode, may_be_person_name
+from mr_message_routing import prefer_people, is_lifeos_command, PeopleQueryMode, may_be_person_name, is_date_query
 
 from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
@@ -486,7 +486,7 @@ def handle_message(event):
             return
         if user_msg in ("電子名片","展示","最近查看的名片") or user_msg.startswith(("人物資料|","人物完整|","人物選單|","查客戶 ","追蹤更新|")):
             people_query_mode.enter(user_id)
-        elif user_msg in ("生活助理","個人助理","新增待辦","離開助理","回到小幫手") or user_msg.startswith("啟用助理"):
+        elif user_msg in ("生活助理","個人助理","新增待辦","離開助理","回到小幫手") or user_msg.startswith("啟用助理") or is_date_query(user_msg):
             people_query_mode.leave(user_id)
         data_search = people_query_mode.active(user_id)
         if data_search:

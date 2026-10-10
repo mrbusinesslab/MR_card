@@ -505,6 +505,10 @@ def handle_message(event):
             pending_search=user_id in legacy.PENDING_SEARCH_USERS,
             names=card_names, categories=dict(legacy.CATEGORY_QUICK_REPLIES))
         people_request = people_request or data_search or bool(direct_people)
+        from lifeos_calendar_list_flow import claims as review_claims
+        if review_claims(user_id,user_msg):
+            people_request = False
+
         if not people_request:
             if is_lifeos_command(user_msg):
                 legacy.PENDING_SEARCH_USERS.discard(user_id)

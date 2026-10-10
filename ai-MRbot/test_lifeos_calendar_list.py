@@ -58,11 +58,14 @@ class CalendarIntegrationTests(unittest.TestCase):
     def setUpClass(cls):
         import lifeos_calendar
         cls.calendar=lifeos_calendar
-    def test_review_replies_without_google_or_database_write(self):
+    def test_review_saves_only_draft_and_returns_cards(self):
         with patch.object(self.calendar,'calendar_access',return_value=True),patch.object(self.calendar,'call') as google,patch.object(self.calendar.l,'gateway') as db:
             result=self.calendar.handle('fixture-user',EXAMPLE,'fixture-event')
-        self.assertIn('辨識到8筆',result.text)
-        google.assert_not_called();db.assert_not_called()
+        self.assertIn('8筆',result.alt_text)
+        self.assertEqual(len(result.contents.contents),9)
+        google.assert_not_called()
+        self.assertEqual(db.call_args.args[0],'calendar_draft')
+        self.assertEqual(db.call_args.kwargs['payload']['operation'],'list_review')
     def test_private_and_enrolled_access_required(self):
         with patch.object(self.calendar,'calendar_access',return_value=False):
             result=self.calendar.handle('fixture-user',EXAMPLE,'fixture-event')

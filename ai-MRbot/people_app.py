@@ -478,11 +478,19 @@ def handle_message(event):
         if user_msg == "查資料":
             legacy.PENDING_SEARCH_USERS.discard(user_id)
             people_query_mode.enter(user_id)
-            reply(line_bot_api,event,TextMessage(text="已切換到查資料。\n請直接輸入姓名，例如「阮凱程」。\n可查看 BNI、人物資料與已建立的電子名片。\n\n傳「生活助理」或「新增待辦」可切回 Life OS。"))
+            reply(line_bot_api,event,TextMessage(text="查資料｜電子名片・BNI 人物資料\n\n請輸入姓名，例如「阮凱程」。\n可連續查詢不同人物，或點下方按鈕搜尋名片。\n\n傳「生活助理」可切回行程與待辦。", quick_reply=QuickReply(items=[
+                QuickReplyItem(action=MessageAction(label="電子名片",text="電子名片")),
+                QuickReplyItem(action=MessageAction(label="展示",text="展示")),
+                QuickReplyItem(action=MessageAction(label="生活助理",text="生活助理")),
+            ])))
             return
-        if user_msg in ("電子名片","展示","最近查看的名片") or is_lifeos_command(user_msg):
+        if user_msg in ("電子名片","展示","最近查看的名片") or user_msg.startswith(("人物資料|","人物完整|","人物選單|","查客戶 ","追蹤更新|")):
+            people_query_mode.enter(user_id)
+        elif user_msg in ("生活助理","個人助理","新增待辦","離開助理","回到小幫手") or user_msg.startswith("啟用助理"):
             people_query_mode.leave(user_id)
         data_search = people_query_mode.active(user_id)
+        if data_search:
+            people_query_mode.enter(user_id)
         direct_people = None
         if not data_search and user_id not in legacy.PENDING_SEARCH_USERS and may_be_person_name(user_msg) and find_card_for_person(user_msg) is None:
             try:
@@ -566,18 +574,18 @@ def handle_message(event):
             legacy.PENDING_SEARCH_USERS.discard(user_id)
             matched = legacy.search_cases(user_msg)
             if not matched:
-                suggestions = legacy.fuzzy_search_cases(user_msg)
-                message = legacy.build_suggestion_flex(user_msg, suggestions) if suggestions else TextMessage(text=f"找不到與「{user_msg}」相關的名片，請換個關鍵字再試一次。")
+                message = None  # The same mode also searches BNI-only people.
             elif len(matched) == 1:
                 legacy.record_view(user_id, matched[0])
                 message = build_ruru_card_choice("潘昱如") if matched[0].get("case") == "case1_小如如" else card_delivery_messages(matched[0])
             else:
                 message = legacy.build_search_result_flex(user_msg, matched)
-            reply(line_bot_api, event, message)
-            return
+            if message is not None:
+                reply(line_bot_api, event, message)
+                return
 
         direct_card = find_card_for_person(user_msg)
-        if direct_card and direct_card.get("case") == "case18_煒達":
+        if direct_card and direct_card.get("case") == "case18_煒達" and not data_search:
             legacy.record_view(user_id, direct_card)
             reply(line_bot_api, event, card_delivery_messages(direct_card))
             return
@@ -594,11 +602,20 @@ def handle_message(event):
             reply(line_bot_api, event, build_people_result(user_msg, people))
             return
 
+        if direct_card:
+            legacy.record_view(user_id,direct_card)
+            message = build_ruru_card_choice("潘昱如") if direct_card.get("case") == "case1_小如如" else card_delivery_messages(direct_card)
+            reply(line_bot_api,event,message)
+            return
+        matched_cards = legacy.search_cases(user_msg) if data_search else []
+        if matched_cards:
+            reply(line_bot_api,event,legacy.build_search_result_flex(user_msg,matched_cards))
+            return
         suggestions = legacy.fuzzy_search_cases(user_msg)
         if suggestions:
             reply(line_bot_api, event, legacy.build_suggestion_flex(user_msg, suggestions))
             return
-        reply(line_bot_api, event, TextMessage(text="找不到這位人物的資料。你可以輸入完整姓名，或輸入「電子名片」搜尋名片。"))
+        reply(line_bot_api, event, TextMessage(text="找不到這位人物的資料或電子名片，請換個姓名或關鍵字再試。"))
 
 
 @handler.add(MessageEvent, message=AudioMessageContent)

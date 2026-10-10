@@ -29,7 +29,7 @@ class HandlerTests(unittest.TestCase):
         self.uid='U'+'1'*32
         self.pending=set()
         self.legacy=SimpleNamespace(CASE_LIST=[{'keyword':'林威','name_keywords':['林威']}],PENDING_SEARCH_USERS=self.pending,
-            CATEGORY_QUICK_REPLIES=[('建築組','建築組')],search_cases=Mock(return_value=[{'case':'test','keyword':'林威'}]),record_view=Mock())
+            build_demo_flex=Mock(return_value='demo'),build_recent_flex=Mock(return_value='recent'),CATEGORY_QUICK_REPLIES=[('建築組','建築組')],search_cases=Mock(return_value=[{'case':'test','keyword':'林威'}]),record_view=Mock())
         self.calendar=SimpleNamespace(handle=Mock(return_value=None))
         self.tasks=SimpleNamespace(handle_text=Mock(return_value='incorrect task intercept'),button_message=lambda x:x)
         self.reply=Mock()
@@ -87,4 +87,30 @@ class HandlerTests(unittest.TestCase):
         self.assertFalse(mode.active('other'))
         with unittest.mock.patch('mr_message_routing.time.monotonic',return_value=10**15):
             self.assertFalse(mode.active('b'))
+    def test_card_tools_stay_inside_data_mode(self):
+        self.send('查資料');self.send('電子名片');self.send('林威')
+        self.assertTrue(self.env['people_query_mode'].active(self.uid))
+        self.send('展示');self.send('最近查看的名片')
+        self.assertTrue(self.env['people_query_mode'].active(self.uid))
+        self.send('阮凱程');self.tasks.handle_text.assert_not_called()
+    def test_card_search_falls_back_to_bni_only_person(self):
+        self.legacy.search_cases.return_value=[]
+        self.env['resolve_people'].return_value=[{'姓名':'王小明'}]
+        self.send('電子名片');self.send('王小明')
+        self.assertEqual(self.reply.call_args.args[2],'person-menu')
+        self.tasks.handle_text.assert_not_called()
+    def test_card_only_person_available_without_bni_row(self):
+        self.env['resolve_people'].return_value=[]
+        self.env['find_card_for_person'].return_value={'case':'test'}
+        self.send('查資料');self.send('林威')
+        self.assertEqual(self.reply.call_args.args[2],['card','url'])
+    def test_beauty_keyword_stays_in_data_mode(self):
+        self.send('查資料');self.send('美容')
+        self.tasks.handle_text.assert_not_called()
+        self.assertTrue(self.env['people_query_mode'].active(self.uid))
+    def test_data_mode_does_not_run_task_actions(self):
+        self.send('查資料');self.send('完成 12');self.send('本周')
+        self.tasks.handle_text.assert_not_called()
+        self.calendar.handle.assert_not_called()
+        self.assertTrue(self.env['people_query_mode'].active(self.uid))
 if __name__=='__main__': unittest.main()

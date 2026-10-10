@@ -3,6 +3,7 @@ import hashlib
 import hmac
 import io
 import os
+from lifeos_settings import getenv, tenant_id
 import re
 import secrets
 import tempfile
@@ -106,8 +107,11 @@ def render_week(events,start,now,label_colors=None):
     output=io.BytesIO(); canvas.save(output,format='PNG',optimize=True)
     return output.getvalue()
 
+def asset_root():
+    return ROOT if tenant_id()=='mr' else ROOT/tenant_id()
+
 def signature(key,expires):
-    secret=os.getenv('LIFEOS_CRON_KEY','')
+    secret=getenv('LIFEOS_CRON_KEY','')
     if not secret: raise ValueError('image_signing_not_configured')
     return hmac.new(secret.encode(),(key+':'+str(expires)).encode(),hashlib.sha256).hexdigest()
 
@@ -122,15 +126,15 @@ def weekly_message(user_id,now):
     try: colors={x['id']:x.get('backgroundColor') for x in c.event_labels()}
     except c.CalendarError: colors={}
     data=render_week(events,start,now,colors)
-    ROOT.mkdir(mode=0o700,exist_ok=True)
-    for old in ROOT.glob('*.png'):
+    asset_root().mkdir(mode=0o700,parents=True,exist_ok=True)
+    for old in asset_root().glob('*.png'):
         try:
             if old.stat().st_mtime<time.time()-7*86400: old.unlink()
         except OSError: pass
     key=secrets.token_hex(24); expires=int(time.time())+7*86400
     sig=signature(key,expires)
-    (ROOT/(key+'.png')).write_bytes(data)
-    base=os.getenv('LIFEOS_PUBLIC_BASE_URL','https://mr-6c1r.onrender.com').rstrip('/')
+    (asset_root()/(key+'.png')).write_bytes(data)
+    base=getenv('LIFEOS_PUBLIC_BASE_URL','https://mr-6c1r.onrender.com').rstrip('/')
     url=base+'/lifeos/week-image/'+key+'.png?expires='+str(expires)+'&signature='+sig
     return ImageMessage(original_content_url=url,preview_image_url=url)
 
@@ -143,6 +147,6 @@ def install_routes(app):
             expires=int(request.args.get('expires','0'))
             if not time.time()<expires<=time.time()+7*86400+60: return '',404
             if not hmac.compare_digest(request.args.get('signature',''),signature(key,expires)): return '',404
-            data=(ROOT/(key+'.png')).read_bytes()
+            data=(asset_root()/(key+'.png')).read_bytes()
         except (ValueError,OSError): return '',404
         return Response(data,mimetype='image/png',headers={'Cache-Control':'private, max-age=3600','X-Content-Type-Options':'nosniff'})

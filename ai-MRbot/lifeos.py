@@ -730,13 +730,13 @@ def digest_message(digest):
         if getattr(digest,'truncated',False):
             pages[0]['body']['contents'].append(tx('待辦超過200件，僅整理前200件。','xs'))
         image_message=None
-        if digest.mode=='week':
+        if digest.mode in ('week','month'):
             import lifeos_week_image
-            try: image_message=lifeos_week_image.weekly_message(getattr(digest,'user_id',None),now)
+            try: image_message=lifeos_week_image.weekly_message(getattr(digest,'user_id',None),now,period=digest.mode)
             except Exception:
                 import logging
                 logging.exception('Weekly calendar image could not be generated')
-                pages.append(page('本周行程',[tx('目前無法產生本週行程圖，請稍後再點「本周」。待辦與逾期仍正常顯示。')]))
+                pages.append(page(title+'行程',[tx('目前無法產生'+title+'行程圖，請稍後再點「'+title+'」。待辦與逾期仍正常顯示。')]))
         task_message=FlexMessage(alt_text=title+'｜'+period_label,contents=FlexContainer.from_dict({'type':'carousel','contents':pages}))
         return [image_message,task_message] if image_message else task_message
     selected=digest.tasks

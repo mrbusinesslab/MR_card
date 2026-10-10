@@ -4,7 +4,7 @@
 
 程式、獨立入口、客戶設定、建立工具與驗證腳本已準備。本分支尚未合併到 main，也未部署到現有 MR 服務。
 
-**準備版本，不啟用客戶**：資料庫 migration 與 gateway 尚未部署；接客前仍需在測試 PostgreSQL 完成資料庫隔離驗收。這次只更新準備分支，不改正式 MR 資料庫、LINE 或日曆。
+**準備版本，不啟用客戶**：資料庫 migration 與 gateway 尚未部署；已在本機 PostgreSQL（PGlite）完成資料庫隔離驗收；正式啟用時仍需部署前後比對與驗收。這次只更新準備分支，不改正式 MR 資料庫、LINE 或日曆。
 
 MR 和小如如維持同一個客戶空間。既有使用者 ID、待辦、行程及建立者不重建。未来不同客戶各自使用不同 LINE channel、日曆、gateway 金鑰及提醒金鑰。可以由同一個 MR Google 帳號管理多個客戶日曆。
 
@@ -70,7 +70,7 @@ python -m unittest test_lifeos test_lifeos_calendar test_lifeos_week_image test_
 node tests/test_gateway.mjs
 ```
 
-資料庫腳本需在完成 migration 的測試 PostgreSQL 上執行，**目前尚未驗收實際資料庫行為**。不應只用 Python 測試結果判定客戶資料已安全隔離。
+資料庫隔離腳本已在 PGlite PostgreSQL 執行通過；測試資料回滾，基準 MR 的使用者、日曆紀錄與客戶數量均保留。此結果驗證 SQL 行為，尚不代表已部署到正式 Supabase。
 
 ## 2026/10/10 準備版本更新
 
@@ -78,6 +78,8 @@ node tests/test_gateway.mjs
 - 同一 LINE 人員的清單修改狀態按客戶隔離；週／月圖片目錄和簽名按客戶隔離。
 - 小孟固定三小時為 MR 專用規則；客戶入口不執行 MOON 匯入標籤遷移。
 - 客戶模板和設定產生工具保持停用，不建立真實客戶或額外雲端服務。
-- Python 109 項驗證通過；gateway 金鑰綁定與偽造客戶拒絕測試通過。資料庫 SQL 測試尚未執行，不能宣稱已完成正式資料隔離驗收。
+- Python 109 項驗證通過；gateway 金鑰綁定與偽造客戶拒絕測試通過。資料庫 SQL 隔離測試已通過；正式 Supabase 尚未部署，需於首次啟用時確認 RLS、角色權限及原有 MR 功能。
 
 每次更新客戶前先記錄版本，驗證健康檢查、當日查詢、週／月圖、待辦新增／完成、改期及提醒金鑰；失敗就回復原程式版本。若更新含資料庫變更，必須先備份並評估相容性，不能只回復程式。
+
+重跑資料庫驗證：在 ai-MRbot 執行 `npm install --prefix tests`，再執行 `node tests/check_lifeos_database.mjs`。驗證器只建立記憶體內的測試資料庫，不連線正式 Supabase。

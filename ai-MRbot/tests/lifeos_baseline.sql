@@ -80,7 +80,7 @@ begin
   return jsonb_build_object('event',r);
  end if;
  return jsonb_build_object('error','invalid_action');
-end $function$
+end $function$;
 
 CREATE OR REPLACE FUNCTION public.lifeos_can_access(actor text, creator text, kind text)
  RETURNS boolean
@@ -90,7 +90,7 @@ CREATE OR REPLACE FUNCTION public.lifeos_can_access(actor text, creator text, ki
 AS $function$
 select exists(select 1 from lifeos_users a join lifeos_users c on c.user_id=creator join lifeos_users owner on owner.user_id=coalesce(a.shared_owner,a.user_id)
 where a.user_id=actor and (actor=creator or (coalesce(a.shared_owner,a.user_id)=coalesce(c.shared_owner,c.user_id) and case kind when 'task' then owner.share_tasks when 'calendar' then owner.share_calendar else false end)));
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.lifeos_confirm_tasks(p jsonb)
  RETURNS jsonb
@@ -129,7 +129,7 @@ begin
  res:=jsonb_build_object('tasks',rows);
  if eid is not null then update public.lifeos_events set result=res where user_id=uid and event_id=eid; end if;
  return res;
-end $function$
+end $function$;
 
 CREATE OR REPLACE FUNCTION public.lifeos_dispatch(p jsonb)
  RETURNS jsonb
@@ -264,7 +264,7 @@ begin
   if eid is not null then insert into public.lifeos_events(event_id,user_id,result) values(eid,uid,res) on conflict do nothing; end if;
   return res;
 end;
-$function$
+$function$;
 
 CREATE OR REPLACE FUNCTION public.lifeos_postpone_dispatch(p jsonb)
  RETURNS jsonb
@@ -306,7 +306,7 @@ begin
   return r;
  end if;
  return jsonb_build_object('error','invalid_action');
-end $function$
+end $function$;
 
 CREATE OR REPLACE FUNCTION public.lifeos_record_change()
  RETURNS trigger
@@ -319,7 +319,7 @@ begin
  new.last_modified_by:=actor;
  insert into lifeos_change_log(entity,record_id,creator,actor,operation) values(tg_table_name,new.id,new.user_id,actor,tg_op);
  return new;
-end $function$
+end $function$;
 
 CREATE OR REPLACE FUNCTION public.lifeos_test_dispatch(p jsonb)
  RETURNS jsonb
@@ -362,7 +362,7 @@ begin
     return jsonb_build_object('ok',true);
   end if;
   return jsonb_build_object('error','invalid_action');
-end $function$
+end $function$;
 
 CREATE TRIGGER lifeos_task_history BEFORE INSERT OR UPDATE ON public.lifeos_tasks FOR EACH ROW EXECUTE FUNCTION lifeos_record_change();
 CREATE TRIGGER lifeos_calendar_history BEFORE INSERT OR UPDATE ON public.lifeos_calendar_events FOR EACH ROW EXECUTE FUNCTION lifeos_record_change();

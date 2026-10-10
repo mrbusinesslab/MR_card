@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import Mock
 from types import SimpleNamespace
-from mr_message_routing import prefer_people
+from mr_message_routing import prefer_people, PeopleQueryMode, may_be_person_name
 
 class RoutingTests(unittest.TestCase):
     def test_known_names_bypass_without_keyword_matching_sentences(self):
@@ -38,6 +38,8 @@ class HandlerTests(unittest.TestCase):
         self.env={'ApiClient':Mock(return_value=api),'configuration':None,'MessagingApi':Mock(),
             'legacy':self.legacy,'lifeos_calendar':self.calendar,'lifeos':self.tasks,
             'prefer_people':prefer_people,'is_lifeos_command':is_lifeos_command,'reply':self.reply,
+            'people_query_mode':PeopleQueryMode(),'may_be_person_name':may_be_person_name,
+            'normalize':lambda x:''.join(x.split()).lower(),
             'find_card_for_person':Mock(return_value=None),'resolve_people':Mock(return_value=[{'姓名':'林威'}]),
             'build_person_menu':Mock(return_value='person-menu'),'card_delivery_messages':Mock(return_value=['card','url']),
             'TextMessage':lambda **kw:kw,'QuickReplyItem':lambda **kw:kw,'MessageAction':lambda **kw:kw,'QuickReply':lambda **kw:kw}
@@ -59,4 +61,30 @@ class HandlerTests(unittest.TestCase):
     def test_pending_industry_search_is_not_drafted_as_task(self):
         self.pending.add(self.uid);self.send('防水')
         self.legacy.search_cases.assert_called_once_with('防水');self.tasks.handle_text.assert_not_called()
+    def test_query_mode_repeats_names_and_switches_back(self):
+        self.env['resolve_people'].return_value=[{'姓名':'阮凱程'}]
+        self.send('查資料')
+        self.assertTrue(self.env['people_query_mode'].active(self.uid))
+        self.send('阮凱程');self.send('凱程')
+        self.tasks.handle_text.assert_not_called()
+        self.assertEqual(self.reply.call_args.args[2],'person-menu')
+        self.send('生活助理')
+        self.assertFalse(self.env['people_query_mode'].active(self.uid))
+        self.tasks.handle_text.assert_called_once()
+    def test_exact_bni_name_bypasses_active_task_mode(self):
+        self.env['resolve_people'].return_value=[{'姓名':'阮凱程'}]
+        self.send('阮凱程')
+        self.tasks.handle_text.assert_not_called()
+        self.assertEqual(self.reply.call_args.args[2],'person-menu')
+    def test_task_sentence_mentioning_name_is_still_task(self):
+        self.send('明天把資料傳給阮凱程')
+        self.tasks.handle_text.assert_called_once()
+        self.env['resolve_people'].assert_not_called()
+    def test_query_mode_isolated_and_bounded(self):
+        mode=PeopleQueryMode(maximum=2)
+        mode.enter('a');mode.enter('b');mode.enter('c')
+        self.assertFalse(mode.active('a'));self.assertTrue(mode.active('b'))
+        self.assertFalse(mode.active('other'))
+        with unittest.mock.patch('mr_message_routing.time.monotonic',return_value=10**15):
+            self.assertFalse(mode.active('b'))
 if __name__=='__main__': unittest.main()

@@ -7,7 +7,7 @@ import legacy_app as legacy
 from people_lookup import find_people, get_person, available_categories, category_text, extract_urls
 import lifeos
 import lifeos_calendar
-from mr_message_routing import prefer_people, is_lifeos_command
+from mr_message_routing import prefer_people, is_lifeos_command, PeopleQueryMode, may_be_person_name
 
 from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
@@ -30,6 +30,7 @@ configuration = legacy.configuration
 handler = WebhookHandler(os.getenv("LINE_CHANNEL_SECRET"))
 lifeos.install_routes(app)
 lifeos_calendar.install_routes(app)
+people_query_mode = PeopleQueryMode()
 
 
 def normalize(text):
@@ -474,11 +475,28 @@ def handle_message(event):
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
 
+        if user_msg == "查資料":
+            legacy.PENDING_SEARCH_USERS.discard(user_id)
+            people_query_mode.enter(user_id)
+            reply(line_bot_api,event,TextMessage(text="已切換到查資料。\n請直接輸入姓名，例如「阮凱程」。\n可查看 BNI、人物資料與已建立的電子名片。\n\n傳「生活助理」或「新增待辦」可切回 Life OS。"))
+            return
+        if user_msg in ("電子名片","展示","最近查看的名片") or is_lifeos_command(user_msg):
+            people_query_mode.leave(user_id)
+        data_search = people_query_mode.active(user_id)
+        direct_people = None
+        if not data_search and user_id not in legacy.PENDING_SEARCH_USERS and may_be_person_name(user_msg) and find_card_for_person(user_msg) is None:
+            try:
+                matches = resolve_people(user_msg)
+                normalized = normalize(user_msg)
+                direct_people = [p for p in matches if normalize(p.get("姓名","")) == normalized]
+            except Exception:
+                app.logger.exception("direct person name lookup failed")
         card_names = [name for case in legacy.CASE_LIST
                       for name in [case["keyword"], *case.get("name_keywords", [])]]
         people_request = prefer_people(user_msg,
             pending_search=user_id in legacy.PENDING_SEARCH_USERS,
             names=card_names, categories=dict(legacy.CATEGORY_QUICK_REPLIES))
+        people_request = people_request or data_search or bool(direct_people)
         if not people_request:
             if is_lifeos_command(user_msg):
                 legacy.PENDING_SEARCH_USERS.discard(user_id)
@@ -565,7 +583,7 @@ def handle_message(event):
             return
 
         try:
-            people = resolve_people(user_msg)
+            people = direct_people if direct_people else resolve_people(user_msg)
         except Exception:
             app.logger.exception("live Google Sheet lookup failed")
             people = []

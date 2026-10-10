@@ -1,3 +1,4 @@
+import logging
 """Private, zero paid-AI-API task assistant for the existing MR LINE bot.
 
 This version parses a limited set of date expressions; it does not claim to
@@ -6,6 +7,7 @@ transcribe audio, understand arbitrary conversation, or access TimeTree.
 import hashlib
 import hmac
 import os
+from lifeos_settings import getenv, tenant_id
 import re
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
@@ -27,6 +29,12 @@ HELP = (
     "整理結果確認後才會存檔。每日提醒預設關閉，開啟後上午9點彙整，"
     "受現有LINE額度限制。尚不讀取TimeTree、其他聊天室或LINE語音檔。"
 )
+
+
+def help_text():
+    if getenv('LIFEOS_STANDALONE') != '1':
+        return HELP
+    return HELP.replace('• 查客戶 林威：使用原本的人物查詢\n','').replace('• 離開助理：回到原本小幫手','• 離開助理：結束待辦輸入模式')
 
 
 class StorageError(Exception):
@@ -65,11 +73,11 @@ def clock():
 
 
 def gateway(action, user_id=None, event_id=None, **values):
-    endpoint = os.getenv("LIFEOS_GATEWAY_URL", "")
-    secret = os.getenv("LIFEOS_GATEWAY_KEY", "")
+    endpoint = getenv("LIFEOS_GATEWAY_URL", "")
+    secret = getenv("LIFEOS_GATEWAY_KEY", "")
     if not endpoint or not secret:
         raise StorageError("not configured")
-    payload = {"action": action, **values}
+    payload = {"action": action, **values, "tenant_id": tenant_id()}
     if user_id:
         payload["user_id"] = user_id
     if event_id:
@@ -305,7 +313,7 @@ def choose_task(target, tasks):
 
 def handle_text(user_id, text, event_id=None, source_type="user"):
     """Return text for private commands; None leaves the original MR routing intact."""
-    if os.getenv("LIFEOS_ENABLED") != "1":
+    if getenv("LIFEOS_ENABLED") != "1":
         return None
     text = text.strip()
     from mr_message_routing import is_date_query
@@ -320,7 +328,7 @@ def handle_text(user_id, text, event_id=None, source_type="user"):
             if result.get("error"):
                 return "啟用碼無效、已使用或已到期。請向建置者確認，不需要提供LINE密碼。"
             shared=result.get('user',{}).get('shared_owner')
-            return ("你已加入共用Life OS，可查看與管理共用待辦、日曆行程。" if shared else "你的私人待辦已啟用。") + "每日主動提醒尚未開啟。\n\n" + HELP
+            return ("你已加入共用Life OS，可查看與管理共用待辦、日曆行程。" if shared else "你的私人待辦已啟用。") + "每日主動提醒尚未開啟。\n\n" + help_text()
         result = gateway("get_user",user_id)
         user = result.get("user")
         if not user:
@@ -358,7 +366,7 @@ def handle_text(user_id, text, event_id=None, source_type="user"):
             return "生活助理"
         if text in ("個人助理","助理說明"):
             gateway("mode",user_id,event_id,enabled=True)
-            return HELP
+            return help_text()
         if text in ("離開助理","回到小幫手"):
             gateway("mode",user_id,event_id,enabled=False)
             return "已回到MR小幫手。私人待辦仍保留，傳「個人助理」即可繼續。"
@@ -469,7 +477,7 @@ def handle_text(user_id, text, event_id=None, source_type="user"):
 
 
 def handle_audio(user_id, source_type="user"):
-    if os.getenv("LIFEOS_ENABLED") != "1" or source_type != "user":
+    if getenv("LIFEOS_ENABLED") != "1" or source_type != "user":
         return None
     try:
         if not gateway("get_user",user_id).get("user"):
@@ -482,11 +490,11 @@ def handle_audio(user_id, source_type="user"):
 def reminder_run(now=None):
     """Daily summaries only; never add LINE paid quota or start a paid AI API."""
     now = now or clock()
-    if os.getenv("LIFEOS_ENABLED") != "1":
+    if getenv("LIFEOS_ENABLED") != "1":
         return {"sent":0,"skipped":"disabled"}
-    if now.hour != 9:
+    if now.hour != int(getenv('LIFEOS_REMINDER_HOUR','9')):
         return {"sent":0,"skipped":"outside_daily_window"}
-    token = os.getenv("LINE_CHANNEL_ACCESS_TOKEN", "")
+    token = getenv("LINE_CHANNEL_ACCESS_TOKEN", "")
     headers = {"Authorization":f"Bearer {token}"}
     quota = requests.get("https://api.line.me/v2/bot/message/quota",headers=headers,timeout=10)
     quota.raise_for_status()
@@ -525,25 +533,25 @@ def install_routes(app):
     @app.post("/lifeos/test-reminders")
     def run_test_reminders():
         from flask import request
-        secret=os.getenv("LIFEOS_CRON_KEY","")
+        secret=getenv("LIFEOS_CRON_KEY","")
         if not secret or not hmac.compare_digest(request.headers.get("Authorization",""),"Bearer "+secret):
             return {"error":"unauthorized"},401
         try: return test_reminder_run()
         except Exception:
-            app.logger.error("Life OS test reminder execution failed")
+            logging.getLogger(__name__).error("Life OS test reminder execution failed")
             return {"error":"test_reminder_failed"},503
 
     @app.post("/lifeos/reminders")
     def run_reminders():
         from flask import request
-        secret = os.getenv("LIFEOS_CRON_KEY", "")
+        secret = getenv("LIFEOS_CRON_KEY", "")
         supplied = request.headers.get("Authorization", "")
         if not secret or not hmac.compare_digest(supplied,"Bearer "+secret):
             return {"error":"unauthorized"},401
         try:
             return reminder_run()
         except Exception:
-            app.logger.error("Life OS reminder execution failed")
+            logging.getLogger(__name__).error("Life OS reminder execution failed")
             return {"error":"reminder_failed"},503
 
     @app.post('/lifeos/menu-setup')
@@ -551,11 +559,11 @@ def install_routes(app):
         from flask import request
         import base64
         from pathlib import Path
-        secret=os.getenv('LIFEOS_CRON_KEY','')
+        secret=getenv('LIFEOS_CRON_KEY','')
         if not secret or not hmac.compare_digest(request.headers.get('Authorization',''),'Bearer '+secret): return {'error':'unauthorized'},401
-        uid=os.getenv('LIFEOS_GOOGLE_USER_ID','')
+        uid=getenv('LIFEOS_GOOGLE_USER_ID','')
         if not uid: return {'error':'test_user_missing'},400
-        headers={'Authorization':'Bearer '+os.getenv('LINE_CHANNEL_ACCESS_TOKEN','')}
+        headers={'Authorization':'Bearer '+getenv('LINE_CHANNEL_ACCESS_TOKEN','')}
         base='https://api.line.me/v2/bot'
         name='Life OS simple menu v1'
         listing=requests.get(base+'/richmenu/list',headers=headers,timeout=12);listing.raise_for_status()
@@ -576,17 +584,17 @@ def install_routes(app):
 
     @app.get("/lifeos/health")
     def lifeos_health():
-        return {"enabled":os.getenv("LIFEOS_ENABLED")=="1",
-            "storage_configured":bool(os.getenv("LIFEOS_GATEWAY_KEY") and os.getenv("LIFEOS_GATEWAY_URL")),
+        return {"enabled":getenv("LIFEOS_ENABLED")=="1",
+            "storage_configured":bool(getenv("LIFEOS_GATEWAY_KEY") and getenv("LIFEOS_GATEWAY_URL")),
             "audio_transcription":False,"paid_ai_api":False,"calendar_sync":False,
             "version":"2026-10-08-calendar-pilot"}
 
 
 def test_reminder_run():
-    if os.getenv("LIFEOS_ENABLED")!="1": return {"sent":0,"skipped":"disabled"}
+    if getenv("LIFEOS_ENABLED")!="1": return {"sent":0,"skipped":"disabled"}
     users=gateway("test_users")["users"]
     if not users: return {"sent":0,"skipped":"no_test_scheduled"}
-    headers={"Authorization":"Bearer "+os.getenv("LINE_CHANNEL_ACCESS_TOKEN","")}
+    headers={"Authorization":"Bearer "+getenv("LINE_CHANNEL_ACCESS_TOKEN","")}
     quota=requests.get("https://api.line.me/v2/bot/message/quota",headers=headers,timeout=10)
     quota.raise_for_status()
     usage=requests.get("https://api.line.me/v2/bot/message/quota/consumption",headers=headers,timeout=10)
@@ -691,7 +699,7 @@ def button_message(body):
     elif body.startswith("請輸入延期日期"): footer=[button("停止延期","停止延期")]
     else: footer=[]
     bubble={"type":"bubble","size":"mega","header":{"type":"box","layout":"vertical","paddingAll":"20px","backgroundColor":"#FFFFFF",
-        "contents":[text("MR 個人助理","xs","#345C58"),text(heading,"xl","#172B2A","bold")]},
+        "contents":[text(getenv("LIFEOS_DISPLAY_NAME","MR 個人助理"),"xs","#345C58"),text(heading,"xl","#172B2A","bold")]},
         "body":{"type":"box","layout":"vertical","paddingAll":"16px","spacing":"sm","contents":content},
         "footer":{"type":"box","layout":"vertical","spacing":"sm","paddingAll":"16px","contents":footer}}
     if not footer: bubble.pop("footer",None)

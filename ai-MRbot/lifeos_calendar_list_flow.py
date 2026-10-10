@@ -1,6 +1,7 @@
 """Editable, user-scoped calendar review cards. Never writes Google events."""
 import secrets
 import time
+from lifeos_settings import tenant_id
 from linebot.v3.messaging import FlexMessage, FlexContainer
 from lifeos_calendar_list import review_list
 
@@ -9,15 +10,15 @@ PREFIXES = ('清單修改 ', '清單全天 ', '清單移除 ', '清單分頁 ', 
 EXIT = ('查資料', '生活助理', '個人助理', '電子名片', '離開助理', '回到小幫手')
 
 def is_editing(uid):
-    pending = _PENDING.get(uid)
+    pending = _PENDING.get((tenant_id(),uid))
     if pending and pending['until'] > time.monotonic():
         return True
-    _PENDING.pop(uid, None)
+    _PENDING.pop((tenant_id(),uid), None)
     return False
 
 def claims(uid, text):
     if text in EXIT:
-        _PENDING.pop(uid,None)
+        _PENDING.pop((tenant_id(),uid),None)
         return False
     return text.startswith(PREFIXES) or (is_editing(uid) and text not in EXIT)
 
@@ -50,7 +51,7 @@ def cards(draft, page=0):
 def handle(c,uid,text,event_id,source_type):
     review=review_list(text,c.l.clock().year) if not is_editing(uid) else None
     if text in EXIT:
-        _PENDING.pop(uid,None)
+        _PENDING.pop((tenant_id(),uid),None)
         return None
     if review is None and not claims(uid,text):return None
     if source_type!='user':return c.card('私人日曆',['請在一對一聊天室使用。'])
@@ -60,14 +61,14 @@ def handle(c,uid,text,event_id,source_type):
         if review is not None:
             draft={'operation':'list_review','calendar_id':cal,'review_id':secrets.token_hex(8),'review':review}
             c.l.gateway('calendar_draft',uid,event_id,payload=draft)
-            _PENDING.pop(uid,None)
+            _PENDING.pop((tenant_id(),uid),None)
             return cards(draft)
         draft=c.l.gateway('calendar_get_draft',uid).get('draft')
         if not draft or draft.get('operation')!='list_review' or draft.get('calendar_id')!=cal:
-            _PENDING.pop(uid,None)
+            _PENDING.pop((tenant_id(),uid),None)
             return c.card('清單草稿已失效',['請重新貼上行程清單。'])
         if text=='停止清單修改':
-            _PENDING.pop(uid,None);return cards(draft)
+            _PENDING.pop((tenant_id(),uid),None);return cards(draft)
         if text=='清單總覽':return cards(draft)
         parts=text.split()
         command=parts[0] if parts else ''
@@ -79,10 +80,10 @@ def handle(c,uid,text,event_id,source_type):
             if idx>=len(draft['review']['entries']):return c.card('找不到這筆',['請查看最新清單。'])
             if command=='清單修改':
                 if len(_PENDING)>=1000:_PENDING.clear()
-                _PENDING[uid]={'token':draft['review_id'],'index':idx,'until':time.monotonic()+600}
+                _PENDING[(tenant_id(),uid)]={'token':draft['review_id'],'index':idx,'until':time.monotonic()+600}
                 e=draft['review']['entries'][idx]
                 return c.card('修改第 '+str(idx+1)+' 筆',[e['date']+' '+e['title'],'直接回覆完整的新內容，例如：18:00～21:00 吳佳蓉 B。','改日期請分兩行：2026/10/14，再填行程內容。'],choices=[('取消修改','停止清單修改')])
-            _PENDING.pop(uid,None)
+            _PENDING.pop((tenant_id(),uid),None)
             if command=='清單移除':draft['review']['entries'].pop(idx)
             else:
                 old=draft['review']['entries'][idx]
@@ -90,9 +91,9 @@ def handle(c,uid,text,event_id,source_type):
                 title=re.sub(r'\d{1,2}[:：]\d{2}\s*(?:到|至|～|~|－|-|–|—)?\s*','',old['title'])
                 draft['review']['entries'][idx]=review_list(old['date']+'\n全天 '+title,c.l.clock().year)['entries'][0]
         else:
-            pending=_PENDING.get(uid)
+            pending=_PENDING.get((tenant_id(),uid))
             if not pending or pending['token']!=draft['review_id']:
-                _PENDING.pop(uid,None)
+                _PENDING.pop((tenant_id(),uid),None)
                 return c.card('修改已失效',['請重新按這筆行程的修改按鈕。'])
             idx=pending['index'];old=draft['review']['entries'][idx]
             replacement=review_list(text,c.l.clock().year)
@@ -100,7 +101,7 @@ def handle(c,uid,text,event_id,source_type):
             if not replacement or replacement['errors'] or len(replacement['entries'])!=1:
                 return c.card('請只修改一筆',['請回覆完整行程內容；改日期請把日期放在第一行。'],choices=[('取消修改','停止清單修改')])
             draft['review']['entries'][idx]=replacement['entries'][0]
-            _PENDING.pop(uid,None)
+            _PENDING.pop((tenant_id(),uid),None)
         draft['review_id']=secrets.token_hex(8)
         c.l.gateway('calendar_draft',uid,event_id,payload=draft)
         return cards(draft,idx//8)

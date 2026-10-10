@@ -271,6 +271,13 @@ def set_category(draft,group):
 
 def handle(user_id,text,event_id=None,source_type='user'):
     text=text.strip()
+    from lifeos_calendar_list import review_list, reply_text
+    review = review_list(text, l.clock().year)
+    if review is not None:
+        from linebot.v3.messaging import TextMessage
+        if source_type != 'user': return card('私人日曆',['請在一對一聊天室使用。'])
+        if not calendar_access(user_id): return card('Google日曆尚未啟用',['請先使用管理者提供的啟用碼加入Life OS。'])
+        return TextMessage(text=reply_text(review))
     name_move=re.fullmatch(r'(.+?)(?:的預約|預約)?(?:改到|改期到)\s*(.+)',text)
     name_cancel=re.fullmatch(r'取消\s*(.+?)(?:的預約|預約)',text)
     automatic=bool(re.search(TIME_PATTERN+r'\s*(?:到|至|～|~|－|-)\s*'+TIME_PATTERN,text))
@@ -454,4 +461,5 @@ def install_routes(app):
             result['labels']=event_labels()
         except CalendarError as exc: result['status']=exc.reason
         return result
+
 

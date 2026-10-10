@@ -7,6 +7,7 @@ import legacy_app as legacy
 from people_lookup import find_people, get_person, available_categories, category_text, extract_urls
 import lifeos
 import lifeos_calendar
+from mr_message_routing import prefer_people, is_lifeos_command
 
 from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
@@ -473,16 +474,24 @@ def handle_message(event):
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
 
-        calendar_reply = lifeos_calendar.handle(user_id,user_msg,
-            getattr(event,"webhook_event_id",None),getattr(event.source,"type","user"))
-        if calendar_reply is not None:
-            reply(line_bot_api,event,calendar_reply)
-            return
-        private_reply = lifeos.handle_text(user_id, user_msg,
-            getattr(event, "webhook_event_id", None), getattr(event.source, "type", "user"))
-        if private_reply is not None:
-            reply(line_bot_api, event, lifeos.button_message(private_reply))
-            return
+        card_names = [name for case in legacy.CASE_LIST
+                      for name in [case["keyword"], *case.get("name_keywords", [])]]
+        people_request = prefer_people(user_msg,
+            pending_search=user_id in legacy.PENDING_SEARCH_USERS,
+            names=card_names, categories=dict(legacy.CATEGORY_QUICK_REPLIES))
+        if not people_request:
+            if is_lifeos_command(user_msg):
+                legacy.PENDING_SEARCH_USERS.discard(user_id)
+            calendar_reply = lifeos_calendar.handle(user_id,user_msg,
+                getattr(event,"webhook_event_id",None),getattr(event.source,"type","user"))
+            if calendar_reply is not None:
+                reply(line_bot_api,event,calendar_reply)
+                return
+            private_reply = lifeos.handle_text(user_id, user_msg,
+                getattr(event, "webhook_event_id", None), getattr(event.source, "type", "user"))
+            if private_reply is not None:
+                reply(line_bot_api, event, lifeos.button_message(private_reply))
+                return
         if user_msg.startswith("查客戶 "):
             user_msg = user_msg.removeprefix("查客戶 ").strip()
 
@@ -596,3 +605,4 @@ def callback():
 
 
 app.view_functions["callback"] = callback
+

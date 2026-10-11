@@ -9,7 +9,7 @@ from linebot.v3.messaging import FlexMessage, FlexContainer
 from lifeos_calendar_list import review_list
 
 _PENDING = {}
-PREFIXES = ('清單進度 ', '清單匯入 ', '清單放棄 ', '清單修改 ', '清單全天 ', '清單移除 ', '清單分頁 ', '清單總覽', '停止清單修改')
+PREFIXES = ('清單補齊 ', '清單進度 ', '清單匯入 ', '清單放棄 ', '清單修改 ', '清單全天 ', '清單移除 ', '清單分頁 ', '清單總覽', '停止清單修改')
 EXIT = ('查資料', '生活助理', '個人助理', '電子名片', '離開助理', '回到小幫手')
 
 def is_editing(uid):
@@ -42,21 +42,24 @@ def cards(draft, page=0):
         result={'type':'bubble','size':'mega','body':{'type':'box','layout':'vertical','spacing':'md','contents':body}}
         if buttons:result['footer']={'type':'box','layout':'vertical','contents':buttons}
         return result
-    intro=[txt('行程清單','xl'),txt(f"共 {len(entries)} 筆 · {len(days)} 天 · 第 {page+1}/{pages} 頁"),txt('一天一張卡，左右滑動查看。完整項目按確認加入日曆；缺資料保留待補。未標年份依今年整理。')]
+    ready=sum(e['kind'] in ('complete','all_day') and not any(e.get(k) for k in ('incomplete','date_problem','needs_name','imported')) for e in entries)
+    intro=[txt('辨識完成｜行程清單','xl'),txt(f'可加入 {ready} 筆，其餘項目請查看狀態'),txt(f"共 {len(entries)} 筆 · {len(days)} 天 · 第 {page+1}/{pages} 頁"),txt('一天一張卡，左右滑動查看。完整項目按確認加入日曆；缺資料保留待補。未標年份依今年整理。')]
     if review.get('errors'):intro.append(txt('\n'.join(review['errors']),'sm','#B3261E'))
     nav=[]
     if page:nav.append(button('上一頁',f'清單分頁 {token} {page-1}'))
     if page+1<pages:nav.append(button('下一頁',f'清單分頁 {token} {page+1}'))
-    nav += [button('全部正確，加入日曆','清單匯入 '+token),button('放棄匯入','清單放棄 '+token)]
+    nav += [button('先加入完整項目','清單匯入 '+token),button('補齊資料','清單補齊 '+token),button('放棄匯入','清單放棄 '+token)]
     bubbles=[bubble(intro,nav)]
     from datetime import date
     for day,items in days[page*8:(page+1)*8]:
-        weekday='一二三四五六日'[date.fromisoformat(day).weekday()]
+        try:weekday='一二三四五六日'[date.fromisoformat(day).weekday()]
+        except ValueError:weekday='日期待補'
         body=[txt(day+'（'+weekday+'）','xl'),txt(str(len(items))+' 筆行程')]
         for idx,e in items:
             if len(body)>2:body.append({'type':'separator'})
             status={'all_day':'全天候選','complete':'待確認','start_only':'缺結束時間','needs_time':'待補時間'}[e['kind']]
             if e.get('imported'):status='已加入日曆'
+            elif e.get('date_problem'):status='日期待確認'
             elif e.get('incomplete'):status='待補完整內容'
             body.extend([txt(f"{idx+1} · {e['title']}",'md'),txt(status,'xs','#B3261E')])
             if not e.get('imported'):
@@ -89,6 +92,10 @@ def handle(c,uid,text,event_id,source_type):
         if not draft or draft.get('operation')!='list_review' or draft.get('calendar_id')!=cal:
             _PENDING.pop((tenant_id(),uid),None)
             return c.card('清單草稿已失效',['請重新貼上行程清單。'])
+        if text.startswith('清單補齊 '):
+            if text.split()[-1]!=draft['review_id']:return c.card('這張卡片已更新',['請使用最新清單。'])
+            from lifeos_calendar_fill import ask_next
+            return ask_next(c,uid,draft,_PENDING,tenant_id())
         if text.startswith('清單進度 '):
             if text.split()[-1]!=draft['review_id']:return c.card('這張卡片已更新',['請使用最新清單。'])
             from lifeos_calendar_batch import progress
@@ -133,16 +140,25 @@ def handle(c,uid,text,event_id,source_type):
                 _PENDING.pop((tenant_id(),uid),None)
                 return c.card('修改已失效',['請重新按這筆行程的修改按鈕。'])
             idx=pending['index'];old=draft['review']['entries'][idx]
+            if pending.get('guided'):
+                from lifeos_calendar_fill import fill_entry
+                text=fill_entry(c,old,text)
+                if text is None:return c.card('資料仍需補齊',['請依提示提供日期、時間或完整名稱。'],choices=[('停止補資料','停止清單修改')])
             replacement=review_list(text,c.l.clock().year)
             if replacement is None:replacement=review_list(old['date']+'\n'+text,c.l.clock().year)
             if not replacement or replacement['errors'] or len(replacement['entries'])!=1:
                 return c.card('請只修改一筆',['請回覆完整行程內容；改日期請把日期放在第一行。'],choices=[('取消修改','停止清單修改')])
             draft['review']['entries'][idx]=replacement['entries'][0]
             _PENDING.pop((tenant_id(),uid),None)
+        if draft['review'].get('version')==2:
+            draft['review']['errors']=[e['date']+' '+e['title']+'：日期待確認' for e in draft['review']['entries'] if e.get('date_problem')]
         for entry in draft['review']['entries']:
             if not entry.get('write_started'):entry.pop('google_id',None)
         draft['review_id']=secrets.token_hex(8)
         c.l.gateway('calendar_draft',uid,event_id,payload=draft)
+        if command not in ('清單修改','清單全天','清單移除','清單分頁') and pending.get('guided'):
+            from lifeos_calendar_fill import ask_next
+            return ask_next(c,uid,draft,_PENDING,tenant_id(),prefix='已更新這一筆。')
         return cards(draft,next((i//8 for i,(day,items) in enumerate(day_groups(draft['review']['entries'])) if any(n==min(idx,len(draft['review']['entries'])-1) for n,e in items)),0))
     except (c.l.StorageError,c.CalendarError):
         return c.card('清單暫時無法讀取或儲存',['請稍後重試；沒有加入 Google 日曆。'])

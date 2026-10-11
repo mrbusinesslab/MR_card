@@ -6,7 +6,7 @@ from urllib.parse import quote
 from lifeos_calendar_list import CLOCK
 
 def payload(entry,c):
-    if entry.get('incomplete') or entry['kind'] not in ('complete','all_day'):
+    if entry.get('date_problem') or entry.get('needs_name') or entry.get('incomplete') or entry['kind'] not in ('complete','all_day'):
         return None
     title=CLOCK.sub('',entry['title'])
     title=re.sub(r'^\s*(?:全天|上午|下午|晚上|中午|凌晨|早上|到|至|～|~|－|-|–|—|\s)+','',title).strip()
@@ -24,7 +24,7 @@ def payload(entry,c):
     return c.apply_label(result,group)
 
 def import_batch(c,uid,draft,event_id):
-    if draft['review'].get('errors'):
+    if draft['review'].get('limited') or (draft['review'].get('errors') and draft['review'].get('version')!=2):
         return c.card('請先修正清單',['日期、星期或筆數仍有問題，這次尚未匯入。'],choices=[('查看清單','清單總覽')])
     # Persist stable identity before any external write. Edits clear unsaved IDs.
     for i,e in enumerate(draft['review']['entries']):
@@ -62,7 +62,7 @@ _LOCK=threading.Lock()
 def progress(c,uid,draft):
     entries=draft['review']['entries']
     done=sum(bool(e.get('imported')) for e in entries)
-    waiting=sum(not e.get('imported') and (e.get('incomplete') or e['kind'] not in ('complete','all_day')) for e in entries)
+    waiting=sum(not e.get('imported') and (e.get('date_problem') or e.get('needs_name') or e.get('incomplete') or e['kind'] not in ('complete','all_day')) for e in entries)
     remaining=len(entries)-done-waiting
     key=(draft['calendar_id'],uid,draft['review_id'])
     with _LOCK:running=key in _RUNNING
@@ -95,7 +95,7 @@ class FreeReply:
         response.raise_for_status()
 
 def start_import(c,uid,draft,event_id):
-    if draft['review'].get('errors'):return import_batch(c,uid,draft,event_id)
+    if draft['review'].get('limited') or (draft['review'].get('errors') and draft['review'].get('version')!=2):return import_batch(c,uid,draft,event_id)
     free_reply=FreeReply(c,uid,draft)
     key=(draft['calendar_id'],uid,draft['review_id'])
     with _LOCK:

@@ -20,6 +20,7 @@ def review_list(text, year):
     current = None
     entries = []
     errors = []
+    invalid_heading = None
     headers = 0
     mismatched = False
     for raw in text.splitlines():
@@ -31,12 +32,14 @@ def review_list(text, year):
         heading = HEADER.fullmatch(line.rstrip('：:'))
         if heading:
             headers += 1
+            invalid_heading=None
             y,m,d,weekday,weekday_word = heading.groups()
             try:
                 current = date(int(y or year),int(m),int(d))
             except ValueError:
                 errors.append(line+'：日期無效，請更正。')
                 current = None
+                invalid_heading=line
                 continue
             expected = weekday or weekday_word
             mismatched = bool(expected and ('日' if expected=='天' else expected)!=WEEKDAYS[current.weekday()])
@@ -46,6 +49,8 @@ def review_list(text, year):
         if current is None:
             if headers:
                 errors.append('「'+line[:80]+'」沒有有效日期，請補日期。')
+                if invalid_heading:
+                    entries.append({'date':invalid_heading,'title':line,'kind':'needs_time','times':[],'notes':['日期無效，請補正確日期'],'incomplete':bool(TRUNCATED.search(line)),'date_problem':True})
             continue
         if len(entries)>=30:
             return {'entries':entries,'errors':['一次最多整理30筆，請拆成幾段傳送。'],'limited':True}
@@ -91,10 +96,10 @@ def review_list(text, year):
             kind='needs_time';notes.append('需確認時間，或是否設為全天')
         if mismatched:
             notes.append('日期與星期需確認')
-        entries.append({'date':current.isoformat(),'title':line,'kind':kind,'times':clocks,'notes':notes,'incomplete':incomplete})
+        entries.append({'date':current.isoformat(),'title':line,'kind':kind,'times':clocks,'notes':notes,'incomplete':incomplete,'date_problem':mismatched,'needs_name':not bool(re.search(r'[A-Za-z\u3400-\u9fff]',usable_name))})
     if not headers:
         return None
-    return {'entries':entries,'errors':errors,'limited':False} if entries or errors else None
+    return {'entries':entries,'errors':errors,'limited':False,'version':2} if entries or errors else None
 
 
 def reply_text(review):

@@ -9,7 +9,7 @@ from linebot.v3.messaging import FlexMessage, FlexContainer
 from lifeos_calendar_list import review_list
 
 _PENDING = {}
-PREFIXES = ('清單補齊 ', '清單進度 ', '清單匯入 ', '清單放棄 ', '清單修改 ', '清單全天 ', '清單移除 ', '清單分頁 ', '清單總覽', '停止清單修改')
+PREFIXES = ('清單補齊 ', '清單當天 ', '清單進度 ', '清單匯入 ', '清單放棄 ', '清單修改 ', '清單全天 ', '清單移除 ', '清單分頁 ', '清單總覽', '停止清單修改')
 EXIT = ('查資料', '生活助理', '個人助理', '電子名片', '離開助理', '回到小幫手')
 
 def is_editing(uid):
@@ -95,10 +95,10 @@ def handle(c,uid,text,event_id,source_type):
         if not draft or draft.get('operation')!='list_review' or draft.get('calendar_id')!=cal:
             _PENDING.pop((tenant_id(),uid),None)
             return c.card('清單草稿已失效',['請重新貼上行程清單。'])
-        if text.startswith('清單補齊 '):
+        if text.startswith(('清單補齊 ','清單當天 ')):
             if text.split()[-1]!=draft['review_id']:return c.card('這張卡片已更新',['請使用最新清單。'])
-            from lifeos_calendar_fill import ask_next
-            return ask_next(c,uid,draft,_PENDING,tenant_id())
+            from lifeos_calendar_day_fill import start
+            return start(c,uid,draft,_PENDING,tenant_id(),event_id,advance=text.startswith('清單當天 '))
         if text.startswith('清單進度 '):
             if text.split()[-1]!=draft['review_id']:return c.card('這張卡片已更新',['請使用最新清單。'])
             from lifeos_calendar_batch import progress
@@ -131,6 +131,7 @@ def handle(c,uid,text,event_id,source_type):
                 e=draft['review']['entries'][idx]
                 return c.card('修改第 '+str(idx+1)+' 筆',[e['date']+' '+e['title'],'直接回覆完整的新內容，例如：18:00～21:00 吳佳蓉 B。','改日期請分兩行：2026/10/14，再填行程內容。'],choices=[('取消修改','停止清單修改')])
             _PENDING.pop((tenant_id(),uid),None)
+            draft.pop('fill_day',None)
             if command=='清單移除':draft['review']['entries'].pop(idx)
             else:
                 old=draft['review']['entries'][idx]
@@ -142,6 +143,9 @@ def handle(c,uid,text,event_id,source_type):
             if not pending or pending['token']!=draft['review_id']:
                 _PENDING.pop((tenant_id(),uid),None)
                 return c.card('修改已失效',['請重新按這筆行程的修改按鈕。'])
+            if pending.get('day_fill'):
+                from lifeos_calendar_day_fill import apply
+                return apply(c,uid,draft,text,_PENDING,tenant_id(),event_id)
             idx=pending['index'];old=draft['review']['entries'][idx]
             if pending.get('guided'):
                 from lifeos_calendar_fill import fill_entry
@@ -152,6 +156,7 @@ def handle(c,uid,text,event_id,source_type):
             if not replacement or replacement['errors'] or len(replacement['entries'])!=1:
                 return c.card('請只修改一筆',['請回覆完整行程內容；改日期請把日期放在第一行。'],choices=[('取消修改','停止清單修改')])
             draft['review']['entries'][idx]=replacement['entries'][0]
+            draft.pop('fill_day',None)
             _PENDING.pop((tenant_id(),uid),None)
         if draft['review'].get('version')==2:
             draft['review']['errors']=[e['date']+' '+e['title']+'：日期待確認' for e in draft['review']['entries'] if e.get('date_problem')]

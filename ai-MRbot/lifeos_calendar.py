@@ -3,6 +3,7 @@ import hashlib
 import hmac
 import json
 import os
+from lifeos_settings import getenv, tenant_id
 import re
 from datetime import timedelta
 from urllib.parse import quote
@@ -18,16 +19,20 @@ class CalendarError(Exception):
     def __init__(self,reason): self.reason=reason
 
 def config():
-    try: info=json.loads(os.getenv('GOOGLE_SERVICE_ACCOUNT_JSON','{}'))
+    try: info=json.loads(getenv('GOOGLE_SERVICE_ACCOUNT_JSON','{}'))
     except ValueError: info={}
-    return info,os.getenv('LIFEOS_GOOGLE_CALENDAR_ID',''),os.getenv('LIFEOS_GOOGLE_USER_ID','')
+    return info,getenv('LIFEOS_GOOGLE_CALENDAR_ID',''),getenv('LIFEOS_GOOGLE_USER_ID','')
 
 def calendar_access(user_id):
     approved=config()[2]
     if not approved or not user_id: return False
-    if user_id==approved: return True
+    if user_id==approved and tenant_id()=='mr': return True
     try:
         user=l.gateway('get_user',user_id).get('user')
+        if tenant_id()!='mr':
+            return (isinstance(user,dict) and user.get('tenant_id')==tenant_id()
+                    and user.get('tenant_calendar_id')==config()[1]
+                    and user.get('calendar_owner_line_id')==approved)
         return isinstance(user,dict) and user.get('shared_owner')==approved
     except l.StorageError:
         return False
@@ -98,7 +103,7 @@ def parse_range(text,now=None,title_required=True):
     return title,start,end
 
 def is_xiaomeng(title):
-    return bool(re.search(r'(?<![\u3400-\u9fffA-Za-z])小孟(?![\u3400-\u9fffA-Za-z])',title))
+    return tenant_id()=='mr' and bool(re.search(r'(?<![\u3400-\u9fffA-Za-z])小孟(?![\u3400-\u9fffA-Za-z])',title))
 
 def booking_category(title):
     return '美容' if is_xiaomeng(title) else l.category_style(title)[0]
@@ -257,7 +262,7 @@ def card(title,lines,confirm=False,events=None,choices=None):
     for e in events or []:
         rows.append(event_row(e,show_date=True))
     choices=choices or ([('確認行程','確認行程'),('放棄行程','放棄行程')] if confirm else [])
-    bubble={'type':'bubble','header':{'type':'box','layout':'vertical','paddingAll':'20px','contents':[text('MR 個人助理',True),text(title,True)]},
+    bubble={'type':'bubble','header':{'type':'box','layout':'vertical','paddingAll':'20px','contents':[text(getenv('LIFEOS_DISPLAY_NAME','MR 個人助理'),True),text(title,True)]},
         'body':{'type':'box','layout':'vertical','spacing':'md','paddingAll':'16px','contents':rows or [text('近期沒有行程。')]},
         'footer':{'type':'box','layout':'vertical','spacing':'sm','contents':[btn(a,b) for a,b in choices]}}
     if not choices: bubble.pop('footer',None)
@@ -435,11 +440,12 @@ def install_routes(app):
     # Bounded, idempotent migration of the explicitly imported MOON events.
     from lifeos_moon_labels import start as start_moon_labels
     import sys
-    start_moon_labels(sys.modules[__name__],app.logger)
+    if hasattr(app,'logger') and getenv('LIFEOS_STANDALONE') != '1' and tenant_id()=='mr':
+        start_moon_labels(sys.modules[__name__],app.logger)
     @app.post('/lifeos/calendar-label')
     def calendar_label():
         from flask import request
-        secret=os.getenv('LIFEOS_CRON_KEY','')
+        secret=getenv('LIFEOS_CRON_KEY','')
         if not secret or not hmac.compare_digest(request.headers.get('Authorization',''),'Bearer '+secret): return {'error':'unauthorized'},401
         data=request.get_json(silent=True) or {}
         key=data.get('event_id','');expected=data.get('expected_title','')
@@ -460,7 +466,7 @@ def install_routes(app):
     @app.post('/lifeos/calendar-status')
     def calendar_status():
         from flask import request
-        secret=os.getenv('LIFEOS_CRON_KEY','')
+        secret=getenv('LIFEOS_CRON_KEY','')
         if not secret or not hmac.compare_digest(request.headers.get('Authorization',''),'Bearer '+secret): return {'error':'unauthorized'},401
         info,cal,uid=config();result={'service_account_email':info.get('client_email'),'project_id':info.get('project_id'),'calendar_configured':bool(cal),'user_configured':bool(uid)}
         try:

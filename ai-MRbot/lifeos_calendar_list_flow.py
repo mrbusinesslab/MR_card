@@ -28,31 +28,42 @@ def claims(uid, text):
 def button(label, text):
     return {'type':'button','height':'sm','action':{'type':'message','label':label,'text':text}}
 
+def day_groups(entries):
+    groups={}
+    for idx,e in enumerate(entries):groups.setdefault(e['date'],[]).append((idx,e))
+    return sorted(groups.items())
+
 def cards(draft, page=0):
-    review=draft['review']; entries=review['entries']; token=draft['review_id']
-    pages=max(1,(len(entries)+7)//8);page=max(0,min(page,pages-1))
+    review=draft['review'];entries=review['entries'];token=draft['review_id']
+    days=day_groups(entries);pages=max(1,(len(days)+7)//8);page=max(0,min(page,pages-1))
     def txt(s,size='sm',color='#333333'):
         return {'type':'text','text':s or '—','size':size,'color':color,'wrap':True}
-    def bubble(body, buttons):
-        return {'type':'bubble','size':'mega','body':{'type':'box','layout':'vertical','spacing':'md','contents':body},'footer':{'type':'box','layout':'vertical','contents':buttons}}
-    notes='\n'.join(review.get('errors',[]))
-    intro=[txt('行程清單','xl'),txt(f"共 {len(entries)} 筆 · 第 {page+1}/{pages} 頁"),txt('左右滑動查看每筆行程。\n未標示年份時依今年整理，請核對日期。\n完整項目可按下確認加入 Google 日曆；缺資料的項目會保留待補。')]
-    if notes:intro.append(txt(notes,'sm','#B3261E'))
+    def bubble(body,buttons=None):
+        result={'type':'bubble','size':'mega','body':{'type':'box','layout':'vertical','spacing':'md','contents':body}}
+        if buttons:result['footer']={'type':'box','layout':'vertical','contents':buttons}
+        return result
+    intro=[txt('行程清單','xl'),txt(f"共 {len(entries)} 筆 · {len(days)} 天 · 第 {page+1}/{pages} 頁"),txt('一天一張卡，左右滑動查看。完整項目按確認加入日曆；缺資料保留待補。未標年份依今年整理。')]
+    if review.get('errors'):intro.append(txt('\n'.join(review['errors']),'sm','#B3261E'))
     nav=[]
     if page:nav.append(button('上一頁',f'清單分頁 {token} {page-1}'))
     if page+1<pages:nav.append(button('下一頁',f'清單分頁 {token} {page+1}'))
     nav += [button('全部正確，加入日曆','清單匯入 '+token),button('放棄匯入','清單放棄 '+token)]
-    bubbles=[bubble(intro,nav or [button('重新查看','清單總覽')])]
-    for idx in range(page*8,min(len(entries),(page+1)*8)):
-        e=entries[idx]
-        status={'all_day':'全天候選','complete':'待確認','start_only':'缺結束時間','needs_time':'待補時間'}[e['kind']]
-        if e.get('imported'):status='已加入日曆'
-        elif e.get('incomplete'):status='待補完整內容'
-        body=[txt(f"{idx+1} · {e['date']}",'md'),txt(e['title'],'lg'),txt(status,'md','#B3261E'),txt('；'.join(e['notes']))]
-        actions=[button('修改',f'清單修改 {token} {idx}'),button('設為全天',f'清單全天 {token} {idx}'),button('移除這筆',f'清單移除 {token} {idx}')]
-        if e.get('imported'):actions=[button('查看總覽','清單總覽')]
-        bubbles.append(bubble(body,actions))
-    return FlexMessage(alt_text=f'行程清單：{len(entries)}筆，請查看卡片並修改',contents=FlexContainer.from_dict({'type':'carousel','contents':bubbles}))
+    bubbles=[bubble(intro,nav)]
+    from datetime import date
+    for day,items in days[page*8:(page+1)*8]:
+        weekday='一二三四五六日'[date.fromisoformat(day).weekday()]
+        body=[txt(day+'（'+weekday+'）','xl'),txt(str(len(items))+' 筆行程')]
+        for idx,e in items:
+            if len(body)>2:body.append({'type':'separator'})
+            status={'all_day':'全天候選','complete':'待確認','start_only':'缺結束時間','needs_time':'待補時間'}[e['kind']]
+            if e.get('imported'):status='已加入日曆'
+            elif e.get('incomplete'):status='待補完整內容'
+            body.extend([txt(f"{idx+1} · {e['title']}",'md'),txt(status,'xs','#B3261E')])
+            if not e.get('imported'):
+                actions=[button('修改',f'清單修改 {token} {idx}'),button('全天',f'清單全天 {token} {idx}'),button('移除',f'清單移除 {token} {idx}')]
+                body.append({'type':'box','layout':'horizontal','contents':actions})
+        bubbles.append(bubble(body))
+    return FlexMessage(alt_text=f'行程清單：{len(entries)}筆、{len(days)}天，請按日期查看',contents=FlexContainer.from_dict({'type':'carousel','contents':bubbles}))
 
 def handle(c,uid,text,event_id,source_type):
     review=review_list(text,c.l.clock().year) if not is_editing(uid) else None
@@ -123,6 +134,6 @@ def handle(c,uid,text,event_id,source_type):
             if not entry.get('write_started'):entry.pop('google_id',None)
         draft['review_id']=secrets.token_hex(8)
         c.l.gateway('calendar_draft',uid,event_id,payload=draft)
-        return cards(draft,idx//8)
+        return cards(draft,next((i//8 for i,(day,items) in enumerate(day_groups(draft['review']['entries'])) if any(n==min(idx,len(draft['review']['entries'])-1) for n,e in items)),0))
     except (c.l.StorageError,c.CalendarError):
         return c.card('清單暫時無法讀取或儲存',['請稍後重試；沒有加入 Google 日曆。'])

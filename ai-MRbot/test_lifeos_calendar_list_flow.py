@@ -46,9 +46,24 @@ class FlowTests(unittest.TestCase):
     def test_pagination_and_expired(self):
         c.handle('one','10/12\n'+'\n'.join('行程'+str(i) for i in range(30)))
         msg=self.command('清單分頁',3)
-        self.assertEqual(len(msg.contents.contents),7)
+        self.assertEqual(len(msg.contents.contents),2)
         self.drafts.clear()
         self.assertEqual(c.handle('one','清單總覽').alt_text,'清單草稿已失效')
+    def test_same_day_grouped_and_all_entries_present(self):
+        import json
+        c.handle('one','10/12\n'+'\n'.join('行程'+str(i) for i in range(30)))
+        data=f.cards(self.drafts['one']).to_dict()['contents']
+        self.assertEqual(len(data['contents']),2)
+        encoded=json.dumps(data['contents'][1],ensure_ascii=False)
+        self.assertIn('行程29',encoded)
+        self.assertIn('清單修改',encoded)
+        self.assertLess(len(encoded.encode()),30000)
+    def test_day_paging_preserves_global_indices(self):
+        c.handle('one','\n'.join(f'10/{12+i}\n行程{i}' for i in range(10)))
+        message=self.command('清單分頁',1)
+        data=str(message.to_dict())
+        self.assertIn('行程9',data)
+        self.assertIn('清單修改 '+self.drafts['one']['review_id']+' 9',data)
     def test_confirm_cannot_save_review_as_google_event(self):
         result=c.handle('one','確認行程')
         self.assertIn('確認按鈕',str(result))

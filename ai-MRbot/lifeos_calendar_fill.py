@@ -14,9 +14,13 @@ def ask_next(c,uid,draft,pending,tenant,prefix=''):
         elif e.get('incomplete') or e.get('needs_name'):question='請回覆完整行程內容，包含已知的起訖時間。'
         elif e['kind']=='start_only':question='請提供結束時間，例如下午三點；或提供完整起訖時間。'
         else:question='請提供時間，例如 14:00～15:30；美容 F／B 可只回開始時間（90分鐘），F+B 或小孟為180分鐘。也可回覆「全天」。'
-        return c.card('補第 '+str(i+1)+' 筆',[prefix,e['date']+' '+e['title'],question],choices=[('回到清單','停止清單修改')])
+        lines=[e['date']+' '+e['title'],question]
+        if prefix.strip():lines.insert(0,prefix)
+        return c.card('補第 '+str(i+1)+' 筆',lines,choices=[('回到清單','停止清單修改')])
     pending.pop((tenant,uid),None)
-    return c.card('資料已補齊',[prefix,'請查看清單，再按「先加入完整項目」確認匯入。'],choices=[('查看清單','清單總覽')])
+    lines=['請查看清單，再按「先加入完整項目」確認匯入。']
+    if prefix.strip():lines.insert(0,prefix)
+    return c.card('資料已補齊',lines,choices=[('查看清單','清單總覽')])
 
 def fill_entry(c,old,text):
     if old.get('date_problem'):

@@ -6,7 +6,7 @@ from pathlib import Path
 import threading
 import requests
 
-NAME = 'MR four buttons 2026-10-11 v1'
+NAME = 'MR four buttons 2026-10-11 v2'
 LABELS = ['生活助理', '官方網站', '查資料', '電子名片模板參考']
 STATUS = {'installed': False, 'state': 'pending', 'buttons': LABELS}
 _STARTED = False
@@ -15,9 +15,9 @@ _STARTED = False
 def menu_payload():
     actions = [
         {'type': 'message', 'label': LABELS[0], 'text': '生活助理'},
-        {'type': 'uri', 'label': LABELS[1], 'uri': 'https://mrbusinesslab.github.io/official/index.html'},
+        {'type': 'uri', 'label': LABELS[1], 'uri': 'https://mrbusinesslab.github.io/official/MR/index.html#about'},
         {'type': 'message', 'label': LABELS[2], 'text': '查資料'},
-        {'type': 'message', 'label': LABELS[3], 'text': '展示'},
+        {'type': 'uri', 'label': LABELS[3], 'uri': 'https://drive.google.com/file/d/1YP0dtyrpl9egS1NCSMpVVnHOfP7fO1hW/view?usp=sharing'},
     ]
     return {'size': {'width': 1200, 'height': 810}, 'selected': True,
             'name': NAME, 'chatBarText': '功能選單', 'areas': [

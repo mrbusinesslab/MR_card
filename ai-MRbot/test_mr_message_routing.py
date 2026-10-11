@@ -56,6 +56,17 @@ class HandlerTests(unittest.TestCase):
         self.assertFalse(self.env['people_query_mode'].active(self.uid))
         self.assertNotIn(self.uid,self.pending)
         self.assertEqual(self.reply.call_args.args[2],'calendar-review')
+    def test_short_day_fill_answer_does_not_trigger_person_lookup(self):
+        from lifeos_calendar_list_flow import _PENDING,tenant_id
+        import time
+        key=(tenant_id(),self.uid)
+        _PENDING[key]={'token':'test','day_fill':True,'until':time.monotonic()+600}
+        self.addCleanup(lambda:_PENDING.pop(key,None))
+        self.calendar.handle.return_value='day-review'
+        self.send('下午兩點')
+        self.env['resolve_people'].assert_not_called()
+        self.calendar.handle.assert_called_once()
+        self.assertEqual(self.reply.call_args.args[2],'day-review')
     def test_card_button_then_search_beats_active_assistant(self):
         self.send('電子名片');self.assertIn(self.uid,self.pending)
         self.send('林威');self.tasks.handle_text.assert_not_called();self.calendar.handle.assert_not_called()

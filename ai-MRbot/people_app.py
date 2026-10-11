@@ -501,8 +501,10 @@ def handle_message(event):
         data_search = people_query_mode.active(user_id)
         if data_search:
             people_query_mode.enter(user_id)
+        from lifeos_calendar_list_flow import claims as review_claims
+        review_request = review_claims(user_id,user_msg)
         direct_people = None
-        if not data_search and user_id not in legacy.PENDING_SEARCH_USERS and may_be_person_name(user_msg) and find_card_for_person(user_msg) is None:
+        if not review_request and not data_search and user_id not in legacy.PENDING_SEARCH_USERS and may_be_person_name(user_msg) and find_card_for_person(user_msg) is None:
             try:
                 matches = resolve_people(user_msg)
                 normalized = normalize(user_msg)
@@ -515,8 +517,7 @@ def handle_message(event):
             pending_search=user_id in legacy.PENDING_SEARCH_USERS,
             names=card_names, categories=dict(legacy.CATEGORY_QUICK_REPLIES))
         people_request = people_request or data_search or bool(direct_people)
-        from lifeos_calendar_list_flow import claims as review_claims
-        if review_claims(user_id,user_msg):
+        if review_request:
             people_query_mode.leave(user_id)
             legacy.PENDING_SEARCH_USERS.discard(user_id)
             people_request = False

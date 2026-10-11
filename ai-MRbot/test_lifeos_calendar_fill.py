@@ -25,14 +25,32 @@ class FillTests(unittest.TestCase):
         self.assertIsNone(fill_entry(c,e,'兩點'))
 
 class GuidedFlowTests(FlowTests):
+    def assert_valid_text(self,message):
+        def walk(node):
+            if isinstance(node,dict):
+                if node.get('type')=='text':self.assertTrue(node.get('text','').strip(),node)
+                for value in node.values():walk(value)
+            elif isinstance(node,list):
+                for value in node:walk(value)
+        walk(message.contents.to_dict())
+
+    def test_initial_and_already_complete_cards_have_no_empty_text(self):
+        for title in ('王小姐 B','09:00～10:00 會議'):
+            c.handle('one','2026/10/12\n'+title)
+            token=self.drafts['one']['review_id']
+            self.assert_valid_text(c.handle('one','清單補齊 '+token))
+
     def test_guided_answer_updates_original_entry(self):
         c.handle('one','2026/10/12\n王小姐 B\n13:30 講座')
         token=self.drafts['one']['review_id']
         msg=c.handle('one','清單補齊 '+token)
         self.assertIn('補第 1 筆',msg.alt_text)
+        self.assert_valid_text(msg)
         msg=c.handle('one','下午兩點')
         self.assertIn('補第 2 筆',msg.alt_text)
+        self.assert_valid_text(msg)
         self.assertEqual(self.drafts['one']['review']['entries'][0]['times'],['14:00','15:30'])
         msg=c.handle('one','下午三點')
         self.assertEqual(msg.alt_text,'資料已補齊')
+        self.assert_valid_text(msg)
 if __name__=='__main__':unittest.main()

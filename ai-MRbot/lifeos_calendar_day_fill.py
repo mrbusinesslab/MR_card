@@ -29,6 +29,7 @@ def status(e):
 
 def render(c,uid,draft,pending,tenant,notes=()):
     from linebot.v3.messaging import FlexMessage,FlexContainer
+    from lifeos_calendar_review_ui import date_label
     cursor=draft['fill_day'];indices=cursor['indices'];entries=draft['review']['entries']
     todo=[i for i in indices if missing(entries[i])]
     pending[(tenant,uid)]={'token':draft['review_id'],'day_fill':True,'until':time.monotonic()+1800}
@@ -49,9 +50,9 @@ def render(c,uid,draft,pending,tenant,notes=()):
     body.append(txt('用編號或名稱，一次回覆這天的修改。\n例如：2 下午兩點，3 到下午三點半。' if todo else '當天資料已齊全，確認後才進下一天。\n尚未加入 Google 日曆。','sm','#66716E'))
     def btn(label,command):
         return {'type':'button','height':'sm','style':'secondary','action':{'type':'message','label':label,'text':command}}
-    title=cursor['day']+'｜'+('補當天資料' if todo else '確認當天')
+    title=date_label(cursor['day'])+'｜'+('補當天資料' if todo else '確認當天')
     bubble={'type':'bubble','size':'mega','header':{'type':'box','layout':'vertical','paddingAll':'20px','spacing':'sm','contents':[
-        txt(cursor['day'],'xl',bold=True),txt('補齊這一天的資料' if todo else '核對這一天的行程','md')]},
+        txt(date_label(cursor['day']),'xl',bold=True),txt('請提供正確日期' if date_label(cursor['day'])=='日期待補' else ('補齊這一天的資料' if todo else '核對這一天的行程'),'md')]},
         'body':{'type':'box','layout':'vertical','paddingAll':'20px','spacing':'lg','contents':body},
         'footer':{'type':'box','layout':'vertical','spacing':'sm','contents':[
             btn('當天正確，下一天','清單當天 '+draft['review_id']),btn('回到清單','停止清單修改')]}}
@@ -66,14 +67,15 @@ def start(c,uid,draft,pending,tenant,event_id=None,advance=False):
         draft.pop('fill_day',None);cursor=None
         draft['review_id']=secrets.token_hex(8)
     if not cursor:
+        from lifeos_calendar_review_ui import date_key
         entries=draft['review']['entries']
-        days=sorted({e['date'] for e in entries if missing(e)})
+        days=sorted({date_key(e) for e in entries if missing(e)})
         if not days:
             pending.pop((tenant,uid),None)
             c.l.gateway('calendar_draft',uid,event_id,payload=draft)
             return c.card('所有日期已補齊',['請查看完整清單，再統一確認加入日曆。'],choices=[('查看完整清單','清單總覽')])
         day=days[0]
-        draft['fill_day']={'day':day,'indices':[i for i,e in enumerate(entries) if e['date']==day and not e.get('write_started')]}
+        draft['fill_day']={'day':day,'indices':[i for i,e in enumerate(entries) if date_key(e)==day and not e.get('write_started')]}
     c.l.gateway('calendar_draft',uid,event_id,payload=draft)
     return render(c,uid,draft,pending,tenant)
 

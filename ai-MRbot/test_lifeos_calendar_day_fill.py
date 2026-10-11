@@ -42,7 +42,9 @@ class DayFillTests(FlowTests):
         self.assertEqual(e[1]['times'],['16:00','17:30'])
 
     def test_invalid_date_can_be_repaired_for_day(self):
-        self.begin('2026/10/32\n10:00～11:00 A會議\n14:00～15:00 B會議')
+        first=self.begin('2026/10/32\n10:00～11:00 A會議\n14:00～15:00 B會議')
+        self.assertIn('日期待補',first.alt_text)
+        self.assertNotIn('10/32',first.alt_text)
         msg=c.handle('one','2026/10/16')
         self.assertIn('確認當天',msg.alt_text)
         self.assertTrue(all(e['date']=='2026-10-16' for e in self.drafts['one']['review']['entries']))
@@ -53,3 +55,18 @@ class DayFillTests(FlowTests):
         c.handle('one','下午兩點')
         self.assertEqual(c.handle('one','清單當天 '+old).alt_text,'這張卡片已更新')
         self.assertEqual(c.handle('two','清單當天 '+self.drafts['one']['review_id']).alt_text,'清單草稿已失效')
+
+    def test_legacy_invalid_date_is_not_a_valid_date_field(self):
+        self.begin('2026/10/32\n10:00～11:00 吳小姐 B')
+        old=self.drafts['one']['review']['entries'][0]
+        old.update(date='10/32',kind='needs_time',times=[])
+        old.pop('raw_date',None)
+        msg=self.press('清單補齊')
+        self.assertIn('日期待補',msg.alt_text)
+        normalized=self.drafts['one']['review']['entries'][0]
+        self.assertEqual(normalized['date'],'')
+        self.assertEqual(normalized['raw_date'],'10/32')
+        c.handle('one','2026/10/16')
+        fixed=self.drafts['one']['review']['entries'][0]
+        self.assertEqual(fixed['date'],'2026-10-16')
+        self.assertEqual(fixed['times'],['10:00','11:00'])

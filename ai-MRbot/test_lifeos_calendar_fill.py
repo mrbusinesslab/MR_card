@@ -25,6 +25,8 @@ class FillTests(unittest.TestCase):
         from lifeos_calendar_review_ui import appointment_block
         e=review_list('2026/10/32\n10:00～11:00 吳小姐 B',2026)['entries'][0]
         self.assertEqual(e['times'],['10:00','11:00'])
+        self.assertEqual(e['date'],'')
+        self.assertEqual(e['raw_date'],'2026/10/32')
         self.assertTrue(e['date_problem'])
         self.assertIsNone(payload(e,c))
         for old in (e,{**e,'kind':'needs_time','times':[]}):

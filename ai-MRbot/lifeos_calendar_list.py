@@ -54,7 +54,7 @@ def review_list(text, year):
                         return {'entries':entries,'errors':['一次最多整理30筆，請拆成幾段傳送。'],'limited':True}
                     parsed=review_list(f'{year}/1/1\n'+line,year)
                     entry=parsed['entries'][0]
-                    entry.update(date=invalid_heading,date_problem=True)
+                    entry.update(date='',raw_date=invalid_heading,date_problem=True)
                     entry['notes'].append('日期無效，請補正確日期')
                     entries.append(entry)
             continue

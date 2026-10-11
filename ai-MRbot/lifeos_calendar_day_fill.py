@@ -17,23 +17,54 @@ def status(e):
     if e.get('date_problem'):return '日期待確認'
     if e.get('incomplete') or e.get('needs_name'):return '名稱待補完整'
     if e['kind']=='start_only':return '缺結束時間'
-    if e['kind']=='needs_time':return '缺有效時間'
+    if e['kind']=='needs_time':
+        notes=' '.join(e.get('notes',[]))
+        if '時間格式無效' in notes:return '時間無效，請重新提供'
+        if '結束時間沒有晚於開始' in notes:return '結束早於開始，請確認起訖時間'
+        if '上午或下午' in notes or '上午／下午' in notes:return '請確認上午或下午'
+        if not e.get('times') and re.search(r'(?<![A-Za-z])[FB](?![A-Za-z])|小孟',e['title'],re.I):return '缺開始時間'
+        return '缺開始與結束時間'
     return '已補齊，待確認'
 
 
 def render(c,uid,draft,pending,tenant,notes=()):
+    from linebot.v3.messaging import FlexMessage,FlexContainer
     cursor=draft['fill_day'];indices=cursor['indices'];entries=draft['review']['entries']
     todo=[i for i in indices if missing(entries[i])]
     pending[(tenant,uid)]={'token':draft['review_id'],'day_fill':True,'until':time.monotonic()+1800}
-    lines=list(notes)
-    for i in indices:
-        e=entries[i]
-        lines.append(f"{i+1} · {e['title']}\n{status(e)}")
-    if todo:
-        lines.append('一次回覆這一天要補的資料，用姓名或編號區分。\n例如：王小姐下午兩點，講座到下午三點半。')
-    else:lines.append('當天資料已齊全，請核對後進下一天。尚未加入日曆。')
-    return c.card(cursor['day']+'｜'+('補當天資料' if todo else '確認當天'),lines,
-                  choices=[('當天正確，下一天','清單當天 '+draft['review_id']),('回到清單','停止清單修改')])
+    def txt(value,size='sm',color='#263F3C',bold=False):
+        return {'type':'text','text':value or '—','size':size,'color':color,'weight':'bold' if bold else 'regular','wrap':True}
+    body=[]
+    for needs,label in ((True,'需要補資料'),(False,'已齊全，請核對')):
+        group=[i for i in indices if bool(missing(entries[i]))==needs]
+        if not group:continue
+        body.append(txt(f'{label} · {len(group)} 筆','md',bold=True))
+        for i in group:
+            e=entries[i]
+            name=CLOCK.sub('',e['title'])
+            name=re.sub(r'全天|上午|下午|晚上|中午|凌晨|早上','',name).strip(' ～~－-–—到至')
+            clocks=e.get('times',[])
+            when='全天' if e['kind']=='all_day' else ('～'.join(clocks) if clocks else '未提供時間')
+            if e['kind']=='start_only':when+=' 開始'
+            content=[{'type':'box','layout':'horizontal','spacing':'md','contents':[
+                {**txt(f'第 {i+1} 筆','xs','#7B827F'), 'flex':0},txt(name or '名稱待補','lg',bold=True)]},
+                txt('目前時間｜'+when,'sm','#66716E')]
+            if needs:content.append(txt('待補｜'+status(e),'md','#B3261E',True))
+            body.append({'type':'box','layout':'vertical','spacing':'md','paddingAll':'16px',
+                         'cornerRadius':'10px','backgroundColor':'#F6F3EE' if needs else '#F4F7F5','contents':content})
+    for note in notes:
+        if note.strip():body.append(txt(note,'sm','#B3261E'))
+    body.append({'type':'separator','margin':'md'})
+    body.append(txt('用編號或名稱，一次回覆這天的修改。\n例如：2 下午兩點，3 到下午三點半。' if todo else '當天資料已齊全，確認後才進下一天。\n尚未加入 Google 日曆。','sm','#66716E'))
+    def btn(label,command):
+        return {'type':'button','height':'sm','style':'secondary','action':{'type':'message','label':label,'text':command}}
+    title=cursor['day']+'｜'+('補當天資料' if todo else '確認當天')
+    bubble={'type':'bubble','size':'mega','header':{'type':'box','layout':'vertical','paddingAll':'20px','spacing':'sm','contents':[
+        txt(cursor['day'],'xl',bold=True),txt('補齊這一天的資料' if todo else '核對這一天的行程','md')]},
+        'body':{'type':'box','layout':'vertical','paddingAll':'20px','spacing':'lg','contents':body},
+        'footer':{'type':'box','layout':'vertical','spacing':'sm','contents':[
+            btn('當天正確，下一天','清單當天 '+draft['review_id']),btn('回到清單','停止清單修改')]}}
+    return FlexMessage(alt_text=title,contents=FlexContainer.from_dict(bubble))
 
 
 def start(c,uid,draft,pending,tenant,event_id=None,advance=False):

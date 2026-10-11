@@ -1,8 +1,10 @@
 import people_app
 import tracking_patch
+import mr_rich_menu
 
 tracking_patch.apply(people_app)
 app = people_app.app
+mr_rich_menu.start(app)
 
 if __name__ == "__main__":
     import os

@@ -68,7 +68,27 @@ def progress(c,uid,draft):
     with _LOCK:running=key in _RUNNING
     choices=[('查看處理進度','清單進度 '+draft['review_id']),('查看清單','清單總覽')]
     if remaining and not running:choices.insert(0,('繼續未完成項目','清單匯入 '+draft['review_id']))
-    return c.card('正在加入日曆' if running else '行程匯入狀態',[f'已完成 {done} 筆',f'待補資料 {waiting} 筆',f'尚未完成 {remaining} 筆','處理期間可按「查看處理進度」。' if running else '已完成的項目不會重複新增。'],choices=choices)
+    return c.card('正在加入日曆' if running else '行程匯入狀態',[f'已完成 {done} 筆',f'待補資料 {waiting} 筆',f'尚未完成 {remaining} 筆','完成後會自動回覆結果，請稍候。' if running else '已完成的項目不會重複新增。'],choices=choices)
+
+def notify_completion(c,uid,message):
+    import os
+    import requests
+    try:
+        from lifeos_settings import getenv
+    except ImportError:getenv=os.getenv
+    token=getenv('LINE_CHANNEL_ACCESS_TOKEN','')
+    if not token:return False
+    headers={'Authorization':'Bearer '+token}
+    quota=requests.get('https://api.line.me/v2/bot/message/quota',headers=headers,timeout=10)
+    quota.raise_for_status()
+    limit=quota.json()
+    if limit.get('type')=='limited':
+        usage=requests.get('https://api.line.me/v2/bot/message/quota/consumption',headers=headers,timeout=10)
+        usage.raise_for_status()
+        if usage.json().get('totalUsage',0)>=limit.get('value',0):return False
+    result=requests.post('https://api.line.me/v2/bot/message/push',headers=headers,json={'to':uid,'messages':[message.to_dict()]},timeout=12)
+    result.raise_for_status()
+    return True
 
 def start_import(c,uid,draft,event_id):
     if draft['review'].get('errors'):return import_batch(c,uid,draft,event_id)
@@ -78,8 +98,13 @@ def start_import(c,uid,draft,event_id):
         else:_RUNNING.add(key);launch=True
     if launch:
         context=copy_context()
+        def execute():
+            try:message=import_batch(c,uid,draft,event_id)
+            except Exception:
+                message=c.card('行程尚未全部完成',['處理中斷，已完成項目保留。請查看清單並重試未完成項目。'],choices=[('查看清單','清單總覽')])
+            notify_completion(c,uid,message)
         def work():
-            try:context.run(import_batch,c,uid,draft,event_id)
+            try:context.run(execute)
             except Exception:
                 import logging
                 logging.getLogger(__name__).exception('Calendar batch background import failed')

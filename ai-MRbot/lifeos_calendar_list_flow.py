@@ -9,7 +9,7 @@ from linebot.v3.messaging import FlexMessage, FlexContainer
 from lifeos_calendar_list import review_list
 
 _PENDING = {}
-PREFIXES = ('清單匯入 ', '清單放棄 ', '清單修改 ', '清單全天 ', '清單移除 ', '清單分頁 ', '清單總覽', '停止清單修改')
+PREFIXES = ('清單進度 ', '清單匯入 ', '清單放棄 ', '清單修改 ', '清單全天 ', '清單移除 ', '清單分頁 ', '清單總覽', '停止清單修改')
 EXIT = ('查資料', '生活助理', '個人助理', '電子名片', '離開助理', '回到小幫手')
 
 def is_editing(uid):
@@ -75,6 +75,11 @@ def handle(c,uid,text,event_id,source_type):
     if not c.calendar_access(uid):return c.card('Google日曆尚未啟用',['請先使用管理者提供的啟用碼加入Life OS。'])
     try:
         cal=c.config()[1]
+        from lifeos_calendar_batch import _RUNNING,_LOCK,progress
+        with _LOCK:busy=any(k[0]==cal and k[1]==uid for k in _RUNNING)
+        if busy:
+            active=c.l.gateway('calendar_get_draft',uid).get('draft')
+            if active:return progress(c,uid,active)
         if review is not None:
             draft={'operation':'list_review','calendar_id':cal,'review_id':secrets.token_hex(8),'review':review}
             c.l.gateway('calendar_draft',uid,event_id,payload=draft)
@@ -84,6 +89,10 @@ def handle(c,uid,text,event_id,source_type):
         if not draft or draft.get('operation')!='list_review' or draft.get('calendar_id')!=cal:
             _PENDING.pop((tenant_id(),uid),None)
             return c.card('清單草稿已失效',['請重新貼上行程清單。'])
+        if text.startswith('清單進度 '):
+            if text.split()[-1]!=draft['review_id']:return c.card('這張卡片已更新',['請使用最新清單。'])
+            from lifeos_calendar_batch import progress
+            return progress(c,uid,draft)
         if text.startswith(('清單匯入 ','清單放棄 ')):
             if text.split()[-1]!=draft['review_id']:
                 return c.card('這張卡片已更新',['請使用最新清單。'],choices=[('查看最新清單','清單總覽')])
@@ -91,8 +100,8 @@ def handle(c,uid,text,event_id,source_type):
             if text.startswith('清單放棄 '):
                 draft['operation']='list_cancelled';c.l.gateway('calendar_draft',uid,event_id,payload=draft)
                 return c.card('已放棄匯入',['不再新增這份清單；先前已匯入的行程保留。'])
-            from lifeos_calendar_batch import import_batch
-            return import_batch(c,uid,draft,event_id)
+            from lifeos_calendar_batch import start_import
+            return start_import(c,uid,draft,event_id)
         if text=='停止清單修改':
             _PENDING.pop((tenant_id(),uid),None);return cards(draft)
         if text=='清單總覽':return cards(draft)

@@ -25,6 +25,22 @@ class BatchTests(unittest.TestCase):
         self.assertFalse(draft['review']['entries'][1].get('imported',False))
         calls=fake.call.call_count;import_batch(fake,'one',draft,None)
         self.assertEqual(fake.call.call_count,calls)
+    def test_background_returns_before_slow_import(self):
+        import threading
+        from unittest.mock import patch
+        import lifeos_calendar_batch as batch
+        entered=threading.Event();release=threading.Event()
+        fake=Mock(wraps=c)
+        draft={'calendar_id':'test','review_id':'async','review':{'errors':[],'entries':[]}}
+        def slow(*args):entered.set();release.wait(2)
+        try:
+            with patch.object(batch,'import_batch',side_effect=slow) as run:
+                result=batch.start_import(fake,'one',draft,None)
+                self.assertTrue(entered.wait(1))
+                self.assertEqual(result.alt_text,'正在加入日曆')
+                batch.start_import(fake,'one',draft,None)
+                self.assertEqual(run.call_count,1)
+        finally:release.set()
     def test_errors_block_writes(self):
         fake=Mock(wraps=c)
         import_batch(fake,'one',{'review':{'errors':['bad weekday']}},None)

@@ -52,3 +52,38 @@ def import_batch(c,uid,draft,event_id):
     choices=[('查看清單','清單總覽')]
     if failed:choices.insert(0,('重試未完成項目','清單匯入 '+draft['review_id']))
     return c.card('行程匯入結果',[f'已完成 {done} 筆',f'待補資料 {waiting} 筆',f'尚未完成 {failed} 筆','重試會沿用同一行程 ID，避免重複新增。'],choices=choices)
+
+# Keep webhook requests short. Persisted IDs survive worker restarts.
+import threading
+from contextvars import copy_context
+_RUNNING=set()
+_LOCK=threading.Lock()
+
+def progress(c,uid,draft):
+    entries=draft['review']['entries']
+    done=sum(bool(e.get('imported')) for e in entries)
+    waiting=sum(not e.get('imported') and (e.get('incomplete') or e['kind'] not in ('complete','all_day')) for e in entries)
+    remaining=len(entries)-done-waiting
+    key=(draft['calendar_id'],uid,draft['review_id'])
+    with _LOCK:running=key in _RUNNING
+    choices=[('查看處理進度','清單進度 '+draft['review_id']),('查看清單','清單總覽')]
+    if remaining and not running:choices.insert(0,('繼續未完成項目','清單匯入 '+draft['review_id']))
+    return c.card('正在加入日曆' if running else '行程匯入狀態',[f'已完成 {done} 筆',f'待補資料 {waiting} 筆',f'尚未完成 {remaining} 筆','處理期間可按「查看處理進度」。' if running else '已完成的項目不會重複新增。'],choices=choices)
+
+def start_import(c,uid,draft,event_id):
+    if draft['review'].get('errors'):return import_batch(c,uid,draft,event_id)
+    key=(draft['calendar_id'],uid,draft['review_id'])
+    with _LOCK:
+        if key in _RUNNING:launch=False
+        else:_RUNNING.add(key);launch=True
+    if launch:
+        context=copy_context()
+        def work():
+            try:context.run(import_batch,c,uid,draft,event_id)
+            except Exception:
+                import logging
+                logging.getLogger(__name__).exception('Calendar batch background import failed')
+            finally:
+                with _LOCK:_RUNNING.discard(key)
+        threading.Thread(target=work,daemon=True,name='calendar-batch').start()
+    return progress(c,uid,draft)

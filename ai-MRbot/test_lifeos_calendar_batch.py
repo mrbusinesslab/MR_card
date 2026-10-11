@@ -34,24 +34,21 @@ class BatchTests(unittest.TestCase):
         draft={'calendar_id':'test','review_id':'async','review':{'errors':[],'entries':[]}}
         def slow(*args):entered.set();release.wait(2)
         try:
-            with patch.object(batch,'notify_completion'),patch.object(batch,'import_batch',side_effect=slow) as run:
+            with patch.object(batch,'import_batch',side_effect=slow) as run:
                 result=batch.start_import(fake,'one',draft,None)
                 self.assertTrue(entered.wait(1))
                 self.assertEqual(result.alt_text,'正在加入日曆')
                 batch.start_import(fake,'one',draft,None)
                 self.assertEqual(run.call_count,1)
         finally:release.set()
-    def test_completion_push_and_quota_limit(self):
+    def test_completion_uses_reply_only_once(self):
         from unittest.mock import patch
-        from lifeos_calendar_batch import notify_completion
-        message=c.card('行程匯入結果',['已完成 11 筆'])
-        with patch.dict('os.environ',{'LINE_CHANNEL_ACCESS_TOKEN':'fixture'}),patch('requests.get') as get,patch('requests.post') as post:
-            get.return_value.json.return_value={'type':'limited','value':0,'totalUsage':0}
-            self.assertFalse(notify_completion(c,'one',message));post.assert_not_called()
-            get.return_value.json.return_value={'type':'none'}
-            self.assertTrue(notify_completion(c,'one',message))
-            self.assertEqual(post.call_args.kwargs['json']['to'],'one')
-            self.assertEqual(post.call_args.kwargs['json']['messages'][0]['type'],'flex')
+        from lifeos_calendar_batch import FreeReply
+        r=FreeReply(c,'one',{'review_id':'token'});r.token='fixture'
+        with patch('requests.post') as post:
+            r.send(c.card('已完成',['11 筆']));r.send(c.card('已完成',['11 筆']))
+            post.assert_called_once()
+            self.assertTrue(post.call_args.args[0].endswith('/message/reply'))
     def test_errors_block_writes(self):
         fake=Mock(wraps=c)
         import_batch(fake,'one',{'review':{'errors':['bad weekday']}},None)

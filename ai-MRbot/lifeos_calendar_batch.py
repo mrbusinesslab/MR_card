@@ -68,30 +68,35 @@ def progress(c,uid,draft):
     with _LOCK:running=key in _RUNNING
     choices=[('查看處理進度','清單進度 '+draft['review_id']),('查看清單','清單總覽')]
     if remaining and not running:choices.insert(0,('繼續未完成項目','清單匯入 '+draft['review_id']))
-    return c.card('正在加入日曆' if running else '行程匯入狀態',[f'已完成 {done} 筆',f'待補資料 {waiting} 筆',f'尚未完成 {remaining} 筆','完成後會自動回覆結果，請稍候。' if running else '已完成的項目不會重複新增。'],choices=choices)
+    return c.card('正在加入日曆' if running else '行程匯入狀態',[f'已完成 {done} 筆',f'待補資料 {waiting} 筆',f'尚未完成 {remaining} 筆','處理中；若尚未完成，可按「查看處理進度」，不使用推播通知。' if running else '已完成的項目不會重複新增。'],choices=choices)
 
-def notify_completion(c,uid,message):
-    import os
-    import requests
-    try:
-        from lifeos_settings import getenv
-    except ImportError:getenv=os.getenv
-    token=getenv('LINE_CHANNEL_ACCESS_TOKEN','')
-    if not token:return False
-    headers={'Authorization':'Bearer '+token}
-    quota=requests.get('https://api.line.me/v2/bot/message/quota',headers=headers,timeout=10)
-    quota.raise_for_status()
-    limit=quota.json()
-    if limit.get('type')=='limited':
-        usage=requests.get('https://api.line.me/v2/bot/message/quota/consumption',headers=headers,timeout=10)
-        usage.raise_for_status()
-        if usage.json().get('totalUsage',0)>=limit.get('value',0):return False
-    result=requests.post('https://api.line.me/v2/bot/message/push',headers=headers,json={'to':uid,'messages':[message.to_dict()]},timeout=12)
-    result.raise_for_status()
-    return True
+class DeferredReply:
+    deferred=True
+
+class FreeReply:
+    def __init__(self,c,uid,draft):
+        self.c=c;self.uid=uid;self.draft=draft;self.token=None;self.sent=False;self.lock=threading.Lock()
+        try:
+            from flask import request
+            for e in (request.get_json(silent=True) or {}).get('events',[]):
+                if e.get('source',{}).get('userId')==uid and e.get('message',{}).get('text')=='清單匯入 '+draft['review_id']:
+                    self.token=e.get('replyToken');break
+        except RuntimeError:pass
+    def send(self,message):
+        if not self.token:return
+        with self.lock:
+            if self.sent:return
+            self.sent=True
+        import os,requests
+        try:
+            from lifeos_settings import getenv
+        except ImportError:getenv=os.getenv
+        response=requests.post('https://api.line.me/v2/bot/message/reply',headers={'Authorization':'Bearer '+getenv('LINE_CHANNEL_ACCESS_TOKEN','')},json={'replyToken':self.token,'messages':[message.to_dict()]},timeout=10)
+        response.raise_for_status()
 
 def start_import(c,uid,draft,event_id):
     if draft['review'].get('errors'):return import_batch(c,uid,draft,event_id)
+    free_reply=FreeReply(c,uid,draft)
     key=(draft['calendar_id'],uid,draft['review_id'])
     with _LOCK:
         if key in _RUNNING:launch=False
@@ -102,7 +107,7 @@ def start_import(c,uid,draft,event_id):
             try:message=import_batch(c,uid,draft,event_id)
             except Exception:
                 message=c.card('行程尚未全部完成',['處理中斷，已完成項目保留。請查看清單並重試未完成項目。'],choices=[('查看清單','清單總覽')])
-            notify_completion(c,uid,message)
+            free_reply.send(message)
         def work():
             try:context.run(execute)
             except Exception:
@@ -111,4 +116,10 @@ def start_import(c,uid,draft,event_id):
             finally:
                 with _LOCK:_RUNNING.discard(key)
         threading.Thread(target=work,daemon=True,name='calendar-batch').start()
-    return progress(c,uid,draft)
+        if free_reply.token:
+            context_timer=copy_context()
+            def timeout_reply():
+                try:context_timer.run(lambda:free_reply.send(progress(c,uid,draft)))
+                except Exception:pass
+            timer=threading.Timer(40,timeout_reply);timer.daemon=True;timer.start()
+    return DeferredReply() if launch and free_reply.token else progress(c,uid,draft)

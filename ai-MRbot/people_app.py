@@ -515,6 +515,7 @@ def handle_message(event):
             calendar_reply = lifeos_calendar.handle(user_id,user_msg,
                 getattr(event,"webhook_event_id",None),getattr(event.source,"type","user"))
             if calendar_reply is not None:
+                if getattr(calendar_reply,'deferred',False):return
                 reply(line_bot_api,event,calendar_reply)
                 return
             private_reply = lifeos.handle_text(user_id, user_msg,

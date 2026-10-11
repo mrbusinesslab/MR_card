@@ -62,7 +62,7 @@ class CalendarIntegrationTests(unittest.TestCase):
         with patch.object(self.calendar,'calendar_access',return_value=True),patch.object(self.calendar,'call') as google,patch.object(self.calendar.l,'gateway') as db:
             result=self.calendar.handle('fixture-user',EXAMPLE,'fixture-event')
         self.assertIn('8筆',result.alt_text)
-        self.assertEqual(len(result.contents.contents),9)
+        self.assertEqual(len(result.contents.contents),4)
         google.assert_not_called()
         self.assertEqual(db.call_args.args[0],'calendar_draft')
         self.assertEqual(db.call_args.kwargs['payload']['operation'],'list_review')

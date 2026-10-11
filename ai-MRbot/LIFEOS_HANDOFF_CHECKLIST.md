@@ -68,3 +68,21 @@
 ## 準備驗證與正式驗收的區別
 
 準備版本已通過 Python、gateway 模擬與暫時 PostgreSQL 隔離測試。正式 Supabase migration／gateway 尚未部署；真實 LINE、Google、排程的端到端驗收要在取得客戶設定後執行。這份清單是標準交付流程，不代表已開通另一套系統。
+
+## 新增成員的離線工具
+
+一般使用者（私人待辦，不自動分享管理者日曆）：
+
+```bash
+python provision_lifeos_member.py --tenant client01 --label 成員甲 --output /private/member-a
+```
+
+共享使用者：
+
+```bash
+python provision_lifeos_member.py --tenant client01 --label 成員乙 --shared-owner U11111111111111111111111111111111 --output /private/member-b
+```
+
+--shared-owner 使用管理者原始 LINE user ID；SQL 在指定客戶內查找已啟用的管理者，找不到就整筆中止，不接受其他客戶或共享成員當管理者。工具不改共享開關；建置者先核對 share_tasks／share_calendar，再執行 register-member.sql。activation.txt 的一次性碼效期從登錄起七天，只私下交給指定成員。此邀請為持碼者可使用的邀請，尚未綁定收件人的 LINE ID，不可公開張貼。
+
+關閉共享的驗收：關閉 owner 的 share_tasks／share_calendar，確認共享者立即不能取得其內容，管理者仍可查自己的資料，原建立者紀錄不變。此案例已加入 PostgreSQL 回滾測試。

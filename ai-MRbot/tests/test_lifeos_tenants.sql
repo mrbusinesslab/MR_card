@@ -54,6 +54,11 @@ BEGIN
  assert jsonb_array_length(r->'users')=1 and r->'users'->0->>'user_id'=raw_user,'Push recipients not mapped to original LINE ID';
  r:=lifeos_tenant_dispatch(jsonb_build_object('tenant_id',b,'action','notification_users'));
  assert jsonb_array_length(r->'users')=0,'Other tenant push recipients exposed';
+ perform set_config('lifeos.tenant','',true);
+ update lifeos_users set share_tasks=false,share_calendar=false where user_id=au;
+ assert not lifeos_can_access(mu,au,'task') and not lifeos_can_access(mu,au,'calendar'),'Revoked sharing remained accessible';
+ assert lifeos_can_access(au,au,'task'),'Owner lost own access';
+ assert (select user_id from lifeos_tasks where id=atask)=au,'Revocation changed creator';
  assert not has_table_privilege('anon','lifeos_tenants','SELECT'),'Tenant registry publicly readable';
  assert not has_function_privilege('authenticated','lifeos_tenant_dispatch(jsonb)','EXECUTE'),'Tenant dispatcher publicly callable';
 END $test$;

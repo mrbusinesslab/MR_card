@@ -1,12 +1,15 @@
-"""Editable, user-scoped calendar review cards. Never writes Google events."""
+"""Editable, user-scoped calendar review cards. Batch writes require explicit confirmation."""
 import secrets
 import time
-from lifeos_settings import tenant_id
+try:
+    from lifeos_settings import tenant_id
+except ImportError:
+    def tenant_id():return 'mr'
 from linebot.v3.messaging import FlexMessage, FlexContainer
 from lifeos_calendar_list import review_list
 
 _PENDING = {}
-PREFIXES = ('清單修改 ', '清單全天 ', '清單移除 ', '清單分頁 ', '清單總覽', '停止清單修改')
+PREFIXES = ('清單匯入 ', '清單放棄 ', '清單修改 ', '清單全天 ', '清單移除 ', '清單分頁 ', '清單總覽', '停止清單修改')
 EXIT = ('查資料', '生活助理', '個人助理', '電子名片', '離開助理', '回到小幫手')
 
 def is_editing(uid):
@@ -33,18 +36,21 @@ def cards(draft, page=0):
     def bubble(body, buttons):
         return {'type':'bubble','size':'mega','body':{'type':'box','layout':'vertical','spacing':'md','contents':body},'footer':{'type':'box','layout':'vertical','contents':buttons}}
     notes='\n'.join(review.get('errors',[]))
-    intro=[txt('行程清單','xl'),txt(f"共 {len(entries)} 筆 · 第 {page+1}/{pages} 頁"),txt('左右滑動查看每筆行程。\n未標示年份時依今年整理，請核對日期。\n尚未加入 Google 日曆。批次存檔尚未啟用。')]
+    intro=[txt('行程清單','xl'),txt(f"共 {len(entries)} 筆 · 第 {page+1}/{pages} 頁"),txt('左右滑動查看每筆行程。\n未標示年份時依今年整理，請核對日期。\n完整項目可按下確認加入 Google 日曆；缺資料的項目會保留待補。')]
     if notes:intro.append(txt(notes,'sm','#B3261E'))
     nav=[]
     if page:nav.append(button('上一頁',f'清單分頁 {token} {page-1}'))
     if page+1<pages:nav.append(button('下一頁',f'清單分頁 {token} {page+1}'))
+    nav += [button('全部正確，加入日曆','清單匯入 '+token),button('放棄匯入','清單放棄 '+token)]
     bubbles=[bubble(intro,nav or [button('重新查看','清單總覽')])]
     for idx in range(page*8,min(len(entries),(page+1)*8)):
         e=entries[idx]
         status={'all_day':'全天候選','complete':'待確認','start_only':'缺結束時間','needs_time':'待補時間'}[e['kind']]
-        if e.get('incomplete'):status='待補完整內容'
+        if e.get('imported'):status='已加入日曆'
+        elif e.get('incomplete'):status='待補完整內容'
         body=[txt(f"{idx+1} · {e['date']}",'md'),txt(e['title'],'lg'),txt(status,'md','#B3261E'),txt('；'.join(e['notes']))]
         actions=[button('修改',f'清單修改 {token} {idx}'),button('設為全天',f'清單全天 {token} {idx}'),button('移除這筆',f'清單移除 {token} {idx}')]
+        if e.get('imported'):actions=[button('查看總覽','清單總覽')]
         bubbles.append(bubble(body,actions))
     return FlexMessage(alt_text=f'行程清單：{len(entries)}筆，請查看卡片並修改',contents=FlexContainer.from_dict({'type':'carousel','contents':bubbles}))
 
@@ -67,6 +73,15 @@ def handle(c,uid,text,event_id,source_type):
         if not draft or draft.get('operation')!='list_review' or draft.get('calendar_id')!=cal:
             _PENDING.pop((tenant_id(),uid),None)
             return c.card('清單草稿已失效',['請重新貼上行程清單。'])
+        if text.startswith(('清單匯入 ','清單放棄 ')):
+            if text.split()[-1]!=draft['review_id']:
+                return c.card('這張卡片已更新',['請使用最新清單。'],choices=[('查看最新清單','清單總覽')])
+            _PENDING.pop((tenant_id(),uid),None)
+            if text.startswith('清單放棄 '):
+                draft['operation']='list_cancelled';c.l.gateway('calendar_draft',uid,event_id,payload=draft)
+                return c.card('已放棄匯入',['不再新增這份清單；先前已匯入的行程保留。'])
+            from lifeos_calendar_batch import import_batch
+            return import_batch(c,uid,draft,event_id)
         if text=='停止清單修改':
             _PENDING.pop((tenant_id(),uid),None);return cards(draft)
         if text=='清單總覽':return cards(draft)
@@ -78,6 +93,8 @@ def handle(c,uid,text,event_id,source_type):
             idx=int(parts[2])
             if command=='清單分頁':return cards(draft,idx)
             if idx>=len(draft['review']['entries']):return c.card('找不到這筆',['請查看最新清單。'])
+            if draft['review']['entries'][idx].get('write_started'):
+                return c.card('這筆已加入日曆',['請透過改期或取消行程操作。'])
             if command=='清單修改':
                 if len(_PENDING)>=1000:_PENDING.clear()
                 _PENDING[(tenant_id(),uid)]={'token':draft['review_id'],'index':idx,'until':time.monotonic()+600}
@@ -102,6 +119,8 @@ def handle(c,uid,text,event_id,source_type):
                 return c.card('請只修改一筆',['請回覆完整行程內容；改日期請把日期放在第一行。'],choices=[('取消修改','停止清單修改')])
             draft['review']['entries'][idx]=replacement['entries'][0]
             _PENDING.pop((tenant_id(),uid),None)
+        for entry in draft['review']['entries']:
+            if not entry.get('write_started'):entry.pop('google_id',None)
         draft['review_id']=secrets.token_hex(8)
         c.l.gateway('calendar_draft',uid,event_id,payload=draft)
         return cards(draft,idx//8)

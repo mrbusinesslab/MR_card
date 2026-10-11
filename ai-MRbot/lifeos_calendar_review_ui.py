@@ -1,6 +1,26 @@
 """Shared appointment layout, including retained times in older invalid-date drafts."""
 import re
 from lifeos_calendar_list import CLOCK
+from datetime import date
+
+
+def date_key(e):
+    return e.get('date') or 'invalid:'+e.get('raw_date','')
+
+
+def date_label(value):
+    try:
+        day=date.fromisoformat(value)
+        return day.isoformat()+'（'+'一二三四五六日'[day.weekday()]+'）'
+    except (ValueError,TypeError):return '日期待補'
+
+
+def normalize_dates(draft):
+    # Upgrade retained drafts that used raw invalid text as a date value.
+    for e in draft['review']['entries']:
+        if e.get('date_problem') and date_label(e.get('date'))=='日期待補':
+            if e.get('date'):e['raw_date']=e['date']
+            e['date']=''
 
 
 def txt(value,size='sm',color='#263F3C',bold=False):

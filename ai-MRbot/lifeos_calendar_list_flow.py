@@ -32,8 +32,9 @@ def button(label, text):
     return {'type':'button','height':'sm','action':{'type':'message','label':label,'text':text}}
 
 def day_groups(entries):
+    from lifeos_calendar_review_ui import date_key
     groups={}
-    for idx,e in enumerate(entries):groups.setdefault(e['date'],[]).append((idx,e))
+    for idx,e in enumerate(entries):groups.setdefault(date_key(e),[]).append((idx,e))
     return sorted(groups.items())
 
 def cards(draft, page=0):
@@ -53,11 +54,9 @@ def cards(draft, page=0):
     if page+1<pages:nav.append(button('下一頁',f'清單分頁 {token} {page+1}'))
     nav += [button('先加入完整項目','清單匯入 '+token),button('補齊資料','清單補齊 '+token),button('放棄匯入','清單放棄 '+token)]
     bubbles=[bubble(intro,nav)]
-    from datetime import date
+    from lifeos_calendar_review_ui import date_label
     for day,items in days[page*8:(page+1)*8]:
-        try:weekday='一二三四五六日'[date.fromisoformat(day).weekday()]
-        except ValueError:weekday='日期待補'
-        body=[txt(day+'（'+weekday+'）','xl'),txt(str(len(items))+' 筆行程')]
+        body=[txt(date_label(day),'xl'),txt(str(len(items))+' 筆行程')]
         for idx,e in items:
             from lifeos_calendar_review_ui import appointment_block
             actions=None
@@ -91,6 +90,8 @@ def handle(c,uid,text,event_id,source_type):
         if not draft or draft.get('operation')!='list_review' or draft.get('calendar_id')!=cal:
             _PENDING.pop((tenant_id(),uid),None)
             return c.card('清單草稿已失效',['請重新貼上行程清單。'])
+        from lifeos_calendar_review_ui import normalize_dates
+        normalize_dates(draft)
         if text.startswith(('清單補齊 ','清單當天 ')):
             if text.split()[-1]!=draft['review_id']:return c.card('這張卡片已更新',['請使用最新清單。'])
             from lifeos_calendar_day_fill import start
@@ -128,7 +129,8 @@ def handle(c,uid,text,event_id,source_type):
                 from lifeos_calendar_review_ui import appointment_block
                 message=c.card('修改第 '+str(idx+1)+' 筆',['直接回覆完整的新內容，例如：18:00～21:00 吳佳蓉 B。','改日期請分兩行：2026/10/14，再填行程內容。'],choices=[('取消修改','停止清單修改')])
                 data=message.contents.to_dict()
-                data['body']['contents'][:0]=[{'type':'text','text':'日期｜'+e['date'],'size':'md','wrap':True},appointment_block(e,idx)]
+                from lifeos_calendar_review_ui import date_label
+                data['body']['contents'][:0]=[{'type':'text','text':'日期｜'+date_label(e['date']),'size':'md','wrap':True},appointment_block(e,idx)]
                 message.contents=FlexContainer.from_dict(data)
                 return message
             _PENDING.pop((tenant_id(),uid),None)
@@ -136,6 +138,7 @@ def handle(c,uid,text,event_id,source_type):
             if command=='清單移除':draft['review']['entries'].pop(idx)
             else:
                 old=draft['review']['entries'][idx]
+                if not old['date']:return c.card('請先補日期',['日期尚未有效，請先按「補齊資料」更正日期。'])
                 import re
                 title=re.sub(r'\d{1,2}[:：]\d{2}\s*(?:到|至|～|~|－|-|–|—)?\s*','',old['title'])
                 draft['review']['entries'][idx]=review_list(old['date']+'\n全天 '+title,c.l.clock().year)['entries'][0]

@@ -23,7 +23,10 @@ def claims(uid, text):
     if text in EXIT:
         _PENDING.pop((tenant_id(),uid),None)
         return False
-    return text.startswith(PREFIXES) or (is_editing(uid) and text not in EXIT)
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+    dated_list='\n' in text and review_list(text,datetime.now(ZoneInfo('Asia/Taipei')).year) is not None
+    return dated_list or text.startswith(PREFIXES) or (is_editing(uid) and text not in EXIT)
 
 def button(label, text):
     return {'type':'button','height':'sm','action':{'type':'message','label':label,'text':text}}

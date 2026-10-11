@@ -47,6 +47,15 @@ class HandlerTests(unittest.TestCase):
     def send(self,text):
         event=SimpleNamespace(message=SimpleNamespace(text=text),source=SimpleNamespace(user_id=self.uid,type='user'),webhook_event_id='event')
         self.env['handle_message'](event)
+    def test_calendar_list_exits_people_query_mode(self):
+        self.env['people_query_mode'].enter(self.uid);self.pending.add(self.uid)
+        self.calendar.handle.return_value='calendar-review'
+        self.send('10/12（一）\n王小姐 B\n13:30 講座')
+        self.calendar.handle.assert_called_once()
+        self.env['resolve_people'].assert_not_called()
+        self.assertFalse(self.env['people_query_mode'].active(self.uid))
+        self.assertNotIn(self.uid,self.pending)
+        self.assertEqual(self.reply.call_args.args[2],'calendar-review')
     def test_card_button_then_search_beats_active_assistant(self):
         self.send('電子名片');self.assertIn(self.uid,self.pending)
         self.send('林威');self.tasks.handle_text.assert_not_called();self.calendar.handle.assert_not_called()

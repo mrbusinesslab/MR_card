@@ -35,7 +35,7 @@ class HandlerTests(unittest.TestCase):
         self.reply=Mock()
         api=Mock();api.__enter__=Mock(return_value=api);api.__exit__=Mock(return_value=False)
         from mr_message_routing import is_lifeos_command
-        self.env={'ApiClient':Mock(return_value=api),'configuration':None,'MessagingApi':Mock(),
+        self.env={'mark_stage':Mock(),'ApiClient':Mock(return_value=api),'configuration':None,'MessagingApi':Mock(),
             'legacy':self.legacy,'lifeos_calendar':self.calendar,'lifeos':self.tasks,
             'is_date_query':is_date_query,'prefer_people':prefer_people,'is_lifeos_command':is_lifeos_command,'reply':self.reply,
             'people_query_mode':PeopleQueryMode(),'may_be_person_name':may_be_person_name,

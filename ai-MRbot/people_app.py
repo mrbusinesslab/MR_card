@@ -1,7 +1,7 @@
 import os
 import re
 from urllib.parse import urlparse
-from flask import request, abort
+from flask import request, abort, g
 
 import legacy_app as legacy
 from people_lookup import find_people, get_person, available_categories, category_text, extract_urls
@@ -456,7 +456,9 @@ def full_category_reply(name, category):
 def reply(api, event, message):
     messages = message if isinstance(message, list) else [message]
     messages = [item for item in messages if item is not None]
-    api.reply_message(ReplyMessageRequest(reply_token=event.reply_token, messages=messages))
+    mark_stage("line_reply")
+    api.reply_message(ReplyMessageRequest(reply_token=event.reply_token, messages=messages), _request_timeout=(3, 8))
+    mark_stage("line_reply_done")
 
 
 @app.route("/people-data-health")
@@ -468,8 +470,16 @@ def people_data_health():
         return {"ok": False, "error": str(exc)}, 500
 
 
+def mark_stage(stage):
+    from flask import has_request_context
+    if has_request_context():
+        trace = getattr(g, "lifeos_trace", None)
+        if trace: trace.mark(stage)
+
+
 @handler.add(MessageEvent, message=TextMessageContent)
 def handle_message(event):
+    mark_stage("text_routing")
     user_msg = event.message.text.strip()
     user_id = event.source.user_id if hasattr(event.source, "user_id") else "unknown"
     with ApiClient(configuration) as api_client:
@@ -514,12 +524,14 @@ def handle_message(event):
         if not people_request:
             if is_lifeos_command(user_msg):
                 legacy.PENDING_SEARCH_USERS.discard(user_id)
+            mark_stage("calendar_handle")
             calendar_reply = lifeos_calendar.handle(user_id,user_msg,
                 getattr(event,"webhook_event_id",None),getattr(event.source,"type","user"))
             if calendar_reply is not None:
                 if getattr(calendar_reply,'deferred',False):return
                 reply(line_bot_api,event,calendar_reply)
                 return
+            mark_stage("tasks_handle")
             private_reply = lifeos.handle_text(user_id, user_msg,
                 getattr(event, "webhook_event_id", None), getattr(event.source, "type", "user"))
             if private_reply is not None:
@@ -639,7 +651,10 @@ def callback():
     body = request.get_data(as_text=True)
     app.logger.info("LINE webhook received")
     try:
-        handler.handle(body, signature)
+        from lifeos_request_trace import RequestTrace
+        with RequestTrace(app.logger) as trace:
+            g.lifeos_trace = trace
+            handler.handle(body, signature)
     except InvalidSignatureError:
         app.logger.error("Invalid signature.")
         abort(400)

@@ -38,6 +38,10 @@ class FlowTests(unittest.TestCase):
         self.assertEqual(self.drafts['one']['review']['entries'][2]['date'],'2026-10-15')
         self.command('清單移除',2)
         self.assertEqual(len(self.drafts['one']['review']['entries']),7)
+    def test_dated_list_claims_even_in_other_chat_mode(self):
+        self.assertTrue(f.claims('new-user','10/12（一）\n王小姐 B\n13:30 講座'))
+        self.assertFalse(f.claims('new-user','阮凱程'))
+        self.assertFalse(f.claims('new-user','10/12'))
     def test_bad_edit_and_exit(self):
         self.command('清單修改',0)
         self.assertEqual(c.handle('one','10/15\n第一筆\n第二筆').alt_text,'請只修改一筆')

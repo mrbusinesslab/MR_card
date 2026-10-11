@@ -507,6 +507,8 @@ def handle_message(event):
         people_request = people_request or data_search or bool(direct_people)
         from lifeos_calendar_list_flow import claims as review_claims
         if review_claims(user_id,user_msg):
+            people_query_mode.leave(user_id)
+            legacy.PENDING_SEARCH_USERS.discard(user_id)
             people_request = False
 
         if not people_request:
@@ -641,6 +643,15 @@ def callback():
     except InvalidSignatureError:
         app.logger.error("Invalid signature.")
         abort(400)
+    except Exception:
+        app.logger.exception("LINE message processing failed")
+        # Signature validation already succeeded if a handler raised.
+        import json,requests
+        for incoming in json.loads(body).get('events',[]):
+            if incoming.get('type')!='message' or not incoming.get('replyToken'):continue
+            try:
+                requests.post('https://api.line.me/v2/bot/message/reply',headers={'Authorization':'Bearer '+configuration.access_token},json={'replyToken':incoming['replyToken'],'messages':[{'type':'text','text':'這次處理失敗，尚未確認成功。請稍後重試；已完成的行程不需重新建立。'}]},timeout=5).raise_for_status()
+            except Exception:app.logger.error('LINE failure reply could not be delivered')
     return "OK"
 
 

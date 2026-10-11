@@ -20,6 +20,19 @@ class FillTests(unittest.TestCase):
         self.assertIsNone(payload(r['entries'][1],c));self.assertIsNone(payload(r['entries'][2],c))
         self.assertEqual(fill_entry(c,r['entries'][2],'2026/10/16'),'2026-10-16\n10:00～11:00 不可遺失')
         f.cards({'review':r,'review_id':'test'})
+    def test_invalid_date_keeps_known_time_in_new_and_old_drafts(self):
+        import json
+        from lifeos_calendar_review_ui import appointment_block
+        e=review_list('2026/10/32\n10:00～11:00 吳小姐 B',2026)['entries'][0]
+        self.assertEqual(e['times'],['10:00','11:00'])
+        self.assertTrue(e['date_problem'])
+        self.assertIsNone(payload(e,c))
+        for old in (e,{**e,'kind':'needs_time','times':[]}):
+            rendered=json.dumps(appointment_block(old,12),ensure_ascii=False)
+            self.assertIn('10:00～11:00',rendered)
+            self.assertIn('日期待確認',rendered)
+            self.assertNotIn('未提供時間',rendered)
+            self.assertNotIn('缺開始',rendered)
     def test_no_guess_ambiguous_time(self):
         e=review_list('2026/10/12\n王小姐 B',2026)['entries'][0]
         self.assertIsNone(fill_entry(c,e,'兩點'))

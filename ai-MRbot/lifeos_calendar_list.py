@@ -50,7 +50,13 @@ def review_list(text, year):
             if headers:
                 errors.append('「'+line[:80]+'」沒有有效日期，請補日期。')
                 if invalid_heading:
-                    entries.append({'date':invalid_heading,'title':line,'kind':'needs_time','times':[],'notes':['日期無效，請補正確日期'],'incomplete':bool(TRUNCATED.search(line)),'date_problem':True})
+                    if len(entries)>=30:
+                        return {'entries':entries,'errors':['一次最多整理30筆，請拆成幾段傳送。'],'limited':True}
+                    parsed=review_list(f'{year}/1/1\n'+line,year)
+                    entry=parsed['entries'][0]
+                    entry.update(date=invalid_heading,date_problem=True)
+                    entry['notes'].append('日期無效，請補正確日期')
+                    entries.append(entry)
             continue
         if len(entries)>=30:
             return {'entries':entries,'errors':['一次最多整理30筆，請拆成幾段傳送。'],'limited':True}

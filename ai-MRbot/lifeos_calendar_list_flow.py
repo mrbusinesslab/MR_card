@@ -59,15 +59,11 @@ def cards(draft, page=0):
         except ValueError:weekday='日期待補'
         body=[txt(day+'（'+weekday+'）','xl'),txt(str(len(items))+' 筆行程')]
         for idx,e in items:
-            if len(body)>2:body.append({'type':'separator'})
-            status={'all_day':'全天候選','complete':'待確認','start_only':'缺結束時間','needs_time':'待補時間'}[e['kind']]
-            if e.get('imported'):status='已加入日曆'
-            elif e.get('date_problem'):status='日期待確認'
-            elif e.get('incomplete'):status='待補完整內容'
-            body.extend([txt(f"{idx+1} · {e['title']}",'md'),txt(status,'xs','#B3261E')])
+            from lifeos_calendar_review_ui import appointment_block
+            actions=None
             if not e.get('imported'):
                 actions=[button('修改',f'清單修改 {token} {idx}'),button('全天',f'清單全天 {token} {idx}'),button('移除',f'清單移除 {token} {idx}')]
-                body.append({'type':'box','layout':'horizontal','contents':actions})
+            body.append(appointment_block(e,idx,actions))
         bubbles.append(bubble(body))
     return FlexMessage(alt_text=f'行程清單：{len(entries)}筆、{len(days)}天，請按日期查看',contents=FlexContainer.from_dict({'type':'carousel','contents':bubbles}))
 
@@ -129,7 +125,12 @@ def handle(c,uid,text,event_id,source_type):
                 if len(_PENDING)>=1000:_PENDING.clear()
                 _PENDING[(tenant_id(),uid)]={'token':draft['review_id'],'index':idx,'until':time.monotonic()+600}
                 e=draft['review']['entries'][idx]
-                return c.card('修改第 '+str(idx+1)+' 筆',[e['date']+' '+e['title'],'直接回覆完整的新內容，例如：18:00～21:00 吳佳蓉 B。','改日期請分兩行：2026/10/14，再填行程內容。'],choices=[('取消修改','停止清單修改')])
+                from lifeos_calendar_review_ui import appointment_block
+                message=c.card('修改第 '+str(idx+1)+' 筆',['直接回覆完整的新內容，例如：18:00～21:00 吳佳蓉 B。','改日期請分兩行：2026/10/14，再填行程內容。'],choices=[('取消修改','停止清單修改')])
+                data=message.contents.to_dict()
+                data['body']['contents'][:0]=[{'type':'text','text':'日期｜'+e['date'],'size':'md','wrap':True},appointment_block(e,idx)]
+                message.contents=FlexContainer.from_dict(data)
+                return message
             _PENDING.pop((tenant_id(),uid),None)
             draft.pop('fill_day',None)
             if command=='清單移除':draft['review']['entries'].pop(idx)

@@ -41,17 +41,8 @@ def render(c,uid,draft,pending,tenant,notes=()):
         body.append(txt(f'{label} · {len(group)} 筆','md',bold=True))
         for i in group:
             e=entries[i]
-            name=CLOCK.sub('',e['title'])
-            name=re.sub(r'全天|上午|下午|晚上|中午|凌晨|早上','',name).strip(' ～~－-–—到至')
-            clocks=e.get('times',[])
-            when='全天' if e['kind']=='all_day' else ('～'.join(clocks) if clocks else '未提供時間')
-            if e['kind']=='start_only':when+=' 開始'
-            content=[{'type':'box','layout':'horizontal','spacing':'md','contents':[
-                {**txt(f'第 {i+1} 筆','xs','#7B827F'), 'flex':0},txt(name or '名稱待補','lg',bold=True)]},
-                txt('目前時間｜'+when,'sm','#66716E')]
-            if needs:content.append(txt('待補｜'+status(e),'md','#B3261E',True))
-            body.append({'type':'box','layout':'vertical','spacing':'md','paddingAll':'16px',
-                         'cornerRadius':'10px','backgroundColor':'#F6F3EE' if needs else '#F4F7F5','contents':content})
+            from lifeos_calendar_review_ui import appointment_block
+            body.append(appointment_block(e,i))
     for note in notes:
         if note.strip():body.append(txt(note,'sm','#B3261E'))
     body.append({'type':'separator','margin':'md'})

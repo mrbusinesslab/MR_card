@@ -314,7 +314,7 @@
                       },
                       {
                         "type": "text",
-                        "text": "⚠️ 待補連結｜查看服務項目",
+                        "text": "查看服務項目",
                         "color": "#a58e67",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -323,8 +323,7 @@
                         "type": "filler"
                       }
                     ],
-                    "spacing": "sm",
-                    "backgroundColor": "#222222"
+                    "spacing": "sm"
                   },
                   {
                     "type": "filler"
@@ -336,7 +335,12 @@
                 "borderColor": "#a58e67",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#222222"
+                "backgroundColor": "#ffffff",
+                "action": {
+                  "type": "uri",
+                  "label": "查看服務項目",
+                  "uri": "https://drive.google.com/file/d/1J-WE5T1wl9ZfRxc8bJE2uhc-siuHVAyy/view?usp=sharing"
+                }
               }
             ],
             "position": "relative",
@@ -386,7 +390,7 @@
                       },
                       {
                         "type": "text",
-                        "text": "⚠️ 待補連結｜案例",
+                        "text": "案例",
                         "color": "#ffffff",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -395,8 +399,7 @@
                         "type": "filler"
                       }
                     ],
-                    "spacing": "sm",
-                    "backgroundColor": "#222222"
+                    "spacing": "sm"
                   },
                   {
                     "type": "filler"
@@ -408,7 +411,12 @@
                 "borderColor": "#a58e67",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#222222"
+                "backgroundColor": "#a58e67",
+                "action": {
+                  "type": "uri",
+                  "label": "案例",
+                  "uri": "https://drive.google.com/file/d/1f014bCAV8oKKeGpse2EE7KK8Kesls3lo/view?usp=sharing"
+                }
               },
               {
                 "type": "box",

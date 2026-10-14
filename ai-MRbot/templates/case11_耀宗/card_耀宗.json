@@ -35,8 +35,8 @@
                       },
                       {
                         "type": "text",
-                        "text": "⚠️ 待補連結｜馬上諮詢",
-                        "color": "#6f6b67",
+                        "text": "馬上諮詢",
+                        "color": "#ffffff",
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
@@ -53,10 +53,15 @@
                 "borderWidth": "none",
                 "cornerRadius": "4px",
                 "spacing": "sm",
-                "borderColor": "#aaa6a1",
+                "borderColor": "#718723",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#d8d5d1"
+                "backgroundColor": "#718723",
+                "action": {
+                  "type": "uri",
+                  "label": "馬上諮詢",
+                  "uri": "tel:0930115931"
+                }
               },
               {
                 "type": "box",

@@ -188,19 +188,25 @@ function renderCard(flex) {
     buttonGroup.className = "card-buttons";
     buttonGroup.style.backgroundColor = data.actionBackground;
     data.buttons.forEach((button) => {
-      const control = document.createElement(button.disabled ? "button" : "a");
+      const isPhone = /^tel:/i.test(button.href);
+      const control = document.createElement(button.disabled || isPhone ? "button" : "a");
       control.className = `card-button${button.disabled ? " is-disabled" : ""}`;
       control.textContent = button.label;
       if (button.disabled) {
         control.type = "button";
         control.disabled = true;
         control.setAttribute("aria-label", `${button.label}（連結準備中）`);
+      } else if (isPhone) {
+        control.type = "button";
+        control.addEventListener("click", () => {
+          window.location.href = button.href;
+        });
       } else {
         control.href = button.href;
-        if (!/^tel:/i.test(button.href)) {
-          control.target = "_blank";
-          control.rel = "noopener noreferrer";
-        }
+        control.target = "_blank";
+        control.rel = "noopener noreferrer";
+      }
+      if (!button.disabled) {
         control.style.setProperty("--button-bg", button.background);
         control.style.setProperty("--button-text", button.color);
         control.style.setProperty("--button-color", button.border);

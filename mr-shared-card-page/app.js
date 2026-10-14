@@ -197,8 +197,10 @@ function renderCard(flex) {
         control.setAttribute("aria-label", `${button.label}（連結準備中）`);
       } else {
         control.href = button.href;
-        control.target = "_blank";
-        control.rel = "noopener noreferrer";
+        if (!/^tel:/i.test(button.href)) {
+          control.target = "_blank";
+          control.rel = "noopener noreferrer";
+        }
         control.style.setProperty("--button-bg", button.background);
         control.style.setProperty("--button-text", button.color);
         control.style.setProperty("--button-color", button.border);

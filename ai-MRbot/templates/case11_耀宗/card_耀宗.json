@@ -59,7 +59,7 @@
                 "backgroundColor": "#718723",
                 "action": {
                   "type": "uri",
-                  "label": "電話",
+                  "label": "action",
                   "uri": "tel:0930115931"
                 }
               },

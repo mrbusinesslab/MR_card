@@ -35,8 +35,8 @@
                       },
                       {
                         "type": "text",
-                        "text": "我的健康生活",
-                        "color": "#ffffff",
+                        "text": "⚠️ 待補連結｜馬上諮詢",
+                        "color": "#6f6b67",
                         "flex": 0,
                         "offsetTop": "-2px"
                       },
@@ -53,15 +53,10 @@
                 "borderWidth": "none",
                 "cornerRadius": "4px",
                 "spacing": "sm",
-                "borderColor": "#718723",
+                "borderColor": "#aaa6a1",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#718723",
-                "action": {
-                  "type": "uri",
-                  "label": "action",
-                  "uri": "https://www.instagram.com/joewangtw"
-                }
+                "backgroundColor": "#d8d5d1"
               },
               {
                 "type": "box",
@@ -103,7 +98,7 @@
                 "backgroundColor": "#f5b623",
                 "action": {
                   "type": "uri",
-                  "label": "action",
+                  "label": "分享我的名片",
                   "uri": "https://liff.line.me/2009755863-SEVwYpBP"
                 }
               }
@@ -178,7 +173,7 @@
                 "backgroundColor": "#718723",
                 "action": {
                   "type": "uri",
-                  "label": "action",
+                  "label": "預約一對一",
                   "uri": "https://lin.ee/X3Kln4r4"
                 }
               },
@@ -198,7 +193,7 @@
                       },
                       {
                         "type": "text",
-                        "text": "想說的話在這裡",
+                        "text": "我的健康生活",
                         "color": "#391b0e",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -222,8 +217,8 @@
                 "backgroundColor": "#f5b623",
                 "action": {
                   "type": "uri",
-                  "label": "action",
-                  "uri": "https://www.facebook.com/share/169LgJrChE"
+                  "label": "我的健康生活",
+                  "uri": "https://www.instagram.com/joewangtw"
                 }
               }
             ],
@@ -273,7 +268,7 @@
                       },
                       {
                         "type": "text",
-                        "text": "BNI 五表 🔜",
+                        "text": "想說的話在這裡",
                         "color": "#ffffff",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -294,7 +289,12 @@
                 "borderColor": "#718723",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#718723"
+                "backgroundColor": "#718723",
+                "action": {
+                  "type": "uri",
+                  "label": "想說的話在這裡",
+                  "uri": "https://www.facebook.com/share/169LgJrChE"
+                }
               },
               {
                 "type": "box",
@@ -336,7 +336,7 @@
                 "backgroundColor": "#f5b623",
                 "action": {
                   "type": "uri",
-                  "label": "action",
+                  "label": "關於我",
                   "uri": "https://joewangtw.com/"
                 }
               }
@@ -411,7 +411,7 @@
                 "backgroundColor": "#718723",
                 "action": {
                   "type": "uri",
-                  "label": "action",
+                  "label": "電子名片｜預約",
                   "uri": "https://lin.ee/erAsi6c"
                 }
               },
@@ -455,7 +455,7 @@
                 "backgroundColor": "#f5b623",
                 "action": {
                   "type": "uri",
-                  "label": "action",
+                  "label": "商務男士形象｜IG",
                   "uri": "https://www.instagram.com/mr.business.lab/"
                 }
               }

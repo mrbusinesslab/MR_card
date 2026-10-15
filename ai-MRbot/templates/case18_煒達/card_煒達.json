@@ -35,7 +35,7 @@
                       },
                       {
                         "type": "text",
-                        "text": "⚠️ 待補連結｜預約一對一",
+                        "text": "預約一對一",
                         "color": "#ffffff",
                         "flex": 0,
                         "offsetTop": "-2px"
@@ -44,8 +44,7 @@
                         "type": "filler"
                       }
                     ],
-                    "spacing": "sm",
-                    "backgroundColor": "#222222"
+                    "spacing": "sm"
                   },
                   {
                     "type": "filler"
@@ -57,7 +56,12 @@
                 "borderColor": "#a58e67",
                 "margin": "md",
                 "height": "50px",
-                "backgroundColor": "#222222"
+                "backgroundColor": "#a58e67",
+                "action": {
+                  "type": "uri",
+                  "label": "預約一對一",
+                  "uri": "https://line.me/ti/p/uFtMOSgSNh"
+                }
               },
               {
                 "type": "box",

@@ -1,4 +1,4 @@
-"""Standalone Life OS entry point. Does not import cards, BNI or legacy_app."""
+"""Isolated Life OS routes for standalone or shared hosting."""
 import os
 from flask import Flask, Blueprint, request, g
 from linebot.v3 import WebhookHandler
@@ -9,20 +9,37 @@ import lifeos as tasks
 import lifeos_calendar as calendar
 from lifeos_settings import load_profiles, use_profile, getenv
 
-def create_app(profiles=None, *, verify_backend=True):
-    profiles = profiles if profiles is not None else load_profiles(os.environ['LIFEOS_CLIENTS_FILE'])
+def install_clients(app, profiles=None, *, verify_backend=True, shared=False):
+    profiles = profiles if profiles is not None else load_profiles(
+        os.environ['LIFEOS_CLIENTS_FILE'], allow_empty=shared)
+    # A shared process must not accidentally reuse the original MR channel,
+    # calendar or authorization keys. Google credentials and gateway URL may
+    # be shared, but each customer's calendar and keys must be distinct.
+    if shared:
+        isolated_keys = ('LINE_CHANNEL_SECRET', 'LINE_CHANNEL_ACCESS_TOKEN',
+                         'LIFEOS_GATEWAY_KEY', 'LIFEOS_CRON_KEY',
+                         'LIFEOS_GOOGLE_CALENDAR_ID')
+        for profile in profiles:
+            for key in isolated_keys:
+                original = os.environ.get(key)
+                if original and profile.settings.get(key) == original:
+                    raise ValueError('Client must not reuse MR setting: '+key)
     if verify_backend:
         for profile in profiles:
             with use_profile(profile):
                 status = tasks.gateway('tenant_info')
                 if status.get('tenant_id') != profile.tenant_id or status.get('calendar_id') != getenv('LIFEOS_GOOGLE_CALENDAR_ID'):
                     raise ValueError('Customer backend is not ready: '+profile.tenant_id)
-    app = Flask(__name__)
     for profile in profiles:
         app.register_blueprint(client_blueprint(profile),url_prefix='/clients/'+profile.tenant_id)
+    return len(profiles)
+
+def create_app(profiles=None, *, verify_backend=True):
+    app = Flask(__name__)
+    count = install_clients(app, profiles, verify_backend=verify_backend)
     @app.get('/health')
     def health():
-        return {'service':'lifeos','ready':True,'clients':len(profiles)}
+        return {'service':'lifeos','ready':True,'clients':count}
     return app
 
 def client_blueprint(profile):

@@ -35,7 +35,7 @@ def use_profile(profile):
     finally:
         _active.reset(token)
 
-def load_profiles(path):
+def load_profiles(path, *, allow_empty=False):
     document = json.loads(Path(path).read_text())
     if document.get('version') != 1 or not isinstance(document.get('clients'), list):
         raise ValueError('Invalid Life OS profile file')
@@ -80,6 +80,6 @@ def load_profiles(path):
         if not 0 <= int(settings['LIFEOS_REMINDER_HOUR']) <= 23:
             raise ValueError('Invalid reminder hour')
         result.append(Profile(tid,item.get('name','Life OS'),settings))
-    if not result:
+    if not result and not allow_empty:
         raise ValueError('No enabled Life OS clients')
     return result

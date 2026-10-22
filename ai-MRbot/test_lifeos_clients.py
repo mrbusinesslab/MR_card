@@ -1,4 +1,6 @@
 import hashlib
+import base64
+import hmac
 import json
 import os
 import tempfile
@@ -6,12 +8,13 @@ import unittest
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from unittest.mock import patch, Mock
+from flask import Flask
 from lifeos_settings import Profile, use_profile, getenv, tenant_id, load_profiles, REQUIRED
 from provision_lifeos import generate
 import lifeos
 import lifeos_calendar
 import lifeos_week_image
-from lifeos_app import create_app
+from lifeos_app import create_app, install_clients
 
 UID='U'+'1'*32
 
@@ -24,6 +27,71 @@ def profile(tid):
         'LIFEOS_STANDALONE':'1'})
 
 class ClientTests(unittest.TestCase):
+    def test_shared_host_preserves_original_callback_and_restores_context(self):
+        app=Flask(__name__)
+        @app.post('/callback')
+        def original_callback():
+            return {'tenant':tenant_id(),'token':getenv('LINE_CHANNEL_ACCESS_TOKEN')}
+        with patch.dict(os.environ,{'LINE_CHANNEL_SECRET':'mr-secret','LINE_CHANNEL_ACCESS_TOKEN':'mr-token'}):
+            install_clients(app,[profile('aa')],verify_backend=False,shared=True)
+            client=app.test_client()
+            body=json.dumps({'events':[]})
+            sign=lambda secret:base64.b64encode(hmac.new(secret.encode(),body.encode(),hashlib.sha256).digest()).decode()
+            self.assertEqual(client.post('/clients/aa/callback',data=body,headers={'X-Line-Signature':sign('mr-secret')}).status_code,400)
+            self.assertEqual(client.post('/clients/aa/callback',data=body,headers={'X-Line-Signature':sign('aa'*32)}).status_code,200)
+            self.assertEqual(client.post('/callback').json,{'tenant':'mr','token':'mr-token'})
+        self.assertEqual(tenant_id(),'mr')
+
+    def test_shared_host_rejects_original_channel_calendar_and_keys(self):
+        for key in ('LINE_CHANNEL_SECRET','LINE_CHANNEL_ACCESS_TOKEN',
+                    'LIFEOS_GATEWAY_KEY','LIFEOS_CRON_KEY','LIFEOS_GOOGLE_CALENDAR_ID'):
+            with self.subTest(key=key),patch.dict(os.environ,{key:profile('aa').settings[key]}):
+                app=Flask(__name__)
+                with self.assertRaisesRegex(ValueError,key):
+                    install_clients(app,[profile('aa')],verify_backend=False,shared=True)
+                self.assertNotIn('lifeos_aa',app.blueprints)
+
+    def test_shared_host_keeps_reminder_keys_and_delivery_context_separate(self):
+        app=Flask(__name__)
+        lifeos.install_routes(app)
+        with patch.dict(os.environ,{'LIFEOS_CRON_KEY':'mr-cron','LINE_CHANNEL_ACCESS_TOKEN':'mr-token'}):
+            install_clients(app,[profile('aa')],verify_backend=False,shared=True)
+            client=app.test_client()
+            with patch('lifeos.reminder_run',side_effect=lambda:{'tenant':tenant_id(),'token':getenv('LINE_CHANNEL_ACCESS_TOKEN')}):
+                for path,key in (('/clients/aa/lifeos/reminders','mr-cron'),('/lifeos/reminders','aa'*48)):
+                    self.assertEqual(client.post(path,headers={'Authorization':'Bearer '+key}).status_code,401)
+                result=client.post('/clients/aa/lifeos/reminders',headers={'Authorization':'Bearer '+'aa'*48})
+                self.assertEqual(result.json,{'tenant':'aa','token':'aa-token'})
+                result=client.post('/lifeos/reminders',headers={'Authorization':'Bearer mr-cron'})
+                self.assertEqual(result.json,{'tenant':'mr','token':'mr-token'})
+
+    def test_disabled_shared_profile_keeps_original_host_available(self):
+        path=Path(__file__).parent/'clients'/'xiaoruru.json'
+        with patch.dict(os.environ,{'LIFEOS_CLIENTS_FILE':str(path)}),patch('lifeos.gateway') as gateway:
+            app=Flask(__name__)
+            self.assertEqual(install_clients(app,shared=True),0)
+            gateway.assert_not_called()
+            self.assertEqual(app.test_client().post('/clients/xiaoruru/callback').status_code,404)
+            with self.assertRaisesRegex(ValueError,'No enabled'):
+                create_app()
+
+    def test_signed_customer_message_uses_customer_reply_token_and_channel(self):
+        from linebot.v3.messaging import TextMessage
+        app=create_app([profile('aa')],verify_backend=False)
+        body=json.dumps({'events':[{'type':'message','mode':'active','timestamp':1470747837840,
+            'source':{'type':'user','userId':UID},'replyToken':'r'*32,
+            'webhookEventId':'event-aa','deliveryContext':{'isRedelivery':False},
+            'message':{'type':'text','id':'1','text':'今天','quoteToken':'quote-fixture'}}]})
+        signature=base64.b64encode(hmac.new(('aa'*32).encode(),body.encode(),hashlib.sha256).digest()).decode()
+        with patch('lifeos_app.calendar.handle',side_effect=lambda *args:TextMessage(text=tenant_id())),patch('lifeos_app.ApiClient') as api,patch('lifeos_app.MessagingApi') as messaging:
+            result=app.test_client().post('/clients/aa/callback',data=body,headers={'X-Line-Signature':signature})
+            self.assertEqual(result.status_code,200)
+            self.assertEqual(api.call_args.args[0].access_token,'aa-token')
+            reply=messaging.return_value.reply_message.call_args.args[0]
+            self.assertEqual(reply.reply_token,'r'*32)
+            self.assertEqual(reply.messages[0].text,'aa')
+        self.assertEqual(tenant_id(),'mr')
+
     def test_edit_context_isolated_for_same_line_user(self):
         import time
         import lifeos_calendar_list_flow as flow

@@ -10,6 +10,9 @@ else:
     tracking_patch.apply(people_app)
     app = people_app.app
     mr_rich_menu.start(app)
+    if os.getenv('LIFEOS_CLIENTS_FILE'):
+        from lifeos_app import install_clients
+        install_clients(app, shared=True)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

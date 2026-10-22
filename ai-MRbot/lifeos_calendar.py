@@ -81,6 +81,15 @@ def apply_label(payload,group):
     if group not in names: return payload
     labels=event_labels()
     match=next((x for x in labels if x.get('name')==names[group]),None)
+    # Fresh calendars expose unnamed default labels. Reuse their standard
+    # colors until the owner gives the labels names; IDs are calendar-specific.
+    if not match:
+        colors={'美容':('#039be5','#4285f4'),
+                '新客':('#8e24aa','#9e69af'),
+                '講座':('#f6bf26','#e4c441')}
+        for color in colors[group]:
+            match=next((x for x in labels if x.get('backgroundColor','').lower()==color),None)
+            if match: break
     if not match: return payload
     result=dict(payload)
     result.pop('colorId',None)

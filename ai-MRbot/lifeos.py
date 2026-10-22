@@ -46,6 +46,10 @@ class InputError(Exception):
 
 
 def category_style(title,category=None):
+    if getenv('LIFEOS_INDUSTRY')=='engineering':
+        palette={'場勘':'#EEF7FE','施工':'#FFF3E8','驗收':'#EAF4EF','會議':'#F6F3FA','其他':'#F4F7F6'}
+        group=category if category in palette else next((k for k in ('驗收','施工','場勘','會議') if k in title),'其他')
+        return group,palette[group]
     if category in ('美容','新客','商會','交流'): group=category
     elif re.search(r'建築組|商會|BNI|商務引薦',title,re.I): group='商會'
     elif re.search(r'新客|首次美容|初次諮詢',title): group='新客'
@@ -55,9 +59,11 @@ def category_style(title,category=None):
     return group,{'美容':'#EEF7FE','新客':'#F6F3FA','商會':'#F6EFE5','交流':'#EAF4EF','其他':'#F4F7F6'}[group]
 
 def category_ink(title,category=None):
-    return {'美容':'#6AAFE8','新客':'#AC93CC','商會':'#765C3F','交流':'#4C8B72','其他':'#172B2A'}[category_style(title,category)[0]]
+    return {'美容':'#6AAFE8','新客':'#AC93CC','商會':'#765C3F','交流':'#4C8B72','其他':'#172B2A',
+            '場勘':'#4285F4','施工':'#E67C23','驗收':'#188038','會議':'#8E24AA'}[category_style(title,category)[0]]
 
 def beauty_title(title):
+    if getenv('LIFEOS_INDUSTRY')=='engineering': return title
     if category_style(title)[0] in ('商會','交流'): return title
     face=bool(re.search(r'做臉|(?<![A-Za-z])F(?![A-Za-z])',title,re.I))
     body=bool(re.search(r'做身體|做臉\s*[+＋和與]\s*身體|(?<![A-Za-z])B(?![A-Za-z])',title,re.I))

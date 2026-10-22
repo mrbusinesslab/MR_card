@@ -75,6 +75,10 @@ def load_profiles(path, *, allow_empty=False):
             seen[key].add(value)
         settings.update(LIFEOS_TENANT_ID=tid,LIFEOS_ENABLED='1',
                         LIFEOS_STANDALONE='1',LIFEOS_DISPLAY_NAME=item.get('name','Life OS'))
+        industry=item.get('industry','general')
+        if industry not in ('general','engineering'):
+            raise ValueError('Invalid industry for '+tid)
+        settings['LIFEOS_INDUSTRY']=industry
         # Conservative defaults preserve current quota protection.
         settings['LIFEOS_REMINDER_HOUR'] = str(item.get('reminder_hour',9))
         if not 0 <= int(settings['LIFEOS_REMINDER_HOUR']) <= 23:

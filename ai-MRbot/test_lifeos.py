@@ -244,10 +244,10 @@ class TomorrowTests(unittest.TestCase):
         self.assertEqual((start.month,start.day,end.month,end.day),(11,1,11,2))
     def test_month_only_shows_tasks_and_overdue(self):
         tasks=[{'id':1,'title':'待辦甲','due_at':'2026-10-10T18:00:00+08:00'}, {'id':2,'title':'逾期甲','due_at':'2026-09-30T18:00:00+08:00'}]
-        with patch('lifeos_week_image.weekly_message') as image,patch('lifeos_calendar.today_events') as api:
+        with patch('lifeos_week_image.weekly_message',return_value=None) as image,patch('lifeos_calendar.today_events') as api:
             card=l.button_message(l.summary(tasks,NOW,mode='month',user_id=UID)).to_dict()['contents']
             api.assert_not_called()
-            image.assert_not_called()
+            image.assert_called_once_with(UID,NOW,period='month')
         self.assertEqual(card['type'],'carousel')
         self.assertEqual(len(card['contents']),2)
         self.assertIn('待辦甲',str(card['contents'][0]));self.assertNotIn('逾期甲',str(card['contents'][0]))
@@ -260,6 +260,6 @@ class TomorrowTests(unittest.TestCase):
         with patch('lifeos_week_image.weekly_message',return_value=picture) as image:
             messages=l.button_message(l.summary([],NOW,mode='week',user_id=UID))
         self.assertIs(messages[0],picture)
-        image.assert_called_once_with(UID,NOW)
+        image.assert_called_once_with(UID,NOW,period='week')
         self.assertNotIn('calendar.google.com',str(messages[1].to_dict()))
 

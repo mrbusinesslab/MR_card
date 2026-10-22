@@ -79,6 +79,14 @@ class EngineeringTests(unittest.TestCase):
             card=e.board(UID).to_dict()
             self.assertIn('工程事項',str(card));self.assertNotIn('私人資料',str(card))
 
+    def test_batch_events_use_engineering_categories(self):
+        from lifeos_calendar_batch import payload
+        entry={'kind':'complete','title':'09:00～10:00 陳先生場勘','date':'2026-10-23','times':['09:00','10:00']}
+        with use_profile(PROFILE):
+            event=payload(entry,c)
+            self.assertEqual(event['colorId'],'9')
+            self.assertEqual(event['extendedProperties']['private']['lifeos_category'],'場勘')
+
     def test_malformed_case_commands_do_not_mutate(self):
         with use_profile(PROFILE),patch('lifeos.gateway',side_effect=gateway) as db:
             self.assertEqual(e.handle(UID,'建立案件 缺欄位').alt_text,'請補充工程資料')

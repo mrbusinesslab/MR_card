@@ -7,6 +7,7 @@
       "line_basic_id": "@345lcfso",
       "line_channel_id": "2012149818",
       "enabled": false,
+      "setup_enabled_env": "CLIENT_XIAORURU_SETUP_ENABLED",
       "reminder_hour": 9,
       "env": {
         "LINE_CHANNEL_SECRET": "CLIENT_XIAORURU_LINE_CHANNEL_SECRET",

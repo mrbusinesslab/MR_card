@@ -13,6 +13,8 @@ else:
     if os.getenv('LIFEOS_CLIENTS_FILE'):
         from lifeos_app import install_clients
         install_clients(app, shared=True)
+        from lifeos_setup import install_setup_clients
+        install_setup_clients(app, os.environ['LIFEOS_CLIENTS_FILE'])
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

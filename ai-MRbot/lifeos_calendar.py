@@ -66,6 +66,8 @@ def call(method,path='',body=None,params=None,etag=None,calendar_metadata=False)
             try: reason=response.json()['error'].get('errors',[{}])[0].get('reason',reason)
             except (ValueError,KeyError,IndexError): pass
             raise CalendarError(reason)
+        if response.status_code==204:
+            return {}
         return response.json()
     except CalendarError: raise
     except Exception as exc: raise CalendarError('connection_failed') from exc

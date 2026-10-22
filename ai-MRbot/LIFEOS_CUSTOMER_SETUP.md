@@ -2,11 +2,11 @@
 
 ## 目前交付狀態
 
-程式、獨立入口、客戶設定、建立工具與驗證腳本已準備。本分支尚未合併到 main，也未部署到現有 MR 服務。
+程式、獨立入口、客戶設定、建立工具與驗證腳本已合併到 main。2026/10/22 已部署共用 MR 主機的設定入口，並完成正式資料庫客戶隔離與 gateway 更新。
 
-**準備版本，不啟用客戶**：資料庫 migration 與 gateway 尚未部署；已在本機 PostgreSQL（PGlite）完成資料庫隔離驗收；正式啟用時仍需部署前後比對與驗收。這次只更新準備分支，不改正式 MR 資料庫、LINE 或日曆。
+**小如如為第一個獨立新空間**：日曆與 LINE 已驗證，管理者身分已綁定，正式隔離測試通過；原 MR 的使用者與行程索引保留。新空間的日常功能以 `clients/xiaoruru.json` 控制，詳見 `LIFEOS_XIAORURU_SETUP.md`。後續新增空間仍預設停用，不能複用 MR 或其他客戶的 LINE、日曆及金鑰。
 
-MR 和小如如維持同一個客戶空間。既有使用者 ID、待辦、行程及建立者不重建。未来不同客戶各自使用不同 LINE channel、日曆、gateway 金鑰及提醒金鑰。可以由同一個 MR Google 帳號管理多個客戶日曆。
+原 MR 小幫手與原共享者保留原本的空間；新建立的「小如如的秘書」使用獨立空間。既有使用者 ID、待辦、行程及建立者不重建。各空間使用不同 LINE channel、日曆、gateway 金鑰及提醒金鑰，可以由同一個 MR Google 帳號管理多個專用日曆。
 
 ## 已準備的內容
 
@@ -25,6 +25,8 @@ MR 和小如如維持同一個客戶空間。既有使用者 ID、待辦、行�
 
 ## 第一次正式安裝
 
+以下資料庫隔離安裝已於 2026/10/22 完成，勿重複執行原 migration。安裝時在同一交易內逐表核對既有資料；正式環境的隔離驗證亦已執行並回滾測試資料。
+
 1. 先備份、在測試資料庫套用 `lifeos_tenants.sql`。執行 `tests/test_lifeos_tenants.sql`，確認不同客戶互相看不到或修改不到資料；同客戶共享和建立者紀錄保留。
 2. 對正式 MR 資料庫套用同一份 SQL，確認 MR 使用者、待辦及行程數量和原先一致，RLS 與函式執行權限只允許後端角色。
 3. 部署 `lifeos_gateway/index.ts` 到原本的 `lifeos-gateway`（保留自訂金鑰驗證；`verify_jwt=false`）。MR 舊金鑰由 `lifeos_tenants` 的 MR 紀錄識別，既有程式未帶 tenant_id 時也接受。
@@ -32,7 +34,7 @@ MR 和小如如維持同一個客戶空間。既有使用者 ID、待辦、行�
 
 SQL 不是重複執行用的腳本；若已成功套用，先檢查 schema 後再處理，勿再次整份執行。
 
-## 未來第一位客戶
+## 新增其他客戶
 
 先取得：客戶的 LINE OA Messaging API channel secret/token、管理者 LINE user ID、MR 建立的專用 Google calendar ID，以及 Google service account 的日曆寫入權限。客戶如需在 Google 看行程，以其 Google 帳號取得該專用日曆的唯讀共享權限；LINE 是否能編輯由 Life OS 設定控制。
 

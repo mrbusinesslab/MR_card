@@ -6,7 +6,7 @@
       "name": "小如如的秘書",
       "line_basic_id": "@345lcfso",
       "line_channel_id": "2012149818",
-      "enabled": false,
+      "enabled": true,
       "setup_enabled_env": "CLIENT_XIAORURU_SETUP_ENABLED",
       "reminder_hour": 9,
       "env": {

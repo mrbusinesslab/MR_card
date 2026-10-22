@@ -6,10 +6,10 @@
 - 客戶空間：`xiaoruru`；顯示名稱：小如如的秘書。
 - 使用新的 Google 日曆；不匯入現有 MR 行程、待辦、使用者或邀請碼。
 - 沿用現有 Render MR 服務，不新增第二台主機。新 LINE 的路由固定為 `/clients/xiaoruru/`，原 MR 路由保留。
-- 設定檔：`clients/xiaoruru.json`，預設停用。Channel ID 只是識別資料，不能代替 token 或 secret。
+- 設定檔：`clients/xiaoruru.json`，已切換至日常功能；設定用入口會停止掛載。Channel ID 只是識別資料，不能代替 token 或 secret。
 - 此分支整合正式版的最新行程補資料、名稱修改與清單確認流程；MR 模式保留原圖文選單啟動。
 
-## 尚待取得與設定
+## 已完成的設定
 
 1. 新建「小如如 Life OS」Google 日曆，確認時區為 Asia/Taipei，記錄 calendar ID；將該日曆共享給服務帳號並授予變更活動權限。若小如如需要 Google／手機查看，另共享給她的 Google 帳號。
 2. 新 Channel 的 Channel secret 和 Channel access token，僅填入現有 MR 服務的私密環境變數 `CLIENT_XIAORURU_LINE_CHANNEL_SECRET`、`CLIENT_XIAORURU_LINE_CHANNEL_ACCESS_TOKEN`，勿覆蓋原本 MR 的同類變數，亦勿提交至 Git 或貼在交付文件中。
@@ -31,7 +31,7 @@
 - 正確簽章的 LINE 一對一訊息「取得綁定碼」只回覆傳訊者自己的 LINE user ID；其他訊息回覆尚未啟用。群組不回覆識別碼，也不自動將任何人設為管理者。
 - 收到小如如本人識別碼後才設定 owner、建立邀請與正式啟用。正式 profile 啟用後不再掛載這些設定用路由。
 
-依實際產生的設定登錄 tenant，完成後端驗證後才啟用 tenant 與 profile。預定 Webhook 為 `https://mr-6c1r.onrender.com/clients/xiaoruru/callback`；目前路由尚未部署或啟用，不能先填入 LINE 驗證為已接通。
+已登錄 `xiaoruru` tenant，後端驗證確認新空間與新日曆相符，管理者已使用新 Provider 的本人識別碼綁定。Webhook 為 `https://mr-6c1r.onrender.com/clients/xiaoruru/callback`。管理者識別碼與日曆 ID 只放在私密設定中。
 
 關閉這個新 LINE OA 的自動回覆，啟用 Webhook 並驗證。管理者以一次性啟用指令加入後，驗收新增／改期／取消、待辦、逐日補資料、週圖與提醒，確認舊日曆及待辦沒有出現在新空間。提醒另需配置新空間的排程與金鑰，不能只以 Webhook 成功作為驗收。
 
@@ -39,6 +39,8 @@
 
 程式整合與設定用入口已準備，200 項 Python 測試通過；共用主機測試涵蓋原 callback 保留、不同 channel 簽章、新 LINE 回覆憑證、提醒金鑰、請求設定還原及阻擋複用 MR 日曆。設定入口另外驗證只回覆本人識別碼、群組不洩漏識別碼、錯誤憑證不存取日曆、私人測試活動會清除，以及 Google DELETE 的 204 空回應處理。沒有把任何真實憑證存入此分支。
 
-新日曆已由使用者建立並提供 ID，已存放於新空間的 Render 私密設定；尚未註冊正式客戶資料或啟用新 LINE 的日常功能。
+新日曆已實測讀寫，無邀請人、無 Meet 的測試活動已刪除。正式資料庫 migration 與 gateway v7 已部署；正式資料隔離驗證通過，測試資料回滾。新管理者已綁定，獨立待辦與行程索引為空白開始。管理者可查看整份專用日曆；未邀請共享者。
 
-正式資料庫檢查時，尚未套用 tenant migration；MR 有 2 位使用者、0 筆待辦、44 筆行程索引，使用單一日曆。這些是部署前的比對基準，不是已完成隔離上線。
+正式資料庫更新前已備份，並在 migration 同一交易內逐表核對既有資料未變。MR 原有 2 位使用者、0 筆待辦與 44 筆行程索引保留。
+
+新空間使用既有 Supabase scheduler，專用排程為 `lifeos-xiaoruru-daily-summary` 與 `lifeos-xiaoruru-test-reminder`，金鑰存於 Vault 的 `lifeos_xiaoruru_cron_key`。排程安裝來源為 `lifeos_xiaoruru_cron.sql`。每日提醒預設關閉，由使用者在 LINE 開啟；不新增 Render cron 服務。主動訊息仍受新官方 LINE 額度保護。使用者可輸入「測試提醒」驗收實際送達。

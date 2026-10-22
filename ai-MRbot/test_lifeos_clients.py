@@ -66,14 +66,17 @@ class ClientTests(unittest.TestCase):
                 self.assertEqual(result.json,{'tenant':'mr','token':'mr-token'})
 
     def test_disabled_shared_profile_keeps_original_host_available(self):
-        path=Path(__file__).parent/'clients'/'xiaoruru.json'
-        with patch.dict(os.environ,{'LIFEOS_CLIENTS_FILE':str(path)}),patch('lifeos.gateway') as gateway:
-            app=Flask(__name__)
-            self.assertEqual(install_clients(app,shared=True),0)
-            gateway.assert_not_called()
-            self.assertEqual(app.test_client().post('/clients/xiaoruru/callback').status_code,404)
-            with self.assertRaisesRegex(ValueError,'No enabled'):
-                create_app()
+        document=json.loads((Path(__file__).parent/'clients'/'xiaoruru.json').read_text())
+        for client in document['clients']:client['enabled']=False
+        with tempfile.TemporaryDirectory() as tmp:
+            path=Path(tmp)/'clients.json';path.write_text(json.dumps(document))
+            with patch.dict(os.environ,{'LIFEOS_CLIENTS_FILE':str(path)}),patch('lifeos.gateway') as gateway:
+                app=Flask(__name__)
+                self.assertEqual(install_clients(app,shared=True),0)
+                gateway.assert_not_called()
+                self.assertEqual(app.test_client().post('/clients/xiaoruru/callback').status_code,404)
+                with self.assertRaisesRegex(ValueError,'No enabled'):
+                    create_app()
 
     def test_signed_customer_message_uses_customer_reply_token_and_channel(self):
         from linebot.v3.messaging import TextMessage

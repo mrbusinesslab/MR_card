@@ -7,6 +7,7 @@ from linebot.v3.webhooks import MessageEvent, TextMessageContent, AudioMessageCo
 from linebot.v3.messaging import ApiClient, Configuration, MessagingApi, ReplyMessageRequest, TextMessage
 import lifeos as tasks
 import lifeos_calendar as calendar
+import lifeos_engineering as engineering
 from lifeos_settings import load_profiles, use_profile, getenv
 
 def install_clients(app, profiles=None, *, verify_backend=True, shared=False):
@@ -65,7 +66,9 @@ def client_blueprint(profile):
     def on_text(event):
         uid = getattr(event.source,'user_id',None)
         source = getattr(event.source,'type','unknown')
-        body = calendar.handle(uid,event.message.text,event.webhook_event_id,source)
+        body = engineering.handle(uid,event.message.text,event.webhook_event_id,source)
+        if body is None:
+            body = calendar.handle(uid,event.message.text,event.webhook_event_id,source)
         if body is None:
             body = tasks.handle_text(uid,event.message.text,event.webhook_event_id,source)
             if body is not None:
@@ -88,4 +91,5 @@ def client_blueprint(profile):
         return 'OK'
     tasks.install_routes(bp)
     calendar.install_routes(bp)
+    engineering.install_routes(bp)
     return bp

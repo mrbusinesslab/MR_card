@@ -19,7 +19,7 @@ def payload(entry,c):
         a,b=entry['times']
         result.update(start={'dateTime':datetime.fromisoformat(day.isoformat()+'T'+a).replace(tzinfo=c.l.TZ).isoformat(),'timeZone':'Asia/Taipei'},end={'dateTime':datetime.fromisoformat(day.isoformat()+'T'+b).replace(tzinfo=c.l.TZ).isoformat(),'timeZone':'Asia/Taipei'})
     group=c.booking_category(title)
-    if group in ('美容','新客','商會','交流'):
+    if group in ('美容','新客','商會','交流','場勘','施工','驗收','會議'):
         d={'event':result};c.set_category(d,group);result=d['event']
     return c.apply_label(result,group)
 

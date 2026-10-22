@@ -121,6 +121,7 @@ def booking_category(title):
 
 def parse_booking(text,now=None):
     now=now or l.clock()
+    if getenv('LIFEOS_INDUSTRY')=='engineering': return parse_range(text,now)
     times=list(re.finditer(TIME_PATTERN,text))
     if len(times)!=1: return parse_range(text,now)
     start,spans=l.parse_date(text,now)
@@ -280,6 +281,9 @@ def card(title,lines,confirm=False,events=None,choices=None):
     return FlexMessage(alt_text=title,contents=FlexContainer.from_dict(bubble))
 
 def classification_card(draft):
+    if getenv('LIFEOS_INDUSTRY')=='engineering':
+        return card('請選擇工程行程類型',[draft['event']['summary'],event_time(draft['event'])],
+            choices=[(x,'分類行程 '+x) for x in ('場勘','施工','驗收','會議')]+[('放棄','放棄行程')])
     return card('請選擇排程類型',[draft['event']['summary'],event_time(draft['event']),'這是美容預約還是商會排程？'],
         choices=[('美容預約','分類行程 美容'),('商會排程','分類行程 商會'),('放棄','放棄行程')])
 
@@ -287,7 +291,7 @@ def set_category(draft,group):
     draft.pop('needs_category',None)
     draft['category']=group
     event=draft['event']
-    event['colorId']={'美容':'9','新客':'3','商會':'6','交流':'2'}[group]
+    event['colorId']={'美容':'9','新客':'3','商會':'6','交流':'2','場勘':'9','施工':'6','驗收':'10','會議':'3'}[group]
     event['extendedProperties']={'private':{'lifeos_category':group}}
 
 
@@ -357,14 +361,15 @@ def handle(user_id,text,event_id=None,source_type='user'):
             return card('Google日曆',lines,events=events)
         if text.startswith('分類行程 '):
             group=text.removeprefix('分類行程 ')
-            if group not in ('美容','商會'): raise l.InputError('請使用卡片上的分類按鈕。')
+            allowed=('場勘','施工','驗收','會議') if getenv('LIFEOS_INDUSTRY')=='engineering' else ('美容','商會')
+            if group not in allowed: raise l.InputError('請使用卡片上的分類按鈕。')
             draft=l.gateway('calendar_get_draft',user_id)['draft']
             if not draft: return card('沒有行程草稿',['請重新交代行程日期與時間。'])
             if draft['calendar_id']!=cal: raise CalendarError('calendar_changed')
             if not draft.get('needs_category'): return card('分類已完成',['請確認目前草稿，或重新交代新的行程。'],confirm=True)
             if group=='美容':
                 group='新客' if '新客' in draft['event']['summary'] else '美容'
-            elif not re.search(r'建築組|商會|BNI|商務引薦',draft['event']['summary'],re.I): group='交流'
+            elif group=='商會' and not re.search(r'建築組|商會|BNI|商務引薦',draft['event']['summary'],re.I): group='交流'
             set_category(draft,group)
             l.gateway('calendar_draft',user_id,event_id,payload=draft)
             return preview(draft,user_id)

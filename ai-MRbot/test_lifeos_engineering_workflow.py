@@ -142,3 +142,10 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(call.kwargs['completed_on'],'2026-10-20')
         self.assertEqual(call.kwargs['expected_status'],'已完成')
         self.assertEqual(ui.handle(UID,'工程完成日期 '+KEY+' materials').alt_text,'尚未更新')
+
+    def test_long_legacy_case_confirmation_keeps_valid_line_message_action(self):
+        command='確認建立案件 '+'甲'*350
+        card=ui.card('確認新增案件',['預覽'],[('確認建立',command)]).to_dict()
+        action=card['contents']['footer']['contents'][0]['action']
+        self.assertEqual(action['type'],'message')
+        self.assertEqual(action['text'],command)

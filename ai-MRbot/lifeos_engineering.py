@@ -59,7 +59,7 @@ def message(title,bubbles,quick=None):
         def convert(node):
             if isinstance(node,dict):
                 action=node.get('action')
-                if action and action.get('type')=='message':
+                if action and action.get('type')=='message' and len('lifeos:'+action['text'])<=300:
                     node['action']={'type':'postback','label':action['label'],'data':'lifeos:'+action['text'],'displayText':action['label']}
                 for value in node.values():convert(value)
             elif isinstance(node,list):
@@ -69,7 +69,7 @@ def message(title,bubbles,quick=None):
     args={'alt_text':title,'contents':FlexContainer.from_dict(content)}
     if quick:
         from linebot.v3.messaging import PostbackAction
-        actions=[PostbackAction(label=a[:20],data='lifeos:'+b,display_text=a[:20]) if getenv('LIFEOS_ENGINEERING_WORKFLOW')=='1'
+        actions=[PostbackAction(label=a[:20],data='lifeos:'+b,display_text=a[:20]) if getenv('LIFEOS_ENGINEERING_WORKFLOW')=='1' and len('lifeos:'+b)<=300
                  else MessageAction(label=a[:20],text=b) for a,b in quick[:13]]
         args['quick_reply']=QuickReply(items=[QuickReplyItem(action=a) for a in actions])
     return FlexMessage(**args)

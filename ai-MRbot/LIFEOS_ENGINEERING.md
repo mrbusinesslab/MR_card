@@ -1,5 +1,13 @@
 # Engineering secretary for the Xiaoruru demonstration
 
+## Active seven-phase view
+
+`progress_view: true` selects a seven-phase workflow: 預約／場勘、待報價、合約確認、備料準備、開始施工、完工收尾、驗收. Each phase has independent 未開始／進行中／已完成／不適用 status and a note. The segmented bar represents completed workflow phases, excluding 不適用 from the denominator; it does not measure physical construction completion. If every phase is skipped, the UI explicitly says that all phases are inapplicable rather than showing 100% completion.
+
+Case overview and case detail now prioritize this workflow; tap a phase to change its state or edit its note. The expected finish date is a separate field. Note/date edits are previewed before saving. Notes detect concurrent edits; status changes update only their own phase. Both use backend tenant/membership checks and replay deduplication.
+
+Apply the additive `lifeos_engineering_workflow.sql` once before deploying the extended gateway and Python view. Existing stages initialize seven-phase states, and linked task text/deadlines are copied into phase notes. Original task records remain intact. In this view, case-linked legacy tasks are omitted from the ordinary daily task display/reminders; legacy task menu commands open the phase view. New cases still use the guided case-creation flow. The older task-oriented view below remains available to profiles without `progress_view`.
+
 The `industry: engineering` setting in `clients/xiaoruru.json` enables an engineering home screen, persisted cases, progress updates, case-linked tasks, and case calendar searches. The existing MR profile remains general. The LINE account display name/avatar is managed separately in LINE Official Account Manager.
 
 ## Usage

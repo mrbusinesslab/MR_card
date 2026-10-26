@@ -79,6 +79,7 @@ def load_profiles(path, *, allow_empty=False):
         if industry not in ('general','engineering'):
             raise ValueError('Invalid industry for '+tid)
         settings['LIFEOS_INDUSTRY']=industry
+        settings['LIFEOS_ENGINEERING_WORKFLOW']='1' if item.get('progress_view') is True and industry=='engineering' else '0'
         # Conservative defaults preserve current quota protection.
         settings['LIFEOS_REMINDER_HOUR'] = str(item.get('reminder_hour',9))
         if not 0 <= int(settings['LIFEOS_REMINDER_HOUR']) <= 23:

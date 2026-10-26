@@ -69,6 +69,7 @@ def api(action,uid,event_id=None,**values):
     result=tasks.gateway('engineering_'+action,uid,event_id,**values)
     if result.get('error'):
         messages={'not_found':'找不到可查看的案件，請重新開啟「案件總覽」。',
+                  'note_conflict':'這段備註已被其他人更新。請回到案場重新查看，再編輯。',
                   'duplicate_case':'已有同名案件，請改用不同案名。',
                   'not_enrolled':'請先使用建置者提供的一次性啟用碼綁定。'}
         raise tasks.InputError(messages.get(result['error'],'資料未更新，請確認格式後重試。'))
@@ -295,6 +296,10 @@ def flow_step(uid,text,event_id):
 def handle(uid,text,event_id=None,source_type='user'):
     if getenv('LIFEOS_INDUSTRY')!='engineering': return None
     text=text.strip()
+    if getenv('LIFEOS_ENGINEERING_WORKFLOW')=='1':
+        import lifeos_engineering_workflow as workflow
+        result=workflow.handle(uid,text,event_id,source_type)
+        if result is not None:return result
     now=time.monotonic()
     for cache in (_FLOWS,_FLOW_REPLIES):
         for key,value in list(cache.items()):
@@ -427,10 +432,17 @@ def install_routes(bp):
         try:
             rows=cases(uid)
             result={'industry':'engineering','case_count':len(rows),'demo_count':sum(bool(c.get('demo')) for c in rows),
-                    'layout_version':'compact-v2','ready':True}
+                    'layout_version':'seven-phases-v1' if getenv('LIFEOS_ENGINEERING_WORKFLOW')=='1' else 'compact-v2','ready':True}
             if (request.get_json(silent=True) or {}).get('validate_cards') is True:
-                cards=[handle(uid,'工程秘書'),overview(uid),board(uid)]
-                if rows:cards += [detail(uid,rows[0]['id']),handle(uid,'工程階段 '+rows[0]['id'])]
+                if getenv('LIFEOS_ENGINEERING_WORKFLOW')=='1':
+                    import lifeos_engineering_workflow as workflow
+                    cards=[handle(uid,'工程秘書'),workflow.overview(uid)]
+                    if rows:cards += [workflow.detail(uid,rows[0]['id']),workflow.phase_card(uid,rows[0]['id'],'materials'),
+                                     handle(uid,'工程流程狀態 '+rows[0]['id']+' materials')]
+                    result['layout_version']='seven-phases-v1'
+                else:
+                    cards=[handle(uid,'工程秘書'),overview(uid),board(uid)]
+                    if rows:cards += [detail(uid,rows[0]['id']),handle(uid,'工程階段 '+rows[0]['id'])]
                 response=requests.post('https://api.line.me/v2/bot/message/validate/reply',
                     headers={'Authorization':'Bearer '+getenv('LINE_CHANNEL_ACCESS_TOKEN','')},
                     json={'messages':[c.to_dict() for c in cards]},timeout=10)

@@ -250,7 +250,20 @@ def period_bounds(now,mode):
     return start,end
 
 
+def visible_task_rows(rows):
+    if getenv('LIFEOS_ENGINEERING_WORKFLOW')!='1':return rows
+    import json
+    visible=[]
+    for row in rows:
+        try:meta=json.loads(row.get('original_text',''))
+        except (TypeError,ValueError):meta={}
+        if isinstance(meta,dict) and meta.get('engineering_case_id'):continue
+        visible.append(row)
+    return visible
+
+
 def summary(tasks, now=None, mode="today", user_id=None):
+    tasks=visible_task_rows(tasks)
     now = now or clock()
     active = [t for t in tasks if t.get("status") not in CLOSED]
     buckets = {"已逾期":[],"今天到期":[],"近期三天":[],"等待對方":[],"待安排":[]}
@@ -518,7 +531,7 @@ def reminder_run(now=None):
     for user in gateway("notification_users")["users"]:
         if used+sent >= cap:
             break
-        tasks = gateway("list",user["user_id"])["tasks"]
+        tasks = visible_task_rows(gateway("list",user["user_id"])["tasks"])
         if not tasks:
             continue
         claimed = gateway("notification_claim",user["user_id"],key="daily:"+now.date().isoformat())

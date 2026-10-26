@@ -19,6 +19,12 @@ def gateway(action,*args,**kw):
 
 
 class EngineeringTests(unittest.TestCase):
+    def setUp(self):
+        e._FLOWS.clear();e._FLOW_REPLIES.clear()
+
+    def tearDown(self):
+        e._FLOWS.clear();e._FLOW_REPLIES.clear()
+
     def test_general_profile_preserves_existing_flow(self):
         with patch('lifeos.gateway') as db:
             self.assertIsNone(e.handle(UID,'生活助理'));db.assert_not_called()
@@ -91,3 +97,79 @@ class EngineeringTests(unittest.TestCase):
         with use_profile(PROFILE),patch('lifeos.gateway',side_effect=gateway) as db:
             self.assertEqual(e.handle(UID,'建立案件 缺欄位').alt_text,'請補充工程資料')
             self.assertNotIn('engineering_create',[x.args[0] for x in db.call_args_list])
+
+    def test_overview_each_case_has_own_card_and_next_task(self):
+        def db(action,*a,**kw):
+            if action=='engineering_list':return {'cases':[CASE,{**CASE,'id':'10000000-0000-0000-0000-000000000002','name':'林小姐廚房'}]}
+            return {'tasks':[{'id':10,'title':'【示範】陳先生浴室｜傳報價','original_text':'{"engineering_case_id":"'+KEY+'","text":"傳報價"}',
+                              'due_at':'2026-10-27T17:00:00+08:00','status':'未開始'}]}
+        with use_profile(PROFILE),patch('lifeos.gateway',side_effect=db):
+            data=e.overview(UID).to_dict()['contents']
+            self.assertEqual(data['type'],'carousel');self.assertEqual(len(data['contents']),2)
+            first=data['contents'][0]
+            self.assertIn('傳報價',str(first));self.assertNotIn(CASE['location'],str(first))
+            self.assertEqual(len(first['footer']['contents']),1)
+
+    def test_detail_shows_next_step_and_hides_address(self):
+        with use_profile(PROFILE),patch('lifeos.gateway',side_effect=gateway):
+            data=e.detail(UID,KEY).to_dict()['contents']
+            self.assertNotIn(CASE['location'],str(data));self.assertEqual(len(data['footer']['contents']),3)
+            full=e.handle(UID,'工程案件資料 '+KEY).to_dict()
+            self.assertIn(CASE['location'],str(full))
+
+    def test_task_rows_are_clickable_without_number_buttons(self):
+        row={'id':10,'title':'【示範】陳先生浴室｜買材料','status':'未開始','category':'工程／備料'}
+        with use_profile(PROFILE),patch('lifeos.gateway',return_value={'tasks':[row]}):
+            data=e.board(UID).to_dict()['contents']
+            self.assertNotIn('處理 #',str(data))
+            action=data['body']['contents'][1]['action']
+            self.assertEqual(action['text'],'工程待辦操作 10')
+            self.assertNotIn('footer',data)
+
+    def test_stage_picker_has_three_choices_and_update_ack_is_short(self):
+        with use_profile(PROFILE),patch('lifeos.gateway',side_effect=gateway):
+            picker=e.handle(UID,'工程階段 '+KEY).to_dict()['contents']
+            self.assertEqual(len(picker['footer']['contents']),3)
+            ack=e.handle(UID,'確認工程進度 '+KEY+'｜施工中','change').to_dict()
+            self.assertEqual(ack['altText'],'進度已更新')
+            self.assertEqual(len(ack['contents']['footer']['contents']),1)
+
+    def test_case_wizard_has_no_write_until_confirmation_and_deduplicates(self):
+        with use_profile(PROFILE),patch('lifeos.gateway',side_effect=gateway) as db:
+            e.handle(UID,'新增案件','start')
+            e.handle(UID,'林先生廚房','name')
+            e.handle(UID,'林先生廚房','name')
+            self.assertEqual(len(e._FLOWS[('fixture',UID)]['values']),1)
+            e.handle(UID,'台中北屯','place')
+            final=e.handle(UID,'水管更新','scope')
+            self.assertEqual(final.alt_text,'確認新增案件')
+            self.assertEqual(e.handle(UID,'水管更新','scope').alt_text,'確認新增案件')
+            self.assertNotIn('engineering_create',[x.args[0] for x in db.call_args_list])
+            self.assertNotIn(('fixture',UID),e._FLOWS)
+
+    def test_task_wizard_prompts_one_field_at_a_time(self):
+        with use_profile(PROFILE),patch('lifeos.gateway',side_effect=gateway) as db:
+            e.handle(UID,'工程新增事項 '+KEY,'start')
+            self.assertEqual(e.handle(UID,'備料','kind').alt_text,'要處理什麼事情？')
+            self.assertEqual(e.handle(UID,'買材料','title').alt_text,'什麼時候要完成？')
+            final=e.handle(UID,'不設期限','due')
+            self.assertEqual(final.alt_text,'確認新增待辦')
+            self.assertIn('確認工程事項 陳先生浴室｜備料｜買材料',str(final.to_dict()))
+            self.assertNotIn('engineering_add_task',[x.args[0] for x in db.call_args_list])
+
+    def test_wizard_cancel_and_tenant_isolation(self):
+        other=Profile('other','other',{'LIFEOS_INDUSTRY':'engineering','LIFEOS_TENANT_ID':'other'})
+        with patch('lifeos.gateway',side_effect=gateway):
+            with use_profile(PROFILE):e.handle(UID,'新增案件')
+            with use_profile(other):self.assertIsNone(e.handle(UID,'林先生廚房'))
+            with use_profile(PROFILE):
+                self.assertEqual(e.handle(UID,'停止新增').alt_text,'已停止新增')
+                self.assertNotIn(('fixture',UID),e._FLOWS)
+
+    def test_completion_ack_returns_to_case(self):
+        row={'id':10,'title':'【示範】陳先生浴室｜買材料','status':'完成','category':'工程／備料',
+             'original_text':'{"engineering_case_id":"'+KEY+'","text":"買材料"}'}
+        with use_profile(PROFILE),patch('lifeos.gateway',return_value={'tasks':[row]}):
+            ack=e.task_reply(UID,'已更新\n#10 【示範】陳先生浴室｜買材料\n  到期日：10/27｜完成').to_dict()
+            self.assertEqual(ack['altText'],'已完成');self.assertEqual(len(ack['contents']['footer']['contents']),1)
+            self.assertNotIn('#10',str(ack))

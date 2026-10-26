@@ -44,10 +44,10 @@ class WorkflowTests(unittest.TestCase):
 
     def test_detail_has_seven_clickable_phases_without_task_buttons(self):
         card=ui.handle(UID,'工程案件 '+KEY).to_dict()
-        self.assertEqual(card['altText'],'七階段工程進度')
+        self.assertEqual(card['altText'],'查看工程進度')
         for _,label in w.PHASES:self.assertIn(label,str(card))
         self.assertNotIn('處理 #',str(card));self.assertNotIn('待辦事項',str(card))
-        rows=[x for x in card['contents']['body']['contents'] if x.get('action',{}).get('text','').startswith('工程流程 ')]
+        rows=[x for x in card['contents']['body']['contents'] if x.get('action',{}).get('data','').startswith('lifeos:工程流程 ')]
         self.assertEqual(len(rows),7)
 
     def test_phase_shows_note_and_status(self):
@@ -56,7 +56,7 @@ class WorkflowTests(unittest.TestCase):
 
     def test_status_uses_isolated_rpc(self):
         card=ui.handle(UID,'確認階段狀態 '+KEY+' materials 不適用','event-status')
-        self.assertEqual(card.alt_text,'階段狀態已更新')
+        self.assertEqual(card.alt_text,'備料準備')
         call=next(x for x in self.db.call_args_list if x.args[0]=='engineering_workflow_status')
         self.assertEqual(call.kwargs,{'case_id':KEY,'phase':'materials','status':'不適用'})
         self.assertEqual(call.args[1:],(UID,'event-status'))
@@ -91,7 +91,7 @@ class WorkflowTests(unittest.TestCase):
         self.db.assert_not_called()
 
     def test_old_task_menu_routes_to_workflow_not_small_items(self):
-        self.assertEqual(ui.handle(UID,'工程待辦').alt_text,'工程進度總覽')
+        self.assertEqual(ui.handle(UID,'工程待辦').alt_text,'工程進度')
         self.assertEqual(ui.handle(UID,'工程事項 陳先生｜備料｜買材料').alt_text,'事項改記在階段備註')
 
     def test_archived_linked_tasks_hidden_only_in_workflow_profile(self):
@@ -99,3 +99,46 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual([x['id'] for x in tasks.visible_task_rows(rows)],[2])
         with use_profile(Profile('mr','MR',{})):
             self.assertEqual(len(tasks.visible_task_rows(rows)),2)
+
+    def test_completion_date_elapsed_and_unknown_history(self):
+        self.case['workflow'][0]['completed_on']='2026-10-20'
+        with patch('lifeos.clock',return_value=datetime(2026,10,26,0,5,tzinfo=tasks.TZ)):
+            card=w.detail(UID,KEY).to_dict()
+            self.assertIn('2026/10/20 完成 · 已過 6 天',str(card))
+            self.assertIn('完成日期未記錄',str(card))
+            self.assertNotIn('有備註',str(card))
+            self.assertNotIn('缺兩個接頭',str(w.overview(UID).to_dict()))
+            self.assertEqual(w.completion_label({'status':'已完成','completed_on':'2026-10-26'}),'2026/10/26 完成 · 今天')
+
+    def test_note_preview_is_short_and_full_note_remains_accessible(self):
+        long_note='缺少材料'+'甲'*200+'\n第二行\n第三行'
+        self.case['workflow'][3]['note']=long_note
+        card=w.phase_card(UID,KEY,'materials').to_dict()
+        self.assertNotIn(long_note,str(card));self.assertIn('查看完整備註',str(card))
+        self.assertEqual(long_note,ui.handle(UID,'工程完整備註 '+KEY+' materials').to_dict()['contents']['body']['contents'][0]['text'])
+
+    def test_buttons_display_exact_label_with_private_postback_commands(self):
+        def visit(x):
+            if isinstance(x,dict):
+                if 'action' in x:
+                    a=x['action'];self.assertEqual(a['type'],'postback')
+                    self.assertEqual(a['displayText'],a['label']);self.assertTrue(a['data'].startswith('lifeos:'))
+                    self.assertLessEqual(len(a['data']),300)
+                for v in x.values():visit(v)
+            elif isinstance(x,list):
+                for v in x:visit(v)
+        for card in [w.overview(UID),w.detail(UID,KEY),w.phase_card(UID,KEY,'materials')]:visit(card.to_dict())
+        self.assertEqual(ui.handle(UID,'工程流程狀態 '+KEY+' materials').alt_text,'變更狀態')
+        self.assertEqual(ui.handle(UID,'工程流程備註 '+KEY+' materials').alt_text,'編輯備註')
+
+    def test_completion_date_backfill_requires_confirmation_and_rejects_future(self):
+        with patch('lifeos.clock',return_value=datetime(2026,10,26,12,tzinfo=tasks.TZ)):
+            ui.handle(UID,'工程完成日期 '+KEY+' appointment')
+            self.assertEqual(ui.handle(UID,'10/27').alt_text,'尚未更新')
+            self.assertEqual(ui.handle(UID,'10/20').alt_text,'確認完成日期')
+            self.assertFalse(any(c.args[0]=='engineering_workflow_status' for c in self.db.call_args_list))
+            ui.handle(UID,'確認流程編輯','date-confirm')
+        call=next(c for c in self.db.call_args_list if c.args[0]=='engineering_workflow_status')
+        self.assertEqual(call.kwargs['completed_on'],'2026-10-20')
+        self.assertEqual(call.kwargs['expected_status'],'已完成')
+        self.assertEqual(ui.handle(UID,'工程完成日期 '+KEY+' materials').alt_text,'尚未更新')

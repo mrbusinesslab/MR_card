@@ -42,3 +42,12 @@ The protected `engineering-check` endpoint accepts `validate_cards: true` to sub
 ## Validation
 
 Run Python unit tests, `node --test tests/test_gateway.mjs`, and `node tests/check_engineering.mjs` after `npm ci --prefix tests`. The database suite checks case persistence, webhook retries, cross-tenant access/mutation rejection, shared access and revocation, ordinary task linkage, and backend-only privileges. The same SQL assertions can run on production with rollback.
+
+
+### Completion dates and concise cards (2026-10-26)
+
+Apply `lifeos_engineering_completion_dates.sql` after the seven-phase migration. It replaces only the authenticated workflow dispatcher; existing case data, notes, tasks and unknown historical dates are preserved. The existing gateway action allowlist remains unchanged.
+
+New transitions to 已完成 record `completed_on` using the Taipei server date. Repeating the same state preserves the recorded date; reopening clears it. Completed phases can backfill/correct a past date with a preview and confirmation. A concurrent state change rejects a stale date edit. Webhook retries replay the prior result. Historical completed phases display 完成日期未記錄 until explicitly supplied; no dates are inferred.
+
+The overview omits notes. Seven phase rows show status and, for completed phases, YYYY/MM/DD and elapsed calendar days in Taipei. Phase cards preview at most two lines/80 characters; 查看完整備註 retains access to all saved text. For workflow-enabled customer profiles only, buttons and quick replies use LINE postbacks with displayText exactly matching the visible label. A signature-checked customer webhook dispatches these in the same tenant/user context as typed commands. Other profiles retain their message actions.

@@ -95,6 +95,23 @@ class ClientTests(unittest.TestCase):
             self.assertEqual(reply.messages[0].text,'aa')
         self.assertEqual(tenant_id(),'mr')
 
+    def test_signed_workflow_postback_uses_customer_context_and_keeps_group_source(self):
+        from linebot.v3.messaging import TextMessage
+        prof=profile('aa');prof.settings['LIFEOS_ENGINEERING_WORKFLOW']='1'
+        app=create_app([prof],verify_backend=False)
+        body=json.dumps({'events':[{'type':'postback','mode':'active','timestamp':1470747837840,
+            'source':{'type':'group','groupId':'group-test','userId':UID},'replyToken':'r'*32,
+            'webhookEventId':'postback-aa','deliveryContext':{'isRedelivery':False},
+            'postback':{'data':'lifeos:工程案件 case-test'}}]})
+        signature=base64.b64encode(hmac.new(('aa'*32).encode(),body.encode(),hashlib.sha256).digest()).decode()
+        with patch('lifeos_app.engineering.handle',return_value=TextMessage(text='工程進度')) as engineering,patch('lifeos_app.ApiClient') as api,patch('lifeos_app.MessagingApi') as messaging:
+            result=app.test_client().post('/clients/aa/callback',data=body,headers={'X-Line-Signature':signature})
+            self.assertEqual(result.status_code,200)
+            engineering.assert_called_once_with(UID,'工程案件 case-test','postback-aa','group')
+            self.assertEqual(api.call_args.args[0].access_token,'aa-token')
+            self.assertEqual(messaging.return_value.reply_message.call_args.args[0].messages[0].text,'工程進度')
+        self.assertEqual(tenant_id(),'mr')
+
     def test_edit_context_isolated_for_same_line_user(self):
         import time
         import lifeos_calendar_list_flow as flow

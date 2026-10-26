@@ -22,6 +22,26 @@ begin
  assert r->'case'->'workflow'->3->>'status'='不適用','webhook retry overwrote status';
  r:=lifeos_engineering_workflow_dispatch(jsonb_build_object('tenant_id','flow_verify_a','action','engineering_workflow_note','user_id',raw_uid,'case_id',cid,'phase','materials','note','錯誤覆蓋','expected_note',''));
  assert r->>'error'='note_conflict','concurrent note edit not protected';
+ -- Newly completed phases get a Taipei date; notes and other phases survive.
+ r:=lifeos_engineering_workflow_dispatch(jsonb_build_object('tenant_id','flow_verify_a','action','engineering_workflow_status','user_id',raw_uid,'case_id',cid,'phase','materials','status','已完成','event_id','done-date'));
+ assert r->'case'->'workflow'->3->>'completed_on'=((now() at time zone 'Asia/Taipei')::date)::text,'missing Taipei completion date';
+ assert r->'case'->'workflow'->3->>'note'='缺兩個接頭','completion lost note';
+ assert r->'case'->'workflow'->2=initial->2,'completion changed other phase';
+ r:=lifeos_engineering_workflow_dispatch(jsonb_build_object('tenant_id','flow_verify_a','action','engineering_workflow_status','user_id',raw_uid,'case_id',cid,'phase','materials','status','已完成','expected_status','已完成','completed_on','2020-10-20','event_id','date-backfill'));
+ assert r->'case'->'workflow'->3->>'completed_on'='2020-10-20','backfill failed';
+ r:=lifeos_engineering_workflow_dispatch(jsonb_build_object('tenant_id','flow_verify_a','action','engineering_workflow_status','user_id',raw_uid,'case_id',cid,'phase','materials','status','已完成'));
+ assert r->'case'->'workflow'->3->>'completed_on'='2020-10-20','same status reset completion date';
+ r:=lifeos_engineering_workflow_dispatch(jsonb_build_object('tenant_id','flow_verify_a','action','engineering_workflow_status','user_id',raw_uid,'case_id',cid,'phase','materials','status','已完成','completed_on','2099-01-01'));
+ assert r->>'error'='invalid_date','future completion accepted';
+ r:=lifeos_engineering_workflow_dispatch(jsonb_build_object('tenant_id','flow_verify_a','action','engineering_workflow_status','user_id',raw_uid,'case_id',cid,'phase','materials','status','已完成','completed_on','invalid'));
+ assert r->>'error'='invalid_date','invalid date accepted';
+ r:=lifeos_engineering_workflow_dispatch(jsonb_build_object('tenant_id','flow_verify_a','action','engineering_workflow_status','user_id',raw_uid,'case_id',cid,'phase','materials','status','不適用'));
+ assert not (r->'case'->'workflow'->3 ? 'completed_on'),'reopened date remained';
+ r:=lifeos_engineering_workflow_dispatch(jsonb_build_object('tenant_id','flow_verify_a','action','engineering_workflow_status','user_id',raw_uid,'case_id',cid,'phase','materials','status','已完成','expected_status','已完成','completed_on','2020-10-20'));
+ assert r->>'error'='status_conflict','backfill overwrote concurrent status';
+ r:=lifeos_engineering_workflow_dispatch(jsonb_build_object('tenant_id','flow_verify_a','action','engineering_workflow_status','user_id',raw_uid,'case_id',cid,'phase','materials','status','已完成','completed_on','2020-10-21','event_id','date-backfill'));
+ assert r->'case'->'workflow'->3->>'completed_on'='2020-10-20','retry changed date';
+ -- Restores the persisted skipped state for the original permission/date tests.
  r:=lifeos_engineering_workflow_dispatch(jsonb_build_object('tenant_id','flow_verify_b','action','engineering_workflow_get','user_id',raw_uid,'case_id',cid));
  assert r->>'error'='not_found','workflow crossed tenant';
  r:=lifeos_engineering_workflow_dispatch(jsonb_build_object('tenant_id','flow_verify_b','action','engineering_workflow_status','user_id',raw_uid,'case_id',cid,'phase','materials','status','已完成'));

@@ -56,3 +56,12 @@ The overview omits notes. Seven phase rows show status and, for completed phases
 ### One-sentence progress reports
 
 For the Xiaoruru engineering profile, the customer can send a full case name and a clear phase completion or start statement in their own words. A narrow deterministic parser previews the matched case, phase, state, and Taipei completion date. No database write occurs until the explicit 確認更新 button is tapped. The existing workflow status RPC uses expected_status to reject concurrent changes, and webhook event IDs to prevent duplicate writes. The reply shows the persisted phase count and next active phase. Negated, forecast, future, ambiguous, or unmatched reports do not update a phase. Existing stage cards and date editing remain available. Example: 陳先生浴室報價完成了.
+
+
+### Four-field bookings and Google Maps
+
+新增案場 now opens a single example card for 日期、案場名稱、預約工程、地點. Labeled lines (or comma-separated labels) are parsed deterministically; a supported one-sentence pattern is `10/30下午2點到3點，測試案場場勘，地點台中車站`. Missing fields are requested together with individual examples. Date-only entries explicitly preview as all-day; timed bookings require both start/end. Same-period times such as 下午2點到3點 inherit 下午. Invalid ranges are not saved.
+
+The existing calendar draft/confirmation, overlap checks, tenant authorization and stable Google event ID are reused. No Google event or case is created before confirmation. After the confirmed calendar event and index are saved, create a new case if no accessible case has the exact name. Existing cases, phases, scope and address are preserved; each appointment retains its own location. If case creation is interrupted, confirmation retry reconciles the duplicate Google event and retries the case step. Booking is not a phase completion or expected-finish change.
+
+Preview, conflict and saved cards include a Google Maps URI when a location is present; the Google event receives location. Case address cards also link to Maps. Links search the supplied address without silently geocoding or altering it. No Maps API key or new paid service is needed. Pending missing-field input expires after 20 minutes and cancels on navigation. Legacy MR profiles keep their existing case wizard.

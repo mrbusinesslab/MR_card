@@ -1,6 +1,7 @@
 """Seven-phase engineering view: stage status and notes, no task board."""
 import time
 import re
+from urllib.parse import quote
 from datetime import timedelta
 from datetime import datetime
 from lifeos_settings import getenv,tenant_id
@@ -213,6 +214,9 @@ def report_saved(uid,p,event_id):
 
 def handle(uid,text,event_id=None,source_type='user'):
     if getenv('LIFEOS_ENGINEERING_WORKFLOW')!='1':return None
+    if re.search(r'(?:^|[\n，,])\s*(日期|案場名稱|預約工程|地點)\s*[：:]',text):
+        _PENDING.pop((tenant_id(),uid),None)
+        return None
     now=time.monotonic();key=(tenant_id(),uid);reply_key=(*key,event_id)
     for cache in (_PENDING,_REPLIES):
         for k,v in list(cache.items()):
@@ -274,6 +278,9 @@ def route(uid,text,event_id):
     if text in ('生活助理','工程秘書'):
         return ui.message('工程秘書',[ui.bubble('工程秘書',[],
             [('回報進度','回報進度'),('工程進度','案件總覽'),('今天安排','今天')])],[('更多','工程更多')])
+    if text=='新增案件':
+        import lifeos_calendar as calendar
+        return calendar.handle(uid,'新增工程預約',event_id,'user')
     if text=='回報進度':
         return ui.card('回報進度',['直接傳一句話，例如：','陳先生浴室報價完成了','張先生辦公室昨天驗收通過'],[('工程進度','案件總覽')])
     if text in ('工程更多','更多功能','工程新增'):
@@ -289,7 +296,7 @@ def route(uid,text,event_id):
     if text.startswith('工程案件資料 '):
         c=get_case(uid,ui.case_id(text.split()[-1]))
         return ui.card('地址與工項',[c['name'],'地點：'+(c.get('location') or '待補'),'工項：'+(c.get('scope') or '待補')],
-                       [('案場行程','工程行程 '+c['id']),('回到進度','工程案件 '+c['id'])])
+                       ([('Google 地圖','https://www.google.com/maps/search/?api=1&query='+quote(c['location'],safe=''))] if c.get('location') else [])+[('案場行程','工程行程 '+c['id']),('回到進度','工程案件 '+c['id'])])
     if text.startswith('工程流程 '):
         _,key,phase=text.split();return phase_card(uid,ui.case_id(key),phase)
     if text.startswith('工程流程狀態 '):

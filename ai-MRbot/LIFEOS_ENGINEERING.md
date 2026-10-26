@@ -51,3 +51,8 @@ Apply `lifeos_engineering_completion_dates.sql` after the seven-phase migration.
 New transitions to 已完成 record `completed_on` using the Taipei server date. Repeating the same state preserves the recorded date; reopening clears it. Completed phases can backfill/correct a past date with a preview and confirmation. A concurrent state change rejects a stale date edit. Webhook retries replay the prior result. Historical completed phases display 完成日期未記錄 until explicitly supplied; no dates are inferred.
 
 The overview omits notes. Seven phase rows show status and, for completed phases, YYYY/MM/DD and elapsed calendar days in Taipei. Phase cards preview at most two lines/80 characters; 查看完整備註 retains access to all saved text. For workflow-enabled customer profiles only, buttons and quick replies use LINE postbacks with displayText exactly matching the visible label. A signature-checked customer webhook dispatches these in the same tenant/user context as typed commands. Other profiles retain their message actions.
+
+
+### One-sentence progress reports
+
+For the Xiaoruru engineering profile, the customer can send a full case name and a clear phase completion or start statement in their own words. A narrow deterministic parser previews the matched case, phase, state, and Taipei completion date. No database write occurs until the explicit 確認更新 button is tapped. The existing workflow status RPC uses expected_status to reject concurrent changes, and webhook event IDs to prevent duplicate writes. The reply shows the persisted phase count and next active phase. Negated, forecast, future, ambiguous, or unmatched reports do not update a phase. Existing stage cards and date editing remain available. Example: 陳先生浴室報價完成了.

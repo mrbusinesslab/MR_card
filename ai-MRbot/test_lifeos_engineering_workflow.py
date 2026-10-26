@@ -149,3 +149,41 @@ class WorkflowTests(unittest.TestCase):
         action=card['contents']['footer']['contents'][0]['action']
         self.assertEqual(action['type'],'message')
         self.assertEqual(action['text'],command)
+
+    def test_one_sentence_report_confirms_before_writing(self):
+        with patch('lifeos.clock',return_value=datetime(2026,10,26,12,tzinfo=tasks.TZ)):
+            preview=ui.handle(UID,'陳先生浴室材料到齊了','report-text')
+            self.assertEqual(preview.alt_text,'確認回報進度')
+            self.assertIn('2026/10/26',str(preview.to_dict()))
+            self.assertFalse(any(c.args[0]=='engineering_workflow_status' for c in self.db.call_args_list))
+            self.assertEqual(ui.handle(UID,'確認回報進度','confirm').alt_text,'進度已更新')
+            call=next(c for c in self.db.call_args_list if c.args[0]=='engineering_workflow_status')
+            self.assertEqual(call.kwargs,{'case_id':KEY,'phase':'materials','status':'已完成',
+                'expected_status':'進行中','completed_on':'2026-10-26'})
+            ui.handle(UID,'確認回報進度','confirm')
+            self.assertEqual(len([c for c in self.db.call_args_list if c.args[0]=='engineering_workflow_status']),1)
+
+    def test_one_sentence_report_cancel_ambiguous_and_future(self):
+        self.assertIsNone(ui.handle(UID,'材料到齊了'))
+        self.assertEqual(ui.handle(UID,'陳先生浴室材料與合約都完成').alt_text,'請選一個階段')
+        with patch('lifeos.clock',return_value=datetime(2026,10,26,12,tzinfo=tasks.TZ)):
+            self.assertEqual(ui.handle(UID,'陳先生浴室10/27材料到齊了').alt_text,'尚未更新')
+            self.assertEqual(ui.handle(UID,'陳先生浴室昨天材料到齊了').alt_text,'確認回報進度')
+            self.assertEqual(w._PENDING[('fixture',UID)]['completed_on'],'2026-10-25')
+        ui.handle(UID,'取消流程編輯')
+        self.assertEqual(ui.handle(UID,'確認回報進度').alt_text,'回報已到期')
+        self.assertFalse(any(c.args[0]=='engineering_workflow_status' for c in self.db.call_args_list))
+        with use_profile(Profile('mr','MR',{})):
+            self.assertIsNone(w.handle(UID,'陳先生浴室材料到齊了'))
+
+    def test_one_sentence_report_rechecks_concurrent_state(self):
+        ui.handle(UID,'陳先生浴室材料到齊了')
+        self.db.side_effect=lambda action,*args,**kw: {'user':{'label':'test'}} if action=='get_user' else {'error':'status_conflict'} if action=='engineering_workflow_status' else {'case':copy.deepcopy(self.case)}
+        self.assertEqual(ui.handle(UID,'確認回報進度','conflict').alt_text,'尚未更新')
+
+    def test_one_sentence_does_not_mark_future_or_negated_work_as_done(self):
+        for sentence in ('陳先生浴室材料還沒到齊','陳先生浴室明天預計材料到齊','陳先生浴室驗收未通過'):
+            with self.subTest(sentence=sentence):
+                self.assertEqual(ui.handle(UID,sentence).alt_text,'先不更新進度')
+                self.assertNotIn(('fixture',UID),w._PENDING)
+        self.assertFalse(any(c.args[0]=='engineering_workflow_status' for c in self.db.call_args_list))

@@ -154,6 +154,63 @@ def editing(uid,text):
                    [('確認儲存','確認流程編輯'),('取消','取消流程編輯')])
 
 
+# Only narrow, unambiguous progress reports are interpreted as updates.
+REPORT_PHASES={
+ 'appointment':('預約場勘','場勘','現勘'), 'quote':('報價',),
+ 'contract':('合約',), 'materials':('施工材料','備料','材料'),
+ 'construction':('開始施工','施工'), 'finishing':('完工收尾','收尾'),
+ 'acceptance':('驗收',)}
+
+def report_date(text):
+    today=tasks.clock().date()
+    if '前天' in text:return today-timedelta(days=2)
+    if '昨天' in text:return today-timedelta(days=1)
+    hit=re.search(r'(?<!\d)(?:(20\d{2})[年/\-])?(\d{1,2})[月/\-](\d{1,2})(?:日|號)?',text)
+    if not hit:return today
+    try:return datetime(int(hit[1] or today.year),int(hit[2]),int(hit[3])).date()
+    except ValueError:raise tasks.InputError('日期不存在，請重新輸入。')
+
+def report_preview(uid,text):
+    if not re.search(r'完成|完工|做完|弄好|好了|到齊|通過|開始|開工|進行中|正在',text):return None
+    matches=[c for c in ui.cases(uid) if c['name'] in text]
+    if not matches:return None
+    if len(matches)!=1:return ui.card('請選一個案場',['這句話符合多個案場，請輸入完整案名。'],[('案件總覽','案件總覽')])
+    case=matches[0]
+    if re.search(r'還沒|尚未|未完成|沒完成|未到齊|沒到齊|未通過|沒通過|預計|可能|應該|如果|明天|後天|下週|下星期|下禮拜|將會|會再',text):
+        return ui.card('先不更新進度',[case['name'],'我無法確認這件事已經完成。完成後再傳一句回報。'],[('查看工程進度','工程案件 '+case['id'])])
+    aliases=[k for k,words in REPORT_PHASES.items() if any(word in text for word in words)]
+    # "開始施工" belongs to construction, not appointment; "施工材料" belongs to materials.
+    if '開始施工' in text and 'construction' in aliases:aliases=[k for k in aliases if k!='appointment']
+    if '施工材料' in text and 'materials' in aliases:aliases=[k for k in aliases if k!='construction']
+    if len(aliases)!=1:
+        return ui.card('請選一個階段',[case['name'],'我不確定你要更新哪個階段。'],[('查看工程進度','工程案件 '+case['id'])])
+    phase=aliases[0]
+    # "開始施工" is explicitly in progress; completion words are never inferred from "開始".
+    state='已完成' if re.search(r'完成|完工|做完|弄好|好了|到齊|通過',text) else '進行中'
+    current=next(x for x in phases(case) if x['key']==phase)
+    if state==current['status']:
+        return ui.card('狀態沒有變動',[context(case,phase),'目前已經是'+state+'。'],[('查看階段','工程流程 '+case['id']+' '+phase)])
+    done=report_date(text) if state=='已完成' else None
+    if done and done>tasks.clock().date():raise tasks.InputError('完成日期不能晚於今天。')
+    pending={'kind':'report','case_id':case['id'],'case_name':case['name'],'phase':phase,'status':state,
+             'expected_status':current['status'],'completed_on':done.isoformat() if done else None,'until':time.monotonic()+1200}
+    _PENDING[(tenant_id(),uid)]=pending
+    lines=[context(case,phase),'目前：'+current['status']+' → '+state]
+    if done:lines.append('完成日：'+done.strftime('%Y/%m/%d'))
+    return ui.card('確認回報進度',lines,[('確認更新','確認回報進度'),('取消','取消流程編輯')])
+
+def report_saved(uid,p,event_id):
+    values={'case_id':p['case_id'],'phase':p['phase'],'status':p['status'],'expected_status':p['expected_status']}
+    if p['completed_on']:values['completed_on']=p['completed_on']
+    updated=ui.api('workflow_status',uid,event_id,**values)['case']
+    rows,done,total,current=progress(updated)
+    lines=[context(updated,p['phase'])+'：'+p['status']]
+    if p['completed_on']:lines[0]+='（'+p['completed_on'].replace('-','/')+'）'
+    lines.append('流程完成 '+str(done)+'／'+str(total)+' 階段')
+    if current:lines.append('接下來：'+LABELS[current['key']])
+    return ui.card('進度已更新',lines,[('查看工程進度','工程案件 '+p['case_id'])])
+
+
 def handle(uid,text,event_id=None,source_type='user'):
     if getenv('LIFEOS_ENGINEERING_WORKFLOW')!='1':return None
     now=time.monotonic();key=(tenant_id(),uid);reply_key=(*key,event_id)
@@ -161,17 +218,24 @@ def handle(uid,text,event_id=None,source_type='user'):
         for k,v in list(cache.items()):
             if v['until']<now:cache.pop(k,None)
     menus=('生活助理','工程秘書','案件總覽','工程總覽','工程待辦','報價追蹤','待驗收','工程更多','更多功能','工程新增',
-           '工程說明','工程進度','新增案件','新增工程事項','取消流程編輯','確認流程編輯')
+           '工程說明','工程進度','回報進度','確認回報進度','新增案件','新增工程事項','取消流程編輯','確認流程編輯')
     prefixes=('工程流程 ','工程流程總覽 ','工程流程狀態 ','工程流程備註 ','確認階段狀態 ','工程完工日期 ',
               '工程完成日期 ','工程完整備註 ','工程案件 ','案件 ','工程階段 ','工程全部階段 ','工程案件待辦 ','工程案件清單 ','工程案件資料 ',
               '工程新增事項 ','工程待辦操作 ','工程清單 ','工程總覽 ','工程待驗收頁 ','工程驗收進度頁 ',
               '工程進度 ','確認工程進度 ','工程事項 ','確認工程事項 ')
     explicit=text in menus or text.startswith(prefixes)
-    if not explicit and key not in _PENDING and reply_key not in _REPLIES:return None
+    if not explicit and key not in _PENDING and reply_key not in _REPLIES and not re.search(r'完成|完工|做完|弄好|好了|到齊|通過|開始|開工|進行中|正在',text):return None
     if source_type!='user':return ui.card('請使用私人聊天室',['只能在一對一聊天室查看與修改工程進度。'])
     try:
         if not uid or not tasks.gateway('get_user',uid).get('user'):return ui.card('尚未綁定',['請使用建置者提供的啟用碼。'])
         if event_id and reply_key in _REPLIES:return _REPLIES[reply_key]['reply']
+        if text=='確認回報進度':
+            p=_PENDING.get(key)
+            if not p or p['kind']!='report':return ui.card('回報已到期',['請重新傳一次進度。'],[('回首頁','工程秘書')])
+            result=report_saved(uid,p,event_id)
+            _PENDING.pop(key,None)
+            if event_id:_REPLIES[reply_key]={'until':now+1200,'reply':result}
+            return result
         if text=='取消流程編輯':
             p=_PENDING.pop(key,None)
             return ui.card('已取消',['原資料保留。'],[('回到案場','工程案件 '+p['case_id'])] if p else [('案件總覽','案件總覽')])
@@ -190,10 +254,15 @@ def handle(uid,text,event_id=None,source_type='user'):
                 result=ui.card('完工日期已更新',[(p['expected_finish'] or '未設定').replace('-','/')],[('回到案場','工程案件 '+p['case_id'])])
             _PENDING.pop(key,None)
         elif key in _PENDING and not explicit:
-            result=editing(uid,text)
+            if _PENDING[key]['kind']=='report':
+                _PENDING.pop(key,None)
+                result=report_preview(uid,text)
+                if result is None:result=ui.card('請重新回報進度',['例如：林小姐廚房材料到齊了。'],[('取消','取消流程編輯')])
+            else:result=editing(uid,text)
         else:
             if explicit:_PENDING.pop(key,None)
             result=route(uid,text,event_id)
+            if result is None:result=report_preview(uid,text)
         if result is not None and event_id:_REPLIES[reply_key]={'until':now+1200,'reply':result}
         return result
     except (ValueError,KeyError,StopIteration):return ui.card('請重新選擇',['請從案件卡片選擇階段。'],[('案件總覽','案件總覽')])
@@ -204,9 +273,11 @@ def handle(uid,text,event_id=None,source_type='user'):
 def route(uid,text,event_id):
     if text in ('生活助理','工程秘書'):
         return ui.message('工程秘書',[ui.bubble('工程秘書',[],
-            [('工程進度','案件總覽'),('今天安排','今天'),('新增案場','新增案件')])],[('更多','工程更多')])
+            [('回報進度','回報進度'),('工程進度','案件總覽'),('今天安排','今天')])],[('更多','工程更多')])
+    if text=='回報進度':
+        return ui.card('回報進度',['直接傳一句話，例如：','陳先生浴室報價完成了','張先生辦公室昨天驗收通過'],[('工程進度','案件總覽')])
     if text in ('工程更多','更多功能','工程新增'):
-        return ui.card('更多功能',[],[('本週行程','本周'),('提醒設定','提醒設定'),('使用說明','工程說明'),('回首頁','工程秘書')])
+        return ui.card('更多功能',[],[('新增案場','新增案件'),('本週行程','本周'),('提醒設定','提醒設定'),('使用說明','工程說明'),('回首頁','工程秘書')])
     if text in ('案件總覽','工程總覽','工程待辦','報價追蹤','工程進度','新增工程事項'):return overview(uid)
     if text=='待驗收':return overview(uid,acceptance_only=True)
     if text.startswith(('工程流程總覽 ','工程總覽 ')):return overview(uid,int(text.split()[-1]))

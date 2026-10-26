@@ -21,6 +21,9 @@ assert.deepEqual((await db.query('select to_jsonb(t) as row from lifeos_tasks t 
 const workflow=(await db.query("select workflow from lifeos_engineering_cases where tenant_id='flow_migrate_fixture'")).rows[0].workflow;
 assert.ok(workflow[3].note.includes('缺小接頭'));
 assert.equal(workflow[4].status,'進行中');
+const historic=(await db.query('select id,workflow from lifeos_engineering_cases order by id')).rows;
+await db.exec(readFileSync('lifeos_engineering_completion_dates.sql','utf8'));
+assert.deepEqual((await db.query('select id,workflow from lifeos_engineering_cases order by id')).rows,historic);
 await db.exec(readFileSync('tests/test_lifeos_engineering_workflow.sql','utf8'));
 console.log('Engineering PostgreSQL checks passed: persistence, idempotency, task linkage, sharing, revocation, tenant isolation, privileges.');
 } catch(e) {console.error(e.message,e.detail,e.where);process.exitCode=1;} finally {await db.close();}

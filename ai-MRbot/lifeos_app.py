@@ -3,7 +3,7 @@ import os
 from flask import Flask, Blueprint, request, g
 from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
-from linebot.v3.webhooks import MessageEvent, TextMessageContent, AudioMessageContent
+from linebot.v3.webhooks import MessageEvent, TextMessageContent, AudioMessageContent, PostbackEvent
 from linebot.v3.messaging import ApiClient, Configuration, MessagingApi, ReplyMessageRequest, TextMessage
 import lifeos as tasks
 import lifeos_calendar as calendar
@@ -64,18 +64,26 @@ def client_blueprint(profile):
 
     @handler.add(MessageEvent,message=TextMessageContent)
     def on_text(event):
+        process_text(event,event.message.text)
+
+    def process_text(event,text):
         uid = getattr(event.source,'user_id',None)
         source = getattr(event.source,'type','unknown')
-        body = engineering.handle(uid,event.message.text,event.webhook_event_id,source)
+        body = engineering.handle(uid,text,event.webhook_event_id,source)
         if body is None:
-            body = calendar.handle(uid,event.message.text,event.webhook_event_id,source)
+            body = calendar.handle(uid,text,event.webhook_event_id,source)
         if body is None:
-            body = tasks.handle_text(uid,event.message.text,event.webhook_event_id,source)
+            body = tasks.handle_text(uid,text,event.webhook_event_id,source)
             if body is not None:
                 body = engineering.task_reply(uid,body) or tasks.button_message(body)
         if body is None:
             body = TextMessage(text='請輸入「生活助理」查看功能；第一次使用請輸入管理者提供的啟用指令。')
         reply(event,body)
+
+    @handler.add(PostbackEvent)
+    def on_postback(event):
+        if getenv('LIFEOS_ENGINEERING_WORKFLOW')=='1' and event.postback.data.startswith('lifeos:'):
+            process_text(event,event.postback.data[len('lifeos:'):])
 
     @handler.add(MessageEvent,message=AudioMessageContent)
     def on_audio(event):

@@ -55,9 +55,23 @@ def message(title,bubbles,quick=None):
                     'action':{'type':'message','label':label[:20],'text':command},
                     'contents':[tx(label,'xs',ACCENT,True)]})
             b['body']['contents'].append({'type':'box','layout':'horizontal','margin':'lg','spacing':'sm','contents':links})
+    if getenv('LIFEOS_ENGINEERING_WORKFLOW')=='1':
+        def convert(node):
+            if isinstance(node,dict):
+                action=node.get('action')
+                if action and action.get('type')=='message':
+                    node['action']={'type':'postback','label':action['label'],'data':'lifeos:'+action['text'],'displayText':action['label']}
+                for value in node.values():convert(value)
+            elif isinstance(node,list):
+                for value in node:convert(value)
+        convert(bubbles)
     content=bubbles[0] if len(bubbles)==1 else {'type':'carousel','contents':bubbles}
     args={'alt_text':title,'contents':FlexContainer.from_dict(content)}
-    if quick:args['quick_reply']=QuickReply(items=[QuickReplyItem(action=MessageAction(label=a[:20],text=b)) for a,b in quick[:13]])
+    if quick:
+        from linebot.v3.messaging import PostbackAction
+        actions=[PostbackAction(label=a[:20],data='lifeos:'+b,display_text=a[:20]) if getenv('LIFEOS_ENGINEERING_WORKFLOW')=='1'
+                 else MessageAction(label=a[:20],text=b) for a,b in quick[:13]]
+        args['quick_reply']=QuickReply(items=[QuickReplyItem(action=a) for a in actions])
     return FlexMessage(**args)
 
 
@@ -69,6 +83,8 @@ def api(action,uid,event_id=None,**values):
     result=tasks.gateway('engineering_'+action,uid,event_id,**values)
     if result.get('error'):
         messages={'not_found':'找不到可查看的案件，請重新開啟「案件總覽」。',
+                  'status_conflict':'這個階段已被更新，請重新查看後再修改。',
+                  'invalid_date':'完成日期必須是今天或之前的有效日期。',
                   'note_conflict':'這段備註已被其他人更新。請回到案場重新查看，再編輯。',
                   'duplicate_case':'已有同名案件，請改用不同案名。',
                   'not_enrolled':'請先使用建置者提供的一次性啟用碼綁定。'}
@@ -432,14 +448,14 @@ def install_routes(bp):
         try:
             rows=cases(uid)
             result={'industry':'engineering','case_count':len(rows),'demo_count':sum(bool(c.get('demo')) for c in rows),
-                    'layout_version':'seven-phases-v1' if getenv('LIFEOS_ENGINEERING_WORKFLOW')=='1' else 'compact-v2','ready':True}
+                    'layout_version':'seven-phases-dates-v2' if getenv('LIFEOS_ENGINEERING_WORKFLOW')=='1' else 'compact-v2','ready':True}
             if (request.get_json(silent=True) or {}).get('validate_cards') is True:
                 if getenv('LIFEOS_ENGINEERING_WORKFLOW')=='1':
                     import lifeos_engineering_workflow as workflow
                     cards=[handle(uid,'工程秘書'),workflow.overview(uid)]
                     if rows:cards += [workflow.detail(uid,rows[0]['id']),workflow.phase_card(uid,rows[0]['id'],'materials'),
                                      handle(uid,'工程流程狀態 '+rows[0]['id']+' materials')]
-                    result['layout_version']='seven-phases-v1'
+                    result['layout_version']='seven-phases-dates-v2'
                 else:
                     cards=[handle(uid,'工程秘書'),overview(uid),board(uid)]
                     if rows:cards += [detail(uid,rows[0]['id']),handle(uid,'工程階段 '+rows[0]['id'])]

@@ -5,6 +5,7 @@
       "tenant_id": "xiaoruru",
       "name": "工程秘書｜小如如示範版",
       "industry": "engineering",
+      "progress_view": true,
       "line_basic_id": "@345lcfso",
       "line_channel_id": "2012149818",
       "enabled": true,

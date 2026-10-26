@@ -4,6 +4,7 @@ const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 const headers = {apikey:key, Authorization:`Bearer ${key}`, 'Content-Type':'application/json'};
 const actions = new Set(['tenant_info','confirm_tasks','postpone_get','postpone_start','postpone_cancel','postpone_finish','get_user','enroll','mode','notifications','draft','discard','confirm','list','update','notification_users','notification_claim','notification_finish','test_schedule','test_users','test_claim','test_finish','calendar_draft','calendar_get_draft','calendar_discard','calendar_save','calendar_events','calendar_event']);
 for (const action of ['engineering_list','engineering_create','engineering_detail','engineering_stage','engineering_add_task']) actions.add(action);
+for (const action of ['engineering_workflow_get','engineering_workflow_status','engineering_workflow_note','engineering_workflow_finish']) actions.add(action);
 Deno.serve(async req => {
   if (req.method !== 'POST') return new Response('Method not allowed',{status:405});
   const secret=req.headers.get('X-LifeOS-Key') || '';
@@ -23,7 +24,7 @@ Deno.serve(async req => {
     if (data.tenant_id !== undefined && data.tenant_id !== tenant) return new Response('Tenant mismatch',{status:403});
     // The secret, never the request body, decides the customer's identity.
     data.tenant_id=tenant;
-    const rpc=data.action.startsWith('engineering_')?'lifeos_engineering_dispatch':'lifeos_tenant_dispatch';
+    const rpc=data.action.startsWith('engineering_workflow_')?'lifeos_engineering_workflow_dispatch':data.action.startsWith('engineering_')?'lifeos_engineering_dispatch':'lifeos_tenant_dispatch';
     const response=await fetch(`${url}/rest/v1/rpc/${rpc}`,{method:'POST',headers,body:JSON.stringify({p:data})});
     if (!response.ok) throw new Error('database unavailable');
     return new Response(await response.text(),{headers:{'Content-Type':'application/json'}});

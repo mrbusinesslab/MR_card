@@ -1,31 +1,19 @@
 import unittest
-from unittest.mock import patch,Mock
+import inspect
+from unittest.mock import patch
 import lifeos_location as m
-class LocationTests(unittest.TestCase):
- def setUp(self):m._CACHE.clear();self.addCleanup(patch.stopall)
- def response(self,rows,status=200,error=None):
-  patch('lifeos_location.getenv',return_value='{"client_email":"fixture@example.com","project_id":"fixture"}').start()
-  patch('lifeos_location.service_account.Credentials.from_service_account_info',return_value=Mock()).start()
-  session=patch('lifeos_location.AuthorizedSession').start().return_value.__enter__.return_value
-  session.get.return_value.status_code=status
-  session.get.return_value.json.return_value={'results':rows,'error':error or {}}
-  return session
- def test_exact_pin_uses_place_id_not_just_search_and_caches(self):
-  session=self.response([{'placeId':'ChIJ-fixture','granularity':'ROOFTOP'}])
-  url=m.map_url('台中市北區測試路1號')
-  self.assertIn('query_place_id=ChIJ-fixture',url)
-  self.assertIn('%E5',url)
-  m.map_url('台中市北區測試路1號');self.assertEqual(session.get.call_count,1)
- def test_ambiguous_or_imprecise_results_never_have_uri(self):
-  for rows in ([],[{'placeId':'one','granularity':'APPROXIMATE'}],[{'placeId':'one'},{'placeId':'two'}]):
-   m._CACHE.clear();self.response(rows)
-   node=m.map_component('地址');self.assertEqual(node['type'],'text');self.assertNotIn('action',node)
- def test_api_disabled_is_explicit(self):
-  self.response([],403,{'details':[{'reason':'SERVICE_DISABLED'}]})
-  self.assertIn('尚未啟用',m.map_component('地址')['text'])
- def test_bad_config_never_returns_search_link(self):
-  with patch('lifeos_location.getenv',return_value='{}'):
-   self.assertEqual(m.map_component('地址')['type'],'text')
- def test_long_address_keeps_line_link_valid(self):
-  url=m.map_url('測試地址'*100,place_id='ChIJ-fixture')
-  self.assertLessEqual(len(url),1000);self.assertIn('query_place_id=',url)
+class AddressCopyTests(unittest.TestCase):
+ def test_exact_address_is_copied_without_query_or_date(self):
+  address='台中市北區測試路32巷21號'
+  node=m.address_component(address)
+  self.assertEqual(node['action'],{'type':'clipboard','label':'複製地址','clipboardText':address})
+  self.assertNotIn('uri',node['action'])
+ def test_empty_address_has_no_copy_button(self):
+  self.assertNotIn('action',m.address_component('  '))
+ def test_surrounding_whitespace_only_is_removed(self):
+  self.assertEqual(m.address_component(' 台中市 北區 1號\n')['action']['clipboardText'],'台中市 北區 1號')
+ def test_clipboard_action_round_trips_through_line_sdk(self):
+  from linebot.v3.messaging import FlexContainer
+  bubble={'type':'bubble','body':{'type':'box','layout':'vertical','contents':[m.address_component('地址')]}}
+  saved=FlexContainer.from_dict(bubble).to_dict()
+  self.assertEqual(saved['body']['contents'][0]['action']['clipboardText'],'地址')

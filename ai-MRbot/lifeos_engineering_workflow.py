@@ -297,8 +297,8 @@ def route(uid,text,event_id):
         c=get_case(uid,ui.case_id(text.split()[-1]))
         body=[ui.tx(c['name']),ui.tx('地點：'+(c.get('location') or '待補')),ui.tx('工項：'+(c.get('scope') or '待補'))]
         if c.get('location'):
-            from lifeos_location import map_component
-            body.append(map_component(c['location']))
+            from lifeos_location import address_component
+            body.append(address_component(c['location']))
         return ui.message('地址與工項',[ui.bubble('地址與工項',body,[('案場行程','工程行程 '+c['id']),('回到進度','工程案件 '+c['id'])])])
     if text.startswith('工程流程 '):
         _,key,phase=text.split();return phase_card(uid,ui.case_id(key),phase)

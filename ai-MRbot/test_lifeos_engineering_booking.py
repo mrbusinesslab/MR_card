@@ -13,7 +13,6 @@ class BookingTests(unittest.TestCase):
   b._PARTIAL.clear()
   self.ctx=use_profile(Profile('fixture','工程',{'LIFEOS_TENANT_ID':'fixture','LIFEOS_INDUSTRY':'engineering','LIFEOS_ENGINEERING_WORKFLOW':'1'}));self.ctx.__enter__()
   self.addCleanup(lambda:self.ctx.__exit__(None,None,None));self.addCleanup(patch.stopall)
-  patch('lifeos_location.resolve',return_value='ChIJ-fixture').start()
   patch('lifeos.clock',return_value=datetime(2026,10,26,12,tzinfo=l.TZ)).start()
   patch('lifeos_calendar.calendar_access',return_value=True).start()
   patch('lifeos_calendar.config',return_value=({},'fixture-cal',UID)).start()
@@ -22,7 +21,7 @@ class BookingTests(unittest.TestCase):
  def test_four_fields_create_only_draft_with_location_and_map(self):
   result=b.handle(c,UID,FORM,'evt','user')
   self.assertEqual(result.alt_text,'確認工程預約')
-  self.assertIn('Google 地圖',str(result.to_dict()))
+  self.assertIn('複製地址',str(result.to_dict()))
   draft=self.db.call_args.kwargs['payload']
   self.assertIn('T14:00',draft['event']['start']['dateTime']);self.assertIn('T15:00',draft['event']['end']['dateTime'])
   self.assertEqual(draft['event']['location'],'台中市北屯區測試路1號')
@@ -64,4 +63,4 @@ class BookingTests(unittest.TestCase):
   self.assertEqual(google.call_args.kwargs['body']['location'],'台中市北屯區測試路1號')
   actions=[x.args[0] for x in self.db.call_args_list]
   self.assertLess(actions.index('calendar_save'),actions.index('engineering_create'))
-  self.assertIn('Google 地圖',str(result.to_dict()))
+  self.assertIn('複製地址',str(result.to_dict()))

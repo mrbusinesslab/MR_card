@@ -72,7 +72,7 @@ def client_blueprint(profile):
         if body is None:
             body = tasks.handle_text(uid,event.message.text,event.webhook_event_id,source)
             if body is not None:
-                body = tasks.button_message(body)
+                body = engineering.task_reply(uid,body) or tasks.button_message(body)
         if body is None:
             body = TextMessage(text='請輸入「生活助理」查看功能；第一次使用請輸入管理者提供的啟用指令。')
         reply(event,body)

@@ -23,6 +23,14 @@ Run `seed_engineering_demo.sql` only for the explicitly requested demonstration.
 
 Progress is manually updated. No inventory accounting, automatic bank reconciliation, photo storage, routing, or multi-worker dispatch is provided. `請款` is a reminder category, not a payment ledger. No push messages are sent during installation.
 
+## Compact LINE cards
+
+The engineering home has four main choices. Case overview uses one bubble per case with the current stage, next task, and deadline; addresses and scope live in a separate details view. Task lists show four clickable task rows per page, and operations open only after selecting a row. Completed, postponed, newly created and progress-updated items receive short acknowledgements with a return action.
+
+New-case and new-task buttons now ask one field at a time before explicit confirmation. These unsaved prompts are request-profile scoped, expire after 20 minutes, and clear on process restart. They do not overwrite task/calendar drafts. Replayed webhook steps reuse their reply instead of advancing twice. Existing text commands remain supported.
+
+The protected `engineering-check` endpoint accepts `validate_cards: true` to submit the home, overview, task list, detail and progress picker to LINE's validation endpoint without sending messages.
+
 ## Validation
 
 Run Python unit tests, `node --test tests/test_gateway.mjs`, and `node tests/check_engineering.mjs` after `npm ci --prefix tests`. The database suite checks case persistence, webhook retries, cross-tenant access/mutation rejection, shared access and revocation, ordinary task linkage, and backend-only privileges. The same SQL assertions can run on production with rollback.

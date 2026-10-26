@@ -28,7 +28,7 @@ def tx(value,size='sm',color=INK,bold=False):
 
 def button(label,command,primary=False):
     item={'type':'button','style':'primary' if primary else 'secondary','height':'sm',
-          'action':{'type':'message','label':label[:20],'text':command}}
+          'action':({'type':'uri','label':label[:20],'uri':command} if command.startswith('https://www.google.com/maps/') else {'type':'message','label':label[:20],'text':command})}
     if primary:item['color']=ACCENT
     return item
 
@@ -448,14 +448,16 @@ def install_routes(bp):
         try:
             rows=cases(uid)
             result={'industry':'engineering','case_count':len(rows),'demo_count':sum(bool(c.get('demo')) for c in rows),
-                    'layout_version':'seven-phases-dates-v2' if getenv('LIFEOS_ENGINEERING_WORKFLOW')=='1' else 'compact-v2','ready':True}
+                    'layout_version':'engineering-booking-v1' if getenv('LIFEOS_ENGINEERING_WORKFLOW')=='1' else 'compact-v2','ready':True}
             if (request.get_json(silent=True) or {}).get('validate_cards') is True:
                 if getenv('LIFEOS_ENGINEERING_WORKFLOW')=='1':
                     import lifeos_engineering_workflow as workflow
-                    cards=[handle(uid,'工程秘書'),workflow.overview(uid)]
-                    if rows:cards += [workflow.detail(uid,rows[0]['id']),workflow.phase_card(uid,rows[0]['id'],'materials'),
-                                     handle(uid,'工程流程狀態 '+rows[0]['id']+' materials')]
-                    result['layout_version']='seven-phases-dates-v2'
+                    import lifeos_engineering_booking as booking
+                    import lifeos_calendar as cal
+                    cards=[handle(uid,'工程秘書'),booking.prompt(),cal.card('確認工程預約',
+                        ['日期：2026/10/30 14:00～15:00','案場名稱：測試案場','預約工程：場勘','地點：台中車站'],confirm=True,location='台中車站')]
+                    if rows:cards += [workflow.detail(uid,rows[0]['id']),handle(uid,'工程案件資料 '+rows[0]['id'])]
+                    result['layout_version']='engineering-booking-v1'
                 else:
                     cards=[handle(uid,'工程秘書'),overview(uid),board(uid)]
                     if rows:cards += [detail(uid,rows[0]['id']),handle(uid,'工程階段 '+rows[0]['id'])]

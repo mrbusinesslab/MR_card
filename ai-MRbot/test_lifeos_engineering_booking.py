@@ -13,6 +13,7 @@ class BookingTests(unittest.TestCase):
   b._PARTIAL.clear()
   self.ctx=use_profile(Profile('fixture','工程',{'LIFEOS_TENANT_ID':'fixture','LIFEOS_INDUSTRY':'engineering','LIFEOS_ENGINEERING_WORKFLOW':'1'}));self.ctx.__enter__()
   self.addCleanup(lambda:self.ctx.__exit__(None,None,None));self.addCleanup(patch.stopall)
+  patch('lifeos_location.resolve',return_value='ChIJ-fixture').start()
   patch('lifeos.clock',return_value=datetime(2026,10,26,12,tzinfo=l.TZ)).start()
   patch('lifeos_calendar.calendar_access',return_value=True).start()
   patch('lifeos_calendar.config',return_value=({},'fixture-cal',UID)).start()

@@ -65,3 +65,10 @@ For the Xiaoruru engineering profile, the customer can send a full case name and
 The existing calendar draft/confirmation, overlap checks, tenant authorization and stable Google event ID are reused. No Google event or case is created before confirmation. After the confirmed calendar event and index are saved, create a new case if no accessible case has the exact name. Existing cases, phases, scope and address are preserved; each appointment retains its own location. If case creation is interrupted, confirmation retry reconciles the duplicate Google event and retries the case step. Booking is not a phase completion or expected-finish change.
 
 Preview, conflict and saved cards include a Google Maps URI when a location is present; the Google event receives location. Case address cards also link to Maps. Links search the supplied address without silently geocoding or altering it. No Maps API key or new paid service is needed. Pending missing-field input expires after 20 minutes and cancels on navigation. Legacy MR profiles keep their existing case wizard.
+
+
+### Precise map pins
+
+Engineering map buttons now use a Google Place ID resolved through Google Geocoding API v4, via the existing server-side service account and the narrow maps-platform.geocode.address OAuth scope. The Google Cloud project must have the Geocoding API enabled, billing configured, and the service account authorized for quota consumption. No credentials are sent to LINE. Resolve only on explicit location-card use; use a tenant-scoped 24-hour in-memory Place ID cache and 60-second failure cache. Do not save Google coordinates or expanded address details.
+
+Only a single ROOFTOP or RANGE_INTERPOLATED result with a Place ID gets a button. Zero, multiple, coarse, disabled or failed results show an explicit status and retain the user address, without falling back to an ambiguous text-search URL. Booking and calendar writes are not blocked by a map outage. Diagnostics support check_geocoding with an optional address and return sanitized maps_ready/maps_reason only. MR's original map links remain unchanged.

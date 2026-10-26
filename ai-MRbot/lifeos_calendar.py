@@ -292,7 +292,11 @@ def card(title,lines,confirm=False,events=None,choices=None,location=None):
         'body':{'type':'box','layout':'vertical','spacing':'md','paddingAll':'16px','contents':rows or [text('近期沒有行程。')]},
         'footer':{'type':'box','layout':'vertical','spacing':'sm','contents':[btn(a,b) for a,b in choices]}}
     if location:
-        bubble['body']['contents'].append({'type':'button','style':'link','height':'sm','action':{'type':'uri','label':'Google 地圖','uri':'https://www.google.com/maps/search/?api=1&query='+quote(location,safe='')}})
+        if getenv('LIFEOS_ENGINEERING_WORKFLOW')=='1':
+            from lifeos_location import map_component
+            bubble['body']['contents'].append(map_component(location))
+        else:
+            bubble['body']['contents'].append({'type':'button','style':'link','height':'sm','action':{'type':'uri','label':'Google 地圖','uri':'https://www.google.com/maps/search/?api=1&query='+quote(location,safe='')}})
     if not choices: bubble.pop('footer',None)
     return FlexMessage(alt_text=title,contents=FlexContainer.from_dict(bubble))
 
